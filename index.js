@@ -1,18 +1,26 @@
 const parseXml = require('@rgrove/parse-xml');
 const fs = require('fs');
 
-let doc = parseXml(fs.readFileSync("../Vulkan-Docs/xml/vk.xml").toString("utf-8"));
+// 
+let getDocs = (path = "../Vulkan-Docs/xml/vk.xml") => {
+    return parseXml(fs.readFileSync(path).toString("utf-8"));
+};
 
-let registry = doc.children.find((e,i)=>{ return e.type == "element" && e.name == "registry"; });
+// 
+let getComponents = (doc)=>{
+    let registry = doc.children.find((e,i)=>{ return e.type == "element" && e.name == "registry"; });
+    let types = registry.children.find((e,i)=>{ return e.type == "element" && e.name == "types"; });
+    let structs = types.children.filter((e,i)=>{ return e.type == "element" && e.name == "type" && e.attributes["category"] == "struct"; });
+    let extensions = registry.children.find((e,i)=>{ return e.type == "element" && e.name == "extensions"; });
+    return { registry, types, structs, extensions };
+};
 
-let types = registry.children.find((e,i)=>{ return e.type == "element" && e.name == "types"; });
-
-let structs = types.children.filter((e,i)=>{ return e.type == "element" && e.name == "type" && e.attributes["category"] == "struct"; });
-
+// 
 let extract = (ec)=>{
     return ec.children.find((en,ind)=>{ return en.type=="text"; }).text;
 };
 
+// 
 let memberByName = (e,name)=>{
     return e.children.find((em,im)=>{
         if (em.type == "element" && em.name == "member") {
@@ -26,44 +34,56 @@ let memberByName = (e,name)=>{
     });
 };
 
-let hasSType = structs.filter((e,i)=>{ 
-    return !!memberByName(e,"sType");
-});
+// 
+let filterSType = (structs)=>{
+    return structs.filter((e,i)=>{ 
+        return !!memberByName(e,"sType");
+    });
+};
 
-let sTypeMap = {};
-hasSType.map((e,i)=>{
-    let sType = memberByName(e,"sType");
-    let defVal = sType.attributes["values"];
-    if (defVal) {
-        sTypeMap[defVal] = e.attributes["name"];
-    };
-});
+// 
+let formSTypeMap = (hasSType)=>{
+    let sTypeMap = {};
+    hasSType.map((e,i)=>{
+        let sType = memberByName(e,"sType");
+        let defVal = sType.attributes["values"];
+        if (defVal) {
+            sTypeMap[defVal] = e.attributes["name"];
+        };
+    });
+    return sTypeMap;
+};
 
-
-let usedBy = {};
-
-let extensions = registry.children.find((e,i)=>{ return e.type == "element" && e.name == "extensions"; });
-
-extensions.children.filter((e,i)=>{
-    return e.type == "element" && e.name == "extension";
-}).map((e,i)=>{
-    let extName = e.attributes["name"];
-    
-    e.children.filter((ec,ic)=>{  return ec.type == "element" && ec.name == "require"; }).map((ec,ic)=>{
-        ec.children.filter((em,im)=>{ return em.type == "element" && em.name == "type"; }).map((em,im)=>{
-            usedBy[em.attributes["name"]] = extName;
+// 
+let formExtensionTypeMap = (extensions)=>{
+    let usedBy = {};
+    extensions.children.filter((e,i)=>{
+        return e.type == "element" && e.name == "extension";
+    }).map((e,i)=>{
+        let extName = e.attributes["name"];
+        e.children.filter((ec,ic)=>{  return ec.type == "element" && ec.name == "require"; }).map((ec,ic)=>{
+            ec.children.filter((em,im)=>{ return em.type == "element" && em.name == "type"; }).map((em,im)=>{
+                usedBy[em.attributes["name"]] = extName;
+            });
         });
     });
-});
+    return usedBy;
+};
 
-console.log(usedBy);
+// 
+let parseDocs = (path = "../Vulkan-Docs/xml/vk.xml")=>{
+    let loaded = getComponents(getDocs(path));
+    let usedBy = formExtensionTypeMap(loaded.extensions);
+    let sTypeMap = formSTypeMap(filterSType(loaded.structs));
+    return {usedBy, sTypeMap};
+};
 
-
-let cases = ()=>{
+// 
+let cases = (map)=>{
     let cases = [];
-    for (let k in sTypeMap) {
-        let s = sTypeMap[k];
-        let by = usedBy[s];
+    for (let k in map.sTypeMap) {
+        let s = map.sTypeMap[k];
+        let by = map.usedBy[s];
         if (by) { cases.push(`#ifdef ${by}`); };
         cases.push(`        case ${k}: return sizeof(${s}); break;`);
         if (by) { cases.push(`#endif`); }; 
@@ -71,18 +91,23 @@ let cases = ()=>{
     return cases.join("\n");
 };
 
-let sizer = `
+// 
+let genHeader = ()=>{
+    let map = parseDocs();
+
+    fs.writeFileSync("./sizes.h", `
 #include <vulkan/vulkan.h>
 
 size_t vkGetStructureSizeBySType(VkStructureType sType) {
     switch(sType) {
-${cases()}
+${cases(map)}
         default: 
     };
     return 0ull;
 };
 
-`;
+`);
+}
 
-
-fs.writeFileSync("./sizes.h", /*JSON.stringify(sTypeMap, null, '\t')*/ sizer);
+// 
+genHeader();
