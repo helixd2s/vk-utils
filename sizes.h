@@ -1,8 +1,15 @@
 
+#ifdef __cplusplus
+#pragma once 
+#endif
+
 #ifndef VULKAN_SIZES_H
 #define VULKAN_SIZES_H
 #include <vulkan/vulkan.h>
 
+#ifdef __cplusplus
+inline 
+#endif
 size_t vkGetStructureSizeBySType(VkStructureType sType) {
     switch(sType) {
         case VK_STRUCTURE_TYPE_APPLICATION_INFO: return sizeof(VkApplicationInfo); break;

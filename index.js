@@ -96,10 +96,17 @@ let genHeader = ()=>{
     let map = parseDocs();
 
     fs.writeFileSync("./sizes.h", `
+#ifdef __cplusplus
+#pragma once 
+#endif
+
 #ifndef VULKAN_SIZES_H
 #define VULKAN_SIZES_H
 #include <vulkan/vulkan.h>
 
+#ifdef __cplusplus
+inline 
+#endif
 size_t vkGetStructureSizeBySType(VkStructureType sType) {
     switch(sType) {
 ${cases(map)}
