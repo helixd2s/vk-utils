@@ -24,8 +24,8 @@ namespace stm {
         T* operator->() { return this->get(); };
         const T* operator->() const { return this->get(); };
 
-        T & [[nodiscard]] operator *() { return *this->get(); };
-        const T & [[nodiscard]] operator *() const { return *this->get(); };
+        T & operator *() { return *this->get(); };
+        const T & operator *() const { return *this->get(); };
 
         operator T& () { return *this->get(); };
         operator T const& () const { return *this->get(); };
@@ -36,8 +36,8 @@ namespace stm {
         T*& get() { return reinterpret_cast<T*&>(ptr); };
         T* const& get() const { return reinterpret_cast<T* const&>(ptr); };
 
-        wrap_ptr<T>& operator =(T* const& ptr) { this->ptr = ptr; };
-        wrap_ptr<T>& operator =(const wrap_ptr<T>& ptr) { this->ptr = ptr.get(); };
+        wrap_ptr<T>& operator =(T* const& ptr) { this->ptr = ptr; return *this; };
+        wrap_ptr<T>& operator =(const wrap_ptr<T>& ptr) { this->ptr = ptr.get(); return *this; };
 
         operator bool() const { return !!ptr; };
     };
@@ -73,17 +73,17 @@ namespace stm {
         T* operator->() { return this->get(); };
         const T* operator->() const { return this->get(); };
 
-        T& [[nodiscard]] operator *() { return *this->get(); };
-        const T& [[nodiscard]] operator *() const { return *this->get(); };
+        T& operator *() { return *this->get(); };
+        const T& operator *() const { return *this->get(); };
 
         operator T&() { return *this->get(); };
-        operator const T&() const { return *this->get(); };
+        operator T const&() const { return *this->get(); };
 
         operator T*&() { return this->get(); };
-        operator const T*&() const { return this->get(); };
+        operator T* const&() const { return this->get(); };
 
         T*& get() { return reinterpret_cast<T*&>(ptr); };
-        const T*& get() const { return reinterpret_cast<const T*&>(ptr); };
+        T* const& get() const { return reinterpret_cast<T* const&>(ptr); };
 
         // initiate assign operators
         virtual link_base& assign(const void* obj) override { this->ptr = new T; *this->get() = *reinterpret_cast<const T*&>(obj); return *this; };
