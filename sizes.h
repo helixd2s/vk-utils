@@ -1,4 +1,6 @@
 
+#ifndef VULKAN_SIZES_H
+#define VULKAN_SIZES_H
 #include <vulkan/vulkan.h>
 
 size_t vkGetStructureSizeBySType(VkStructureType sType) {
@@ -1320,8 +1322,8 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_EXT_provoking_vertex
         case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_PROVOKING_VERTEX_STATE_CREATE_INFO_EXT: return sizeof(VkPipelineRasterizationProvokingVertexStateCreateInfoEXT); break;
 #endif
-        default: 
+        //default: 
     };
     return 0ull;
 };
-
+#endif

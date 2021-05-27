@@ -37,16 +37,19 @@ namespace vku {
 
         //
         template<class O = vk::BaseOutStructure>
-        inline auto searchPtr(const vk::StructureType& sType, O& base) {
-            auto structure = type_safe::object_ref(reinterpret_cast<vk::BaseOutStructure*&>(reinterpret_cast<vk::BaseOutStructure&>(base).pNext));//what
-            auto last = structure;
-            type_safe::optional_ref<void*> found = {};
+        inline auto searchPtr(const vk::StructureType& sType, O& base, type_safe::optional_ref<vk::BaseOutStructure*&> parent = {}) {
+            auto pNext = &base;
+            auto structure = type_safe::opt_ref<vk::BaseOutStructure*&>(reinterpret_cast<vk::BaseOutStructure*&>(reinterpret_cast<vk::BaseOutStructure&>(base).pNext));//what
+            auto last = type_safe::opt_ref<vk::BaseOutStructure*&>(reinterpret_cast<vk::BaseOutStructure*&>(pNext));
+            type_safe::optional_ref<vk::BaseOutStructure*&> found = {};
+            if (parent) { parent.value() = last.value(); };
 
             //
-            while (structure && *structure) {
+            while (bool(structure) && bool(structure.value())) {
                 last = structure;
-                if (*structure->sType == sType) { found == type_safe::opt_ref(reinterpret_cast<void*&>(*structure)); };
-                structure = type_safe::object_ref(reinterpret_cast<vk::BaseOutStructure*&>((*structure)->pNext));
+                if (parent) { parent.value() = last.value(); };
+                if (structure.value()->sType == sType) { found = structure; };
+                structure = type_safe::opt_ref<vk::BaseOutStructure*&>(reinterpret_cast<vk::BaseOutStructure*&>(structure.value()->pNext));
             };
 
             //
@@ -55,14 +58,15 @@ namespace vku {
 
         // for Vulkan Hpp only!
         template<class O = vk::BaseOutStructure>
-        inline auto relocate(const vk::StructureType& sType, O& base, void* const& where = nullptr) {
-            auto found = searchPtr(sType, base);
+        inline auto relocate(const vk::StructureType& sType, O& base, const void*& where = nullptr) {
+            vk::BaseOutStructure* last = nullptr;
+            auto found = searchPtr(sType, base, type_safe::opt_ref<vk::BaseOutStructure*&>(last));
 
             //
             if (where) {
                 if (found) 
-                    { memcpy(where, *found, vkGetStructureSizeBySType(sType)); *found = where; } else 
-                    { found = std::move(where); *last->pNext = found; };
+                    { memcpy(where, found.value(), vkGetStructureSizeBySType(VkStructureType(sType))); found.value() = where; } else
+                    { /*found = where;*/ last->pNext = found.value(); };
             };
 
             //
@@ -72,13 +76,14 @@ namespace vku {
         // for Vulkan Hpp only!
         template<class O = vk::BaseOutStructure>
         inline auto relocate(const vk::StructureType& sType, O& base, type_safe::optional_ref<void*> where = {}) {
-            auto found = searchPtr(sType, base);
+            vk::BaseOutStructure* last = nullptr;
+            auto found = searchPtr(sType, base, type_safe::opt_ref<vk::BaseOutStructure*&>(last));
 
             //
             if (where) {
                 if (found) 
-                    { memcpy(where, *found, vkGetStructureSizeBySType(sType)); *found = where; } else 
-                    { found = where; *last->pNext = found; };
+                    { memcpy(where, *found, vkGetStructureSizeBySType(VkStructureType(sType))); *found = where; } else
+                    { found = where; last->pNext = found; };
             };
 
             //
@@ -92,7 +97,7 @@ namespace vku {
             if (what && found && *found) {
                 auto& typed = reinterpret_cast<vk::BaseOutStructure*&>(*found);
                 const auto pNext = typed->pNext;
-                memcpy(typed, what, vkGetStructureSizeBySType(sType));
+                memcpy(typed, what, vkGetStructureSizeBySType(VkStructureType(sType)));
                 typed->pNext = pNext;
             };
             return found;
@@ -105,7 +110,7 @@ namespace vku {
             if (what && found && *found) {
                 auto& typed = reinterpret_cast<vk::BaseOutStructure*&>(*found);
                 const auto pNext = typed->pNext;
-                memcpy(typed, what, vkGetStructureSizeBySType(sType));
+                memcpy(typed, what, vkGetStructureSizeBySType(VkStructureType(sType)));
                 typed->pNext = pNext;
             };
             return found;
@@ -137,7 +142,7 @@ namespace vku {
 
         //
         template<vk::StructureType sType, class O = vk::BaseOutStructure>
-        inline auto relocate(O& base, void* const& where = nullptr) { return relocate<O>(sType, base, where); };
+        inline auto relocate(O& base, const void*& where = nullptr) { return relocate<O>(sType, base, where); };
 
         //
         template<vk::StructureType sType, class O = vk::BaseOutStructure>
@@ -145,7 +150,7 @@ namespace vku {
 
         //
         template<vk::StructureType sType, class O = vk::BaseOutStructure>
-        inline auto chainify(O& base, const void* what = nullptr, void* const& where = nullptr) { return chainify<O>(sType, base, what, where); };
+        inline auto chainify(O& base, const void* what = nullptr, const void*& where = nullptr) { return chainify<O>(sType, base, what, where); };
 
         //
         template<vk::StructureType sType, class O = vk::BaseOutStructure>
@@ -174,7 +179,7 @@ namespace vku {
         inline std::shared_ptr<ChainStorage> addElement(const T& structure = T{}, const uintptr_t size = sizeof(T)) {
             auto exist = this->getElement<T>();
             if (!exist) {
-                std::shared_ptr<vk::BaseOutStructure> bk = storage.size() > 0 ? storage.back() : {};
+                std::shared_ptr<vk::BaseOutStructure> bk = storage.size() > 0 ? storage.back() : std::shared_ptr<vk::BaseOutStructure>{};
                 storage.push_back(std::shared_ptr<vk::BaseOutStructure>((vk::BaseOutStructure*)malloc(size), free));
                 exist = std::reinterpret_pointer_cast<T>(storage.back());
                 if (bk) { bk->pNext = exist.get(); };
