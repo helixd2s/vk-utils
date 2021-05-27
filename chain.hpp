@@ -58,14 +58,14 @@ namespace vku {
 
         // for Vulkan Hpp only!
         template<class O = vk::BaseOutStructure>
-        inline auto relocate(const vk::StructureType& sType, O& base, const void*& where = nullptr) {
+        inline auto relocate(const vk::StructureType& sType, O& base, void* const& where = nullptr) {
             vk::BaseOutStructure* last = nullptr;
             auto found = searchPtr(sType, base, type_safe::opt_ref<vk::BaseOutStructure*&>(last));
 
             //
             if (where) {
                 if (found) 
-                    { memcpy(where, found.value(), vkGetStructureSizeBySType(VkStructureType(sType))); found.value() = where; } else
+                    { memcpy(where, found.value(), vkGetStructureSizeBySType(VkStructureType(sType))); found.value() = reinterpret_cast<vk::BaseOutStructure* const&>(where); } else
                     { /*found = where;*/ last->pNext = found.value(); };
             };
 
@@ -95,7 +95,7 @@ namespace vku {
         inline auto chainify(const vk::StructureType& sType, O& base, const void* what = nullptr, void* const& where = nullptr) {
             auto found = relocate<O>(sType, base, type_safe::opt_ref(const_cast<void*&>(where)));
             if (what && found && *found) {
-                auto& typed = reinterpret_cast<vk::BaseOutStructure*&>(*found);
+                auto& typed = reinterpret_cast<vk::BaseOutStructure*&>(found.value());
                 const auto pNext = typed->pNext;
                 memcpy(typed, what, vkGetStructureSizeBySType(VkStructureType(sType)));
                 typed->pNext = pNext;
@@ -108,7 +108,7 @@ namespace vku {
         inline auto chainify(const vk::StructureType& sType, O& base, const void* what = nullptr, type_safe::optional_ref<void*> where = {}) {
             auto found = relocate<O>(sType, base, where);
             if (what && found && *found) {
-                auto& typed = reinterpret_cast<vk::BaseOutStructure*&>(*found);
+                auto& typed = reinterpret_cast<vk::BaseOutStructure*&>(found.value());
                 const auto pNext = typed->pNext;
                 memcpy(typed, what, vkGetStructureSizeBySType(VkStructureType(sType)));
                 typed->pNext = pNext;
@@ -142,7 +142,7 @@ namespace vku {
 
         //
         template<vk::StructureType sType, class O = vk::BaseOutStructure>
-        inline auto relocate(O& base, const void*& where = nullptr) { return relocate<O>(sType, base, where); };
+        inline auto relocate(O& base, void* const& where = nullptr) { return relocate<O>(sType, base, where); };
 
         //
         template<vk::StructureType sType, class O = vk::BaseOutStructure>
@@ -150,7 +150,7 @@ namespace vku {
 
         //
         template<vk::StructureType sType, class O = vk::BaseOutStructure>
-        inline auto chainify(O& base, const void* what = nullptr, const void*& where = nullptr) { return chainify<O>(sType, base, what, where); };
+        inline auto chainify(O& base, const void* what = nullptr, void* const& where = nullptr) { return chainify<O>(sType, base, what, where); };
 
         //
         template<vk::StructureType sType, class O = vk::BaseOutStructure>
