@@ -126,12 +126,12 @@ namespace vku {
             auto& ptr = reinterpret_cast<const stm::wrap_ptr<const vk::BaseInStructure>&>(reinterpret_cast<const vk::BaseInStructure&>(base).pNext);
             auto structure = ptr ? type_safe::opt_cref(*ptr) : type_safe::optional_ref<const vk::BaseInStructure>{};//what
             auto last = structure;
-            type_safe::optional_ref<const stm::wrap_ptr<T>*> found = {};
+            type_safe::optional_ref<const T> found = {};
 
             //
             while (structure) {
                 last = structure;
-                if (structure.value().sType == sType) { found = type_safe::opt_ref(reinterpret_cast<const stm::wrap_ptr<T>&>(structure.value())); };
+                if (structure.value().sType == sType) { found = type_safe::opt_cref(reinterpret_cast<T&>(structure.value())); };
                 structure = structure.value().pNext ? type_safe::opt_ref(*reinterpret_cast<const stm::wrap_ptr<vk::BaseInStructure>&>(structure.value().pNext)) : type_safe::optional_ref<const vk::BaseInStructure>{};
             };
 
