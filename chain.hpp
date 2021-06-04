@@ -69,7 +69,7 @@ namespace vku {
             if (where) {
                 if (found) 
                     { memcpy(where, found.value(), vkGetStructureSizeBySType(VkStructureType(sType))); found.value() = reinterpret_cast<stm::wrap_ptr<vk::BaseOutStructure> const&>(where); } else
-                    { /*found = where;*/ last->pNext = found.value(); };
+                    { /*found = where;*/ last->pNext = reinterpret_cast<vk::BaseOutStructure* const&>(where); };
             };
 
             //
@@ -78,7 +78,7 @@ namespace vku {
 
         // for Vulkan Hpp only!
         template<class O = vk::BaseOutStructure>
-        inline auto relocate(const vk::StructureType& sType, O& base, type_safe::optional_ref<stm::wrap_ptr<void>> where = {}) {
+        inline auto relocate(const vk::StructureType& sType, O& base, type_safe::optional_ref<stm::wrap_ptr<stm::void_t>> where = {}) {
             stm::wrap_ptr<vk::BaseOutStructure> last = nullptr;
             auto found = searchPtr(sType, base, type_safe::opt_ref(last));
 
@@ -96,7 +96,7 @@ namespace vku {
         //
         template<class O = vk::BaseOutStructure>
         inline auto chainify(const vk::StructureType& sType, O& base, const void* what = nullptr, void* const& where = nullptr) {
-           auto found = relocate<O>(sType, base, type_safe::opt_ref(reinterpret_cast<stm::wrap_ptr<void>&>(const_cast<void*&>(where))));
+           auto found = relocate<O>(sType, base, type_safe::opt_ref(reinterpret_cast<stm::wrap_ptr<stm::void_t>&>(const_cast<void*&>(where))));
             if (what && found && *found) {
                 auto& typed = reinterpret_cast<vk::BaseOutStructure*&>(found.value());
                 const auto pNext = typed->pNext;
@@ -108,7 +108,7 @@ namespace vku {
 
         //
         template<class O = vk::BaseOutStructure>
-        inline auto chainify(const vk::StructureType& sType, O& base, const void* what = nullptr, type_safe::optional_ref<stm::wrap_ptr<void>> where = {}) {
+        inline auto chainify(const vk::StructureType& sType, O& base, const void* what = nullptr, type_safe::optional_ref<stm::wrap_ptr<stm::void_t>> where = {}) {
             auto found = relocate<O>(sType, base, where);
             if (what && found && *found) {
                 auto& typed = reinterpret_cast<vk::BaseOutStructure*&>(found.value());
@@ -123,15 +123,16 @@ namespace vku {
         //template<class T, class O = vk::BaseInStructure>
         template<class O = vk::BaseInStructure, class T = vk::BaseInStructure>
         inline auto fromChain(const vk::StructureType& sType, const O& base) {
-            auto structure = type_safe::opt_ref(*reinterpret_cast<const stm::wrap_ptr<vk::BaseInStructure>&>(*reinterpret_cast<const vk::BaseInStructure&>(base).pNext));//what
-            auto last = type_safe::opt_ref(structure.value());
+            auto& ptr = reinterpret_cast<const stm::wrap_ptr<const vk::BaseInStructure>&>(reinterpret_cast<const vk::BaseInStructure&>(base).pNext);
+            auto structure = ptr ? type_safe::opt_cref(*ptr) : type_safe::optional_ref<const vk::BaseInStructure>{};//what
+            auto last = structure;
             type_safe::optional_ref<const stm::wrap_ptr<T>*> found = {};
 
             //
-            while (structure && *structure) {
+            while (structure) {
                 last = structure;
-                if (structure->sType == sType) { found = type_safe::opt_ref(reinterpret_cast<const stm::wrap_ptr<T>&>(*structure)); };
-                structure = type_safe::opt_ref(*reinterpret_cast<const stm::wrap_ptr<vk::BaseInStructure>&>(structure->pNext));
+                if (structure.value().sType == sType) { found = type_safe::opt_ref(reinterpret_cast<const stm::wrap_ptr<T>&>(structure.value())); };
+                structure = structure.value().pNext ? type_safe::opt_ref(*reinterpret_cast<const stm::wrap_ptr<vk::BaseInStructure>&>(structure.value().pNext)) : type_safe::optional_ref<const vk::BaseInStructure>{};
             };
 
             //
@@ -149,7 +150,7 @@ namespace vku {
 
         //
         template<vk::StructureType sType, class O = vk::BaseOutStructure>
-        inline auto relocate(O& base, type_safe::optional_ref<stm::wrap_ptr<void>> where = {}) { return relocate<O>(sType, base, where); };
+        inline auto relocate(O& base, type_safe::optional_ref<stm::wrap_ptr<stm::void_t>> where = {}) { return relocate<O>(sType, base, where); };
 
         //
         template<vk::StructureType sType, class O = vk::BaseOutStructure>
@@ -157,7 +158,7 @@ namespace vku {
 
         //
         template<vk::StructureType sType, class O = vk::BaseOutStructure>
-        inline auto chainify(O& base, const void* what = nullptr, type_safe::optional_ref<stm::wrap_ptr<void>> where = nullptr) { return chainify<O>(sType, base, what, where); };
+        inline auto chainify(O& base, const void* what = nullptr, type_safe::optional_ref<stm::wrap_ptr<stm::void_t>> where = nullptr) { return chainify<O>(sType, base, what, where); };
 
         //
         template<vk::StructureType sType, class O = vk::BaseOutStructure, class T = vk::BaseInStructure>
@@ -174,19 +175,26 @@ namespace vku {
         template<class T = vk::BaseOutStructure>
         inline auto [[nodiscard]] getElement(const vk::StructureType& sType) {
             std::shared_ptr<T> element = {};
-            for (auto& e : storage) { if (e->sType == sType) { element = std::reinterpret_pointer_cast<T>(e); }; };
+            for (auto& e : storage) { if (e->sType == sType) { element = std::reinterpret_pointer_cast<T>(e); }; break; };
             return element;
         };
 
         template<class T = vk::BaseOutStructure>
+        inline auto [[nodiscard]] getReference(const vk::StructureType& sType) {
+            auto element = this->getElement<T>(sType);
+            return element ? type_safe::opt_ref<T>(*element) : type_safe::optional_ref<T>{};
+        };
+
+        template<class T = vk::BaseOutStructure>
         inline std::shared_ptr<ChainStorage> addElement(const T& structure = T{}, const uintptr_t size = sizeof(T)) {
-            auto exist = this->getElement<T>();
+            auto exist = this->getElement<T>(structure.sType);
             if (!exist) {
                 std::shared_ptr<vk::BaseOutStructure> bk = storage.size() > 0 ? storage.back() : std::shared_ptr<vk::BaseOutStructure>{};
                 storage.push_back(std::shared_ptr<vk::BaseOutStructure>((vk::BaseOutStructure*)malloc(size), free));
                 exist = std::reinterpret_pointer_cast<T>(storage.back());
-                if (bk) { bk->pNext = exist.get(); };
+                if (bk) { bk->pNext = reinterpret_cast<vk::BaseOutStructure*>(exist.get()); };
                 *exist = structure;
+                //exist->pNext = nullptr; // needs to nullify pNext
             } else {
                 const auto sp = exist->pNext; // TODO: use correct pNext
                 *exist = structure;
@@ -197,13 +205,18 @@ namespace vku {
 
         template<class T = vk::BaseOutStructure>
         inline std::shared_ptr<ChainStorage> copyChain(const T& base = T{}) {
-            type_safe::optional_ref<vk::BaseOutStructure*> structure = type_safe::opt_ref(*reinterpret_cast<const vk::BaseInStructure*&>(*reinterpret_cast<const vk::BaseInStructure&>(base).pNext));//what
-            type_safe::optional_ref<vk::BaseOutStructure*> last = structure;
-            while (structure && *structure) {
+            auto& ptr = reinterpret_cast<const stm::wrap_ptr<const vk::BaseInStructure>&>(reinterpret_cast<const vk::BaseInStructure&>(base).pNext);
+            auto structure = ptr ? type_safe::opt_cref(*ptr) : type_safe::optional_ref<const vk::BaseInStructure>{};//what
+            auto last = structure;
+
+            //
+            this->addElement(base);
+            while (structure) {
                 last = structure;
-                this->addElement(reinterpret_cast<const vk::BaseOutStructure&>(*structure), vkGetStructureSizeBySType(structure->sType));
-                structure = type_safe::opt_ref(*reinterpret_cast<const vk::BaseInStructure*&>(structure->pNext));
+                this->addElement(reinterpret_cast<const vk::BaseOutStructure&>(structure.value()), vkGetStructureSizeBySType(VkStructureType(structure.value().sType)));
+                structure = structure.value().pNext ? type_safe::opt_cref(*reinterpret_cast<const stm::wrap_ptr<vk::BaseInStructure>&>(structure.value().pNext)) : type_safe::optional_ref<const vk::BaseInStructure>{};
             };
+
             return shared_from_this();
         };
     };

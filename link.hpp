@@ -14,6 +14,12 @@
 // 
 namespace stm {
 
+    //using void_t = uint8_t;
+    class void_t { public: 
+
+    };
+
+
     template<class T>
     class wrap_ptr {
     protected:
@@ -28,10 +34,13 @@ namespace stm {
         const T & operator *() const { return *this->get(); };
 
         operator T& () { return *this->get(); };
-        operator T const& () const { return *this->get(); };
+        operator const T& () const { return *this->get(); };
 
         operator T*& () { return this->get(); };
         operator T* const& () const { return this->get(); };
+
+        T& value() { return *this->get(); };
+        const T& value() const { return *this->get(); };
 
         T*& get() { return reinterpret_cast<T*&>(ptr); };
         T* const& get() const { return reinterpret_cast<T* const&>(ptr); };
