@@ -175,7 +175,7 @@ namespace vku {
         template<class T = vk::BaseOutStructure>
         inline auto [[nodiscard]] getElement(const vk::StructureType& sType) {
             std::shared_ptr<T> element = {};
-            for (auto& e : storage) { if (e->sType == sType) { element = std::reinterpret_pointer_cast<T>(e); }; break; };
+            for (auto& e : storage) { if (e->sType == sType) { element = std::reinterpret_pointer_cast<T>(e); break; }; };
             return element;
         };
 
@@ -193,11 +193,13 @@ namespace vku {
                 storage.push_back(std::shared_ptr<vk::BaseOutStructure>((vk::BaseOutStructure*)malloc(size), free));
                 exist = std::reinterpret_pointer_cast<T>(storage.back());
                 if (bk) { bk->pNext = reinterpret_cast<vk::BaseOutStructure*>(exist.get()); };
-                *exist = structure;
+                memcpy(exist.get(), &structure, size); // size is important!
+                //*exist = structure; // you idiot?
                 //exist->pNext = nullptr; // needs to nullify pNext
             } else {
                 const auto sp = exist->pNext; // TODO: use correct pNext
-                *exist = structure;
+                //*exist = structure; // you idiot?
+                memcpy(exist.get(), &structure, size); // size is important!
                 exist->pNext = sp; // TODO: use correct pNext
             };
             return shared_from_this();
