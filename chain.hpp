@@ -31,12 +31,8 @@
 // 
 namespace vku {
 
-
-
     // 
     namespace unsafe {
-
-        
 
         //
         template<class O = vk::BaseOutStructure>

@@ -27,11 +27,11 @@ namespace stm {
     public:
         wrap_ptr(T* ptr = nullptr) { this->ptr = ptr; };
 
-        T* operator->() { return this->get(); };
-        const T* operator->() const { return this->get(); };
+        T*& operator->() { return this->get(); };
+        T* const& operator->() const { return this->get(); };
 
-        T & operator *() { return *this->get(); };
-        const T & operator *() const { return *this->get(); };
+        T& operator *() { return *this->get(); };
+        T const& operator *() const { return *this->get(); };
 
         operator T& () { return *this->get(); };
         operator const T& () const { return *this->get(); };
@@ -40,7 +40,7 @@ namespace stm {
         operator T* const& () const { return this->get(); };
 
         T& value() { return *this->get(); };
-        const T& value() const { return *this->get(); };
+        T const& value() const { return *this->get(); };
 
         T*& get() { return reinterpret_cast<T*&>(ptr); };
         T* const& get() const { return reinterpret_cast<T* const&>(ptr); };
@@ -75,15 +75,15 @@ namespace stm {
 
     public: 
         link() : link_base() {};
-        link(const void* ptr) : link_base(ptr) {};
-        link(const T* obj) { this->assign(obj); };
+        link(const void* const& ptr) : link_base(ptr) {};
+        link(const T* const& obj) { this->assign(obj); };
         link(const link<T>& obj) { this->assign(obj.get()); };
 
-        T* operator->() { return this->get(); };
-        const T* operator->() const { return this->get(); };
+        T*& operator->() { return this->get(); };
+        T* const& operator->() const { return this->get(); };
 
         T& operator *() { return *this->get(); };
-        const T& operator *() const { return *this->get(); };
+        T const& operator *() const { return *this->get(); };
 
         operator T&() { return *this->get(); };
         operator T const&() const { return *this->get(); };
