@@ -16,7 +16,9 @@
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 
 #ifdef _WIN32
+#ifndef VK_USE_PLATFORM_WIN32_KHR
 #define VK_USE_PLATFORM_WIN32_KHR
+#endif
 #else
 
 #endif
@@ -30,6 +32,10 @@
 
 // 
 namespace vku {
+
+    namespace ts {
+        using namespace type_safe;
+    };
 
     // 
     namespace unsafe {
