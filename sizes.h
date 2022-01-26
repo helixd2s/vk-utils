@@ -152,17 +152,14 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_NV_device_generated_commands
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_NV: return sizeof(VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV); break;
 #endif
-#ifdef VK_EXT_private_data
-        case VK_STRUCTURE_TYPE_DEVICE_PRIVATE_DATA_CREATE_INFO_EXT: return sizeof(VkDevicePrivateDataCreateInfoEXT); break;
-#endif
-#ifdef VK_EXT_private_data
-        case VK_STRUCTURE_TYPE_PRIVATE_DATA_SLOT_CREATE_INFO_EXT: return sizeof(VkPrivateDataSlotCreateInfoEXT); break;
-#endif
-#ifdef VK_EXT_private_data
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_FEATURES_EXT: return sizeof(VkPhysicalDevicePrivateDataFeaturesEXT); break;
-#endif
+        case VK_STRUCTURE_TYPE_DEVICE_PRIVATE_DATA_CREATE_INFO: return sizeof(VkDevicePrivateDataCreateInfo); break;
+        case VK_STRUCTURE_TYPE_PRIVATE_DATA_SLOT_CREATE_INFO: return sizeof(VkPrivateDataSlotCreateInfo); break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_FEATURES: return sizeof(VkPhysicalDevicePrivateDataFeatures); break;
 #ifdef VK_NV_device_generated_commands
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_NV: return sizeof(VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV); break;
+#endif
+#ifdef VK_EXT_multi_draw
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_PROPERTIES_EXT: return sizeof(VkPhysicalDeviceMultiDrawPropertiesEXT); break;
 #endif
 #ifdef VK_NV_device_generated_commands
         case VK_STRUCTURE_TYPE_GRAPHICS_SHADER_GROUP_CREATE_INFO_NV: return sizeof(VkGraphicsShaderGroupCreateInfoNV); break;
@@ -333,6 +330,15 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
         case VK_STRUCTURE_TYPE_DEVICE_GROUP_SWAPCHAIN_CREATE_INFO_KHR: return sizeof(VkDeviceGroupSwapchainCreateInfoKHR); break;
 #endif
         case VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO: return sizeof(VkDescriptorUpdateTemplateCreateInfo); break;
+#ifdef VK_KHR_present_id
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR: return sizeof(VkPhysicalDevicePresentIdFeaturesKHR); break;
+#endif
+#ifdef VK_KHR_present_id
+        case VK_STRUCTURE_TYPE_PRESENT_ID_KHR: return sizeof(VkPresentIdKHR); break;
+#endif
+#ifdef VK_KHR_present_wait
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR: return sizeof(VkPhysicalDevicePresentWaitFeaturesKHR); break;
+#endif
 #ifdef VK_EXT_hdr_metadata
         case VK_STRUCTURE_TYPE_HDR_METADATA_EXT: return sizeof(VkHdrMetadataEXT); break;
 #endif
@@ -401,8 +407,10 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES: return sizeof(VkPhysicalDeviceSubgroupProperties); break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_EXTENDED_TYPES_FEATURES: return sizeof(VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures); break;
         case VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2: return sizeof(VkBufferMemoryRequirementsInfo2); break;
+        case VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS: return sizeof(VkDeviceBufferMemoryRequirements); break;
         case VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2: return sizeof(VkImageMemoryRequirementsInfo2); break;
         case VK_STRUCTURE_TYPE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2: return sizeof(VkImageSparseMemoryRequirementsInfo2); break;
+        case VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS: return sizeof(VkDeviceImageMemoryRequirements); break;
         case VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2: return sizeof(VkMemoryRequirements2); break;
         case VK_STRUCTURE_TYPE_SPARSE_IMAGE_MEMORY_REQUIREMENTS_2: return sizeof(VkSparseImageMemoryRequirements2); break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES: return sizeof(VkPhysicalDevicePointClippingProperties); break;
@@ -449,24 +457,19 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_EXT_blend_operation_advanced
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT: return sizeof(VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT); break;
 #endif
+#ifdef VK_EXT_multi_draw
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_FEATURES_EXT: return sizeof(VkPhysicalDeviceMultiDrawFeaturesEXT); break;
+#endif
 #ifdef VK_EXT_blend_operation_advanced
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT: return sizeof(VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT); break;
 #endif
 #ifdef VK_EXT_blend_operation_advanced
         case VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_ADVANCED_STATE_CREATE_INFO_EXT: return sizeof(VkPipelineColorBlendAdvancedStateCreateInfoEXT); break;
 #endif
-#ifdef VK_EXT_inline_uniform_block
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_FEATURES_EXT: return sizeof(VkPhysicalDeviceInlineUniformBlockFeaturesEXT); break;
-#endif
-#ifdef VK_EXT_inline_uniform_block
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_PROPERTIES_EXT: return sizeof(VkPhysicalDeviceInlineUniformBlockPropertiesEXT); break;
-#endif
-#ifdef VK_EXT_inline_uniform_block
-        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK_EXT: return sizeof(VkWriteDescriptorSetInlineUniformBlockEXT); break;
-#endif
-#ifdef VK_EXT_inline_uniform_block
-        case VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_INLINE_UNIFORM_BLOCK_CREATE_INFO_EXT: return sizeof(VkDescriptorPoolInlineUniformBlockCreateInfoEXT); break;
-#endif
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_FEATURES: return sizeof(VkPhysicalDeviceInlineUniformBlockFeatures); break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_PROPERTIES: return sizeof(VkPhysicalDeviceInlineUniformBlockProperties); break;
+        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK: return sizeof(VkWriteDescriptorSetInlineUniformBlock); break;
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_INLINE_UNIFORM_BLOCK_CREATE_INFO: return sizeof(VkDescriptorPoolInlineUniformBlockCreateInfo); break;
 #ifdef VK_NV_framebuffer_mixed_samples
         case VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_MODULATION_STATE_CREATE_INFO_NV: return sizeof(VkPipelineCoverageModulationStateCreateInfoNV); break;
 #endif
@@ -478,6 +481,8 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
         case VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT: return sizeof(VkShaderModuleValidationCacheCreateInfoEXT); break;
 #endif
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES: return sizeof(VkPhysicalDeviceMaintenance3Properties); break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_FEATURES: return sizeof(VkPhysicalDeviceMaintenance4Features); break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES: return sizeof(VkPhysicalDeviceMaintenance4Properties); break;
         case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_SUPPORT: return sizeof(VkDescriptorSetLayoutSupport); break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES: return sizeof(VkPhysicalDeviceShaderDrawParametersFeatures); break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT16_INT8_FEATURES: return sizeof(VkPhysicalDeviceShaderFloat16Int8Features); break;
@@ -492,8 +497,14 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_ANDROID_native_buffer
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENTATION_PROPERTIES_ANDROID: return sizeof(VkPhysicalDevicePresentationPropertiesANDROID); break;
 #endif
-#ifdef VK_EXT_global_priority
-        case VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO_EXT: return sizeof(VkDeviceQueueGlobalPriorityCreateInfoEXT); break;
+#ifdef VK_KHR_global_priority
+        case VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO_KHR: return sizeof(VkDeviceQueueGlobalPriorityCreateInfoKHR); break;
+#endif
+#ifdef VK_KHR_global_priority
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES_KHR: return sizeof(VkPhysicalDeviceGlobalPriorityQueryFeaturesKHR); break;
+#endif
+#ifdef VK_KHR_global_priority
+        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES_KHR: return sizeof(VkQueueFamilyGlobalPriorityPropertiesKHR); break;
 #endif
 #ifdef VK_EXT_debug_utils
         case VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT: return sizeof(VkDebugUtilsObjectNameInfoEXT); break;
@@ -600,6 +611,9 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_EXT_shader_atomic_float
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_FEATURES_EXT: return sizeof(VkPhysicalDeviceShaderAtomicFloatFeaturesEXT); break;
 #endif
+#ifdef VK_EXT_shader_atomic_float2
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT: return sizeof(VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT); break;
+#endif
 #ifdef VK_EXT_vertex_attribute_divisor
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_EXT: return sizeof(VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT); break;
 #endif
@@ -661,6 +675,9 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #endif
 #ifdef VK_NV_shading_rate_image
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_PROPERTIES_NV: return sizeof(VkPhysicalDeviceShadingRateImagePropertiesNV); break;
+#endif
+#ifdef VK_HUAWEI_invocation_mask
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INVOCATION_MASK_FEATURES_HUAWEI: return sizeof(VkPhysicalDeviceInvocationMaskFeaturesHUAWEI); break;
 #endif
 #ifdef VK_NV_shading_rate_image
         case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_COARSE_SAMPLE_ORDER_STATE_CREATE_INFO_NV: return sizeof(VkPipelineViewportCoarseSampleOrderStateCreateInfoNV); break;
@@ -753,14 +770,23 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_EXT_fragment_density_map2
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_FEATURES_EXT: return sizeof(VkPhysicalDeviceFragmentDensityMap2FeaturesEXT); break;
 #endif
+#ifdef VK_QCOM_fragment_density_map_offset
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM: return sizeof(VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM); break;
+#endif
 #ifdef VK_EXT_fragment_density_map
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_PROPERTIES_EXT: return sizeof(VkPhysicalDeviceFragmentDensityMapPropertiesEXT); break;
 #endif
 #ifdef VK_EXT_fragment_density_map2
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_PROPERTIES_EXT: return sizeof(VkPhysicalDeviceFragmentDensityMap2PropertiesEXT); break;
 #endif
+#ifdef VK_QCOM_fragment_density_map_offset
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_QCOM: return sizeof(VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM); break;
+#endif
 #ifdef VK_EXT_fragment_density_map
         case VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_CREATE_INFO_EXT: return sizeof(VkRenderPassFragmentDensityMapCreateInfoEXT); break;
+#endif
+#ifdef VK_QCOM_fragment_density_map_offset
+        case VK_STRUCTURE_TYPE_SUBPASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_QCOM: return sizeof(VkSubpassFragmentDensityMapOffsetEndInfoQCOM); break;
 #endif
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCALAR_BLOCK_LAYOUT_FEATURES: return sizeof(VkPhysicalDeviceScalarBlockLayoutFeatures); break;
 #ifdef VK_KHR_surface_protected_capabilities
@@ -782,6 +808,9 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_EXT_memory_priority
         case VK_STRUCTURE_TYPE_MEMORY_PRIORITY_ALLOCATE_INFO_EXT: return sizeof(VkMemoryPriorityAllocateInfoEXT); break;
 #endif
+#ifdef VK_EXT_pageable_device_local_memory
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PAGEABLE_DEVICE_LOCAL_MEMORY_FEATURES_EXT: return sizeof(VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT); break;
+#endif
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES: return sizeof(VkPhysicalDeviceBufferDeviceAddressFeatures); break;
 #ifdef VK_EXT_buffer_device_address
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT: return sizeof(VkPhysicalDeviceBufferDeviceAddressFeaturesEXT); break;
@@ -801,9 +830,7 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
         case VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENTS_CREATE_INFO: return sizeof(VkFramebufferAttachmentsCreateInfo); break;
         case VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENT_IMAGE_INFO: return sizeof(VkFramebufferAttachmentImageInfo); break;
         case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO: return sizeof(VkRenderPassAttachmentBeginInfo); break;
-#ifdef VK_EXT_texture_compression_astc_hdr
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_HDR_FEATURES_EXT: return sizeof(VkPhysicalDeviceTextureCompressionASTCHDRFeaturesEXT); break;
-#endif
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_HDR_FEATURES: return sizeof(VkPhysicalDeviceTextureCompressionASTCHDRFeatures); break;
 #ifdef VK_NV_cooperative_matrix
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_NV: return sizeof(VkPhysicalDeviceCooperativeMatrixFeaturesNV); break;
 #endif
@@ -825,9 +852,7 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_GGP_frame_token
         case VK_STRUCTURE_TYPE_PRESENT_FRAME_TOKEN_GGP: return sizeof(VkPresentFrameTokenGGP); break;
 #endif
-#ifdef VK_EXT_pipeline_creation_feedback
-        case VK_STRUCTURE_TYPE_PIPELINE_CREATION_FEEDBACK_CREATE_INFO_EXT: return sizeof(VkPipelineCreationFeedbackCreateInfoEXT); break;
-#endif
+        case VK_STRUCTURE_TYPE_PIPELINE_CREATION_FEEDBACK_CREATE_INFO: return sizeof(VkPipelineCreationFeedbackCreateInfo); break;
 #ifdef VK_EXT_full_screen_exclusive
         case VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_INFO_EXT: return sizeof(VkSurfaceFullScreenExclusiveInfoEXT); break;
 #endif
@@ -908,6 +933,9 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #endif
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SEPARATE_DEPTH_STENCIL_LAYOUTS_FEATURES: return sizeof(VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures); break;
         case VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_STENCIL_LAYOUT: return sizeof(VkAttachmentReferenceStencilLayout); break;
+#ifdef VK_EXT_primitive_topology_list_restart
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_TOPOLOGY_LIST_RESTART_FEATURES_EXT: return sizeof(VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT); break;
+#endif
         case VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_STENCIL_LAYOUT: return sizeof(VkAttachmentDescriptionStencilLayout); break;
 #ifdef VK_KHR_pipeline_executable_properties
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_EXECUTABLE_PROPERTIES_FEATURES_KHR: return sizeof(VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR); break;
@@ -927,23 +955,19 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_KHR_pipeline_executable_properties
         case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATION_KHR: return sizeof(VkPipelineExecutableInternalRepresentationKHR); break;
 #endif
-#ifdef VK_EXT_shader_demote_to_helper_invocation
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES_EXT: return sizeof(VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT); break;
-#endif
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES: return sizeof(VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures); break;
 #ifdef VK_EXT_texel_buffer_alignment
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_FEATURES_EXT: return sizeof(VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT); break;
 #endif
-#ifdef VK_EXT_texel_buffer_alignment
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_PROPERTIES_EXT: return sizeof(VkPhysicalDeviceTexelBufferAlignmentPropertiesEXT); break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_PROPERTIES: return sizeof(VkPhysicalDeviceTexelBufferAlignmentProperties); break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_FEATURES: return sizeof(VkPhysicalDeviceSubgroupSizeControlFeatures); break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_PROPERTIES: return sizeof(VkPhysicalDeviceSubgroupSizeControlProperties); break;
+        case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_REQUIRED_SUBGROUP_SIZE_CREATE_INFO: return sizeof(VkPipelineShaderStageRequiredSubgroupSizeCreateInfo); break;
+#ifdef VK_HUAWEI_subpass_shading
+        case VK_STRUCTURE_TYPE_SUBPASS_SHADING_PIPELINE_CREATE_INFO_HUAWEI: return sizeof(VkSubpassShadingPipelineCreateInfoHUAWEI); break;
 #endif
-#ifdef VK_EXT_subgroup_size_control
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_FEATURES_EXT: return sizeof(VkPhysicalDeviceSubgroupSizeControlFeaturesEXT); break;
-#endif
-#ifdef VK_EXT_subgroup_size_control
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_PROPERTIES_EXT: return sizeof(VkPhysicalDeviceSubgroupSizeControlPropertiesEXT); break;
-#endif
-#ifdef VK_EXT_subgroup_size_control
-        case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_REQUIRED_SUBGROUP_SIZE_CREATE_INFO_EXT: return sizeof(VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT); break;
+#ifdef VK_HUAWEI_subpass_shading
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_SHADING_PROPERTIES_HUAWEI: return sizeof(VkPhysicalDeviceSubpassShadingPropertiesHUAWEI); break;
 #endif
         case VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO: return sizeof(VkMemoryOpaqueCaptureAddressAllocateInfo); break;
         case VK_STRUCTURE_TYPE_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO: return sizeof(VkDeviceMemoryOpaqueCaptureAddressInfo); break;
@@ -956,22 +980,20 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_EXT_line_rasterization
         case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_LINE_STATE_CREATE_INFO_EXT: return sizeof(VkPipelineRasterizationLineStateCreateInfoEXT); break;
 #endif
-#ifdef VK_EXT_pipeline_creation_cache_control
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES_EXT: return sizeof(VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT); break;
-#endif
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES: return sizeof(VkPhysicalDevicePipelineCreationCacheControlFeatures); break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES: return sizeof(VkPhysicalDeviceVulkan11Features); break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES: return sizeof(VkPhysicalDeviceVulkan11Properties); break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES: return sizeof(VkPhysicalDeviceVulkan12Features); break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES: return sizeof(VkPhysicalDeviceVulkan12Properties); break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES: return sizeof(VkPhysicalDeviceVulkan13Features); break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_PROPERTIES: return sizeof(VkPhysicalDeviceVulkan13Properties); break;
 #ifdef VK_AMD_pipeline_compiler_control
         case VK_STRUCTURE_TYPE_PIPELINE_COMPILER_CONTROL_CREATE_INFO_AMD: return sizeof(VkPipelineCompilerControlCreateInfoAMD); break;
 #endif
 #ifdef VK_AMD_device_coherent_memory
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COHERENT_MEMORY_FEATURES_AMD: return sizeof(VkPhysicalDeviceCoherentMemoryFeaturesAMD); break;
 #endif
-#ifdef VK_EXT_tooling_info
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES_EXT: return sizeof(VkPhysicalDeviceToolPropertiesEXT); break;
-#endif
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES: return sizeof(VkPhysicalDeviceToolProperties); break;
 #ifdef VK_EXT_custom_border_color
         case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT: return sizeof(VkSamplerCustomBorderColorCreateInfoEXT); break;
 #endif
@@ -980,6 +1002,12 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #endif
 #ifdef VK_EXT_custom_border_color
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT: return sizeof(VkPhysicalDeviceCustomBorderColorFeaturesEXT); break;
+#endif
+#ifdef VK_EXT_border_color_swizzle
+        case VK_STRUCTURE_TYPE_SAMPLER_BORDER_COLOR_COMPONENT_MAPPING_CREATE_INFO_EXT: return sizeof(VkSamplerBorderColorComponentMappingCreateInfoEXT); break;
+#endif
+#ifdef VK_EXT_border_color_swizzle
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT: return sizeof(VkPhysicalDeviceBorderColorSwizzleFeaturesEXT); break;
 #endif
 #ifdef VK_KHR_acceleration_structure
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR: return sizeof(VkAccelerationStructureGeometryTrianglesDataKHR); break;
@@ -1041,8 +1069,9 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_NV_device_diagnostics_config
         case VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV: return sizeof(VkDeviceDiagnosticsConfigCreateInfoNV); break;
 #endif
-#ifdef VK_KHR_zero_initialize_workgroup_memory
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_WORKGROUP_MEMORY_FEATURES_KHR: return sizeof(VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeaturesKHR); break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_WORKGROUP_MEMORY_FEATURES: return sizeof(VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures); break;
+#ifdef VK_KHR_shader_subgroup_uniform_control_flow
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_UNIFORM_CONTROL_FLOW_FEATURES_KHR: return sizeof(VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR); break;
 #endif
 #ifdef VK_EXT_robustness2
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT: return sizeof(VkPhysicalDeviceRobustness2FeaturesEXT); break;
@@ -1050,9 +1079,7 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_EXT_robustness2
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_EXT: return sizeof(VkPhysicalDeviceRobustness2PropertiesEXT); break;
 #endif
-#ifdef VK_EXT_image_robustness
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES_EXT: return sizeof(VkPhysicalDeviceImageRobustnessFeaturesEXT); break;
-#endif
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES: return sizeof(VkPhysicalDeviceImageRobustnessFeatures); break;
 #ifdef VK_KHR_workgroup_memory_explicit_layout
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_WORKGROUP_MEMORY_EXPLICIT_LAYOUT_FEATURES_KHR: return sizeof(VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR); break;
 #endif
@@ -1065,39 +1092,20 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_EXT_4444_formats
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT: return sizeof(VkPhysicalDevice4444FormatsFeaturesEXT); break;
 #endif
-#ifdef VK_KHR_copy_commands2
-        case VK_STRUCTURE_TYPE_BUFFER_COPY_2_KHR: return sizeof(VkBufferCopy2KHR); break;
+#ifdef VK_HUAWEI_subpass_shading
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_SHADING_FEATURES_HUAWEI: return sizeof(VkPhysicalDeviceSubpassShadingFeaturesHUAWEI); break;
 #endif
-#ifdef VK_KHR_copy_commands2
-        case VK_STRUCTURE_TYPE_IMAGE_COPY_2_KHR: return sizeof(VkImageCopy2KHR); break;
-#endif
-#ifdef VK_KHR_copy_commands2
-        case VK_STRUCTURE_TYPE_IMAGE_BLIT_2_KHR: return sizeof(VkImageBlit2KHR); break;
-#endif
-#ifdef VK_KHR_copy_commands2
-        case VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2_KHR: return sizeof(VkBufferImageCopy2KHR); break;
-#endif
-#ifdef VK_KHR_copy_commands2
-        case VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2_KHR: return sizeof(VkImageResolve2KHR); break;
-#endif
-#ifdef VK_KHR_copy_commands2
-        case VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2_KHR: return sizeof(VkCopyBufferInfo2KHR); break;
-#endif
-#ifdef VK_KHR_copy_commands2
-        case VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2_KHR: return sizeof(VkCopyImageInfo2KHR); break;
-#endif
-#ifdef VK_KHR_copy_commands2
-        case VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2_KHR: return sizeof(VkBlitImageInfo2KHR); break;
-#endif
-#ifdef VK_KHR_copy_commands2
-        case VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2_KHR: return sizeof(VkCopyBufferToImageInfo2KHR); break;
-#endif
-#ifdef VK_KHR_copy_commands2
-        case VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2_KHR: return sizeof(VkCopyImageToBufferInfo2KHR); break;
-#endif
-#ifdef VK_KHR_copy_commands2
-        case VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2_KHR: return sizeof(VkResolveImageInfo2KHR); break;
-#endif
+        case VK_STRUCTURE_TYPE_BUFFER_COPY_2: return sizeof(VkBufferCopy2); break;
+        case VK_STRUCTURE_TYPE_IMAGE_COPY_2: return sizeof(VkImageCopy2); break;
+        case VK_STRUCTURE_TYPE_IMAGE_BLIT_2: return sizeof(VkImageBlit2); break;
+        case VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2: return sizeof(VkBufferImageCopy2); break;
+        case VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2: return sizeof(VkImageResolve2); break;
+        case VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2: return sizeof(VkCopyBufferInfo2); break;
+        case VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2: return sizeof(VkCopyImageInfo2); break;
+        case VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2: return sizeof(VkBlitImageInfo2); break;
+        case VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2: return sizeof(VkCopyBufferToImageInfo2); break;
+        case VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2: return sizeof(VkCopyImageToBufferInfo2); break;
+        case VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2: return sizeof(VkResolveImageInfo2); break;
 #ifdef VK_EXT_shader_image_atomic_int64
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_ATOMIC_INT64_FEATURES_EXT: return sizeof(VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT); break;
 #endif
@@ -1116,9 +1124,7 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_KHR_fragment_shading_rate
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_KHR: return sizeof(VkPhysicalDeviceFragmentShadingRateKHR); break;
 #endif
-#ifdef VK_KHR_shader_terminate_invocation
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TERMINATE_INVOCATION_FEATURES_KHR: return sizeof(VkPhysicalDeviceShaderTerminateInvocationFeaturesKHR); break;
-#endif
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TERMINATE_INVOCATION_FEATURES: return sizeof(VkPhysicalDeviceShaderTerminateInvocationFeatures); break;
 #ifdef VK_NV_fragment_shading_rate_enums
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_FEATURES_NV: return sizeof(VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV); break;
 #endif
@@ -1137,8 +1143,17 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_VALVE_mutable_descriptor_type
         case VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_VALVE: return sizeof(VkMutableDescriptorTypeCreateInfoVALVE); break;
 #endif
+#ifdef VK_EXT_depth_clip_control
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_CONTROL_FEATURES_EXT: return sizeof(VkPhysicalDeviceDepthClipControlFeaturesEXT); break;
+#endif
+#ifdef VK_EXT_depth_clip_control
+        case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLIP_CONTROL_CREATE_INFO_EXT: return sizeof(VkPipelineViewportDepthClipControlCreateInfoEXT); break;
+#endif
 #ifdef VK_EXT_vertex_input_dynamic_state
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT: return sizeof(VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT); break;
+#endif
+#ifdef VK_NV_external_memory_rdma
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_RDMA_FEATURES_NV: return sizeof(VkPhysicalDeviceExternalMemoryRDMAFeaturesNV); break;
 #endif
 #ifdef VK_EXT_vertex_input_dynamic_state
         case VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT: return sizeof(VkVertexInputBindingDescription2EXT); break;
@@ -1152,38 +1167,25 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_EXT_color_write_enable
         case VK_STRUCTURE_TYPE_PIPELINE_COLOR_WRITE_CREATE_INFO_EXT: return sizeof(VkPipelineColorWriteCreateInfoEXT); break;
 #endif
-#ifdef VK_KHR_synchronization2
-        case VK_STRUCTURE_TYPE_MEMORY_BARRIER_2_KHR: return sizeof(VkMemoryBarrier2KHR); break;
-#endif
-#ifdef VK_KHR_synchronization2
-        case VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR: return sizeof(VkImageMemoryBarrier2KHR); break;
-#endif
-#ifdef VK_KHR_synchronization2
-        case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2_KHR: return sizeof(VkBufferMemoryBarrier2KHR); break;
-#endif
-#ifdef VK_KHR_synchronization2
-        case VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR: return sizeof(VkDependencyInfoKHR); break;
-#endif
-#ifdef VK_KHR_synchronization2
-        case VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR: return sizeof(VkSemaphoreSubmitInfoKHR); break;
-#endif
-#ifdef VK_KHR_synchronization2
-        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR: return sizeof(VkCommandBufferSubmitInfoKHR); break;
-#endif
-#ifdef VK_KHR_synchronization2
-        case VK_STRUCTURE_TYPE_SUBMIT_INFO_2_KHR: return sizeof(VkSubmitInfo2KHR); break;
-#endif
+        case VK_STRUCTURE_TYPE_MEMORY_BARRIER_2: return sizeof(VkMemoryBarrier2); break;
+        case VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2: return sizeof(VkImageMemoryBarrier2); break;
+        case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2: return sizeof(VkBufferMemoryBarrier2); break;
+        case VK_STRUCTURE_TYPE_DEPENDENCY_INFO: return sizeof(VkDependencyInfo); break;
+        case VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO: return sizeof(VkSemaphoreSubmitInfo); break;
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO: return sizeof(VkCommandBufferSubmitInfo); break;
+        case VK_STRUCTURE_TYPE_SUBMIT_INFO_2: return sizeof(VkSubmitInfo2); break;
 #ifdef VK_KHR_synchronization2
         case VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_2_NV: return sizeof(VkQueueFamilyCheckpointProperties2NV); break;
 #endif
 #ifdef VK_KHR_synchronization2
         case VK_STRUCTURE_TYPE_CHECKPOINT_DATA_2_NV: return sizeof(VkCheckpointData2NV); break;
 #endif
-#ifdef VK_KHR_synchronization2
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES_KHR: return sizeof(VkPhysicalDeviceSynchronization2FeaturesKHR); break;
-#endif
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES: return sizeof(VkPhysicalDeviceSynchronization2Features); break;
 #ifdef VK_KHR_video_queue
         case VK_STRUCTURE_TYPE_VIDEO_QUEUE_FAMILY_PROPERTIES_2_KHR: return sizeof(VkVideoQueueFamilyProperties2KHR); break;
+#endif
+#ifdef VK_KHR_video_queue
+        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_QUERY_RESULT_STATUS_PROPERTIES_2_KHR: return sizeof(VkQueueFamilyQueryResultStatusProperties2KHR); break;
 #endif
 #ifdef VK_KHR_video_queue
         case VK_STRUCTURE_TYPE_VIDEO_PROFILES_KHR: return sizeof(VkVideoProfilesKHR); break;
@@ -1284,6 +1286,9 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_KHR_video_encode_queue
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_INFO_KHR: return sizeof(VkVideoEncodeRateControlInfoKHR); break;
 #endif
+#ifdef VK_KHR_video_encode_queue
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_LAYER_INFO_KHR: return sizeof(VkVideoEncodeRateControlLayerInfoKHR); break;
+#endif
 #ifdef VK_EXT_video_encode_h264
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_CAPABILITIES_EXT: return sizeof(VkVideoEncodeH264CapabilitiesEXT); break;
 #endif
@@ -1311,6 +1316,48 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_EXT_video_encode_h264
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_NALU_SLICE_EXT: return sizeof(VkVideoEncodeH264NaluSliceEXT); break;
 #endif
+#ifdef VK_EXT_video_encode_h264
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_INFO_EXT: return sizeof(VkVideoEncodeH264RateControlInfoEXT); break;
+#endif
+#ifdef VK_EXT_video_encode_h264
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_LAYER_INFO_EXT: return sizeof(VkVideoEncodeH264RateControlLayerInfoEXT); break;
+#endif
+#ifdef VK_EXT_video_encode_h265
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_CAPABILITIES_EXT: return sizeof(VkVideoEncodeH265CapabilitiesEXT); break;
+#endif
+#ifdef VK_EXT_video_encode_h265
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_CREATE_INFO_EXT: return sizeof(VkVideoEncodeH265SessionCreateInfoEXT); break;
+#endif
+#ifdef VK_EXT_video_encode_h265
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_ADD_INFO_EXT: return sizeof(VkVideoEncodeH265SessionParametersAddInfoEXT); break;
+#endif
+#ifdef VK_EXT_video_encode_h265
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_CREATE_INFO_EXT: return sizeof(VkVideoEncodeH265SessionParametersCreateInfoEXT); break;
+#endif
+#ifdef VK_EXT_video_encode_h265
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_VCL_FRAME_INFO_EXT: return sizeof(VkVideoEncodeH265VclFrameInfoEXT); break;
+#endif
+#ifdef VK_EXT_video_encode_h265
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_EMIT_PICTURE_PARAMETERS_EXT: return sizeof(VkVideoEncodeH265EmitPictureParametersEXT); break;
+#endif
+#ifdef VK_EXT_video_encode_h265
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_NALU_SLICE_EXT: return sizeof(VkVideoEncodeH265NaluSliceEXT); break;
+#endif
+#ifdef VK_EXT_video_encode_h265
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_INFO_EXT: return sizeof(VkVideoEncodeH265RateControlInfoEXT); break;
+#endif
+#ifdef VK_EXT_video_encode_h265
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_LAYER_INFO_EXT: return sizeof(VkVideoEncodeH265RateControlLayerInfoEXT); break;
+#endif
+#ifdef VK_EXT_video_encode_h265
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_EXT: return sizeof(VkVideoEncodeH265ProfileEXT); break;
+#endif
+#ifdef VK_EXT_video_encode_h265
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_DPB_SLOT_INFO_EXT: return sizeof(VkVideoEncodeH265DpbSlotInfoEXT); break;
+#endif
+#ifdef VK_EXT_video_encode_h265
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_REFERENCE_LISTS_EXT: return sizeof(VkVideoEncodeH265ReferenceListsEXT); break;
+#endif
 #ifdef VK_NV_inherited_viewport_scissor
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INHERITED_VIEWPORT_SCISSOR_FEATURES_NV: return sizeof(VkPhysicalDeviceInheritedViewportScissorFeaturesNV); break;
 #endif
@@ -1328,6 +1375,101 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #endif
 #ifdef VK_EXT_provoking_vertex
         case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_PROVOKING_VERTEX_STATE_CREATE_INFO_EXT: return sizeof(VkPipelineRasterizationProvokingVertexStateCreateInfoEXT); break;
+#endif
+#ifdef VK_NVX_binary_import
+        case VK_STRUCTURE_TYPE_CU_MODULE_CREATE_INFO_NVX: return sizeof(VkCuModuleCreateInfoNVX); break;
+#endif
+#ifdef VK_NVX_binary_import
+        case VK_STRUCTURE_TYPE_CU_FUNCTION_CREATE_INFO_NVX: return sizeof(VkCuFunctionCreateInfoNVX); break;
+#endif
+#ifdef VK_NVX_binary_import
+        case VK_STRUCTURE_TYPE_CU_LAUNCH_INFO_NVX: return sizeof(VkCuLaunchInfoNVX); break;
+#endif
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_FEATURES: return sizeof(VkPhysicalDeviceShaderIntegerDotProductFeatures); break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_PROPERTIES: return sizeof(VkPhysicalDeviceShaderIntegerDotProductProperties); break;
+#ifdef VK_EXT_physical_device_drm
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRM_PROPERTIES_EXT: return sizeof(VkPhysicalDeviceDrmPropertiesEXT); break;
+#endif
+#ifdef VK_NV_ray_tracing_motion_blur
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MOTION_BLUR_FEATURES_NV: return sizeof(VkPhysicalDeviceRayTracingMotionBlurFeaturesNV); break;
+#endif
+#ifdef VK_NV_ray_tracing_motion_blur
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_MOTION_TRIANGLES_DATA_NV: return sizeof(VkAccelerationStructureGeometryMotionTrianglesDataNV); break;
+#endif
+#ifdef VK_NV_ray_tracing_motion_blur
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MOTION_INFO_NV: return sizeof(VkAccelerationStructureMotionInfoNV); break;
+#endif
+#ifdef VK_NV_external_memory_rdma
+        case VK_STRUCTURE_TYPE_MEMORY_GET_REMOTE_ADDRESS_INFO_NV: return sizeof(VkMemoryGetRemoteAddressInfoNV); break;
+#endif
+#ifdef VK_FUCHSIA_buffer_collection
+        case VK_STRUCTURE_TYPE_IMPORT_MEMORY_BUFFER_COLLECTION_FUCHSIA: return sizeof(VkImportMemoryBufferCollectionFUCHSIA); break;
+#endif
+#ifdef VK_FUCHSIA_buffer_collection
+        case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_IMAGE_CREATE_INFO_FUCHSIA: return sizeof(VkBufferCollectionImageCreateInfoFUCHSIA); break;
+#endif
+#ifdef VK_FUCHSIA_buffer_collection
+        case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_BUFFER_CREATE_INFO_FUCHSIA: return sizeof(VkBufferCollectionBufferCreateInfoFUCHSIA); break;
+#endif
+#ifdef VK_FUCHSIA_buffer_collection
+        case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_CREATE_INFO_FUCHSIA: return sizeof(VkBufferCollectionCreateInfoFUCHSIA); break;
+#endif
+#ifdef VK_FUCHSIA_buffer_collection
+        case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_PROPERTIES_FUCHSIA: return sizeof(VkBufferCollectionPropertiesFUCHSIA); break;
+#endif
+#ifdef VK_FUCHSIA_buffer_collection
+        case VK_STRUCTURE_TYPE_BUFFER_CONSTRAINTS_INFO_FUCHSIA: return sizeof(VkBufferConstraintsInfoFUCHSIA); break;
+#endif
+#ifdef VK_FUCHSIA_buffer_collection
+        case VK_STRUCTURE_TYPE_SYSMEM_COLOR_SPACE_FUCHSIA: return sizeof(VkSysmemColorSpaceFUCHSIA); break;
+#endif
+#ifdef VK_FUCHSIA_buffer_collection
+        case VK_STRUCTURE_TYPE_IMAGE_FORMAT_CONSTRAINTS_INFO_FUCHSIA: return sizeof(VkImageFormatConstraintsInfoFUCHSIA); break;
+#endif
+#ifdef VK_FUCHSIA_buffer_collection
+        case VK_STRUCTURE_TYPE_IMAGE_CONSTRAINTS_INFO_FUCHSIA: return sizeof(VkImageConstraintsInfoFUCHSIA); break;
+#endif
+#ifdef VK_FUCHSIA_buffer_collection
+        case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_CONSTRAINTS_INFO_FUCHSIA: return sizeof(VkBufferCollectionConstraintsInfoFUCHSIA); break;
+#endif
+#ifdef VK_EXT_rgba10x6_formats
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT: return sizeof(VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT); break;
+#endif
+        case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_3: return sizeof(VkFormatProperties3); break;
+#ifdef VK_EXT_image_drm_format_modifier
+        case VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_2_EXT: return sizeof(VkDrmFormatModifierPropertiesList2EXT); break;
+#endif
+#ifdef VK_ANDROID_external_memory_android_hardware_buffer
+        case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_2_ANDROID: return sizeof(VkAndroidHardwareBufferFormatProperties2ANDROID); break;
+#endif
+        case VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO: return sizeof(VkPipelineRenderingCreateInfo); break;
+        case VK_STRUCTURE_TYPE_RENDERING_INFO: return sizeof(VkRenderingInfo); break;
+        case VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO: return sizeof(VkRenderingAttachmentInfo); break;
+#ifdef VK_KHR_dynamic_rendering
+        case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR: return sizeof(VkRenderingFragmentShadingRateAttachmentInfoKHR); break;
+#endif
+#ifdef VK_KHR_dynamic_rendering
+        case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT: return sizeof(VkRenderingFragmentDensityMapAttachmentInfoEXT); break;
+#endif
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES: return sizeof(VkPhysicalDeviceDynamicRenderingFeatures); break;
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDERING_INFO: return sizeof(VkCommandBufferInheritanceRenderingInfo); break;
+#ifdef VK_KHR_dynamic_rendering
+        case VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD: return sizeof(VkAttachmentSampleCountInfoAMD); break;
+#endif
+#ifdef VK_KHR_dynamic_rendering
+        case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_ATTRIBUTES_INFO_NVX: return sizeof(VkMultiviewPerViewAttributesInfoNVX); break;
+#endif
+#ifdef VK_EXT_image_view_min_lod
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT: return sizeof(VkPhysicalDeviceImageViewMinLodFeaturesEXT); break;
+#endif
+#ifdef VK_EXT_image_view_min_lod
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_MIN_LOD_CREATE_INFO_EXT: return sizeof(VkImageViewMinLodCreateInfoEXT); break;
+#endif
+#ifdef VK_ARM_rasterization_order_attachment_access
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_ARM: return sizeof(VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM); break;
+#endif
+#ifdef VK_NV_linear_color_attachment
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINEAR_COLOR_ATTACHMENT_FEATURES_NV: return sizeof(VkPhysicalDeviceLinearColorAttachmentFeaturesNV); break;
 #endif
         //default: 
     };
