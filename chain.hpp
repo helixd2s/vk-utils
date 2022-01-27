@@ -189,7 +189,12 @@ namespace vku {
 
         // 
         std::shared_ptr<vk::BaseOutStructure> getLeader() {
-            return storage[0];
+            if (storage.size() > 0) { return storage[0];} else { return {}; };
+        };
+
+        // 
+        std::shared_ptr<vk::BaseOutStructure> getLeader() const {
+            if (storage.size() > 0) { return storage[0]; } else { return {}; };
         };
 
         template<class T = vk::BaseOutStructure>
