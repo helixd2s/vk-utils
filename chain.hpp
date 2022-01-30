@@ -174,6 +174,29 @@ namespace vku {
         std::vector<std::shared_ptr<vk::BaseOutStructure>> storage = {};
 
     public: 
+        //
+        ChainStorage() {
+        
+        };
+
+        //
+        ChainStorage(vk::BaseInStructure const& structure, uintptr_t const& size = 0u) {
+            auto sized = size > 0 ? size : vkGetStructureSizeBySType((VkStructureType const&)structure.sType);
+            auto memory = std::shared_ptr<vk::BaseOutStructure>((vk::BaseOutStructure*)malloc(sized), free); // simpler to allocate new
+            memcpy(memory.get(), &structure, size); // simpler to do memcpy
+            storage = std::vector<std::shared_ptr<vk::BaseOutStructure>>{ memory }; // simpler reconstruct 
+        };
+
+        // 
+        std::shared_ptr<vk::BaseOutStructure> getLeader() {
+            if (storage.size() > 0) { return storage[0];} else { return {}; };
+        };
+
+        // 
+        std::shared_ptr<vk::BaseOutStructure> getLeader() const {
+            if (storage.size() > 0) { return storage[0]; } else { return {}; };
+        };
+
         template<class T = vk::BaseOutStructure>
         inline auto [[nodiscard]] getElement(const vk::StructureType& sType) {
             std::shared_ptr<T> element = {};
@@ -187,12 +210,13 @@ namespace vku {
             return element ? ts::opt_ref<T>(*element) : ts::optional_ref<T>{};
         };
 
-        template<class T = vk::BaseOutStructure>
+        template<class T = vk::BaseInStructure>
         inline std::shared_ptr<ChainStorage> addElement(const T& structure = T{}, const uintptr_t size = sizeof(T)) {
             auto exist = this->getElement<T>(structure.sType);
+            auto sized = size > 0 ? size : vkGetStructureSizeBySType((VkStructureType const&)structure.sType);
             if (!exist) {
                 std::shared_ptr<vk::BaseOutStructure> bk = storage.size() > 0 ? storage.back() : std::shared_ptr<vk::BaseOutStructure>{};
-                storage.push_back(std::shared_ptr<vk::BaseOutStructure>((vk::BaseOutStructure*)malloc(size), free));
+                storage.push_back(std::shared_ptr<vk::BaseOutStructure>((vk::BaseOutStructure*)malloc(sized), free));
                 exist = std::reinterpret_pointer_cast<T>(storage.back());
                 if (bk) { bk->pNext = reinterpret_cast<vk::BaseOutStructure*>(exist.get()); };
                 memcpy(exist.get(), &structure, size); // size is important!
