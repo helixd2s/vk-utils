@@ -265,12 +265,12 @@ namespace stm {
 
     public: 
         template<class T = V>
-        shared_map<K,V>& set(K const& key, T const& data = {}) {
+        std::shared_ptr<T> set(K const& key, T const& data = {}) {
             auto last = chain.size();
             auto local = std::shared_ptr<V>((V*)malloc(sizeof(T)), free);
             memcpy(local.get(), &data, sizeof(T));
             map[key] = local;
-            return *this;
+            return std::reinterpret_pointer_cast<T>(local);
         };
 
         template<class T = V>
