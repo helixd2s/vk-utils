@@ -167,8 +167,8 @@ namespace vku {
         inline auto fromChain(const O& base) { return fromChain<O, T>(sType, base); };
     };
 
-
     // 
+    [[deprecated]]
     class ChainStorage : public std::enable_shared_from_this<ChainStorage> { 
     protected: 
         std::vector<std::shared_ptr<vk::BaseOutStructure>> storage = {};

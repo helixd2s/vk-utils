@@ -177,7 +177,7 @@ namespace stm {
     //
     using localptr_t = uintptr_t;
 
-    // 
+    // for vulkan structs or descriptor set data bucket
     class data_store {
     protected:
         // we use local pointer memory
@@ -222,6 +222,72 @@ namespace stm {
             return *this->ptr<S>(address);
         };
     };
+
+    // for vulkan structs with shared_ptr
+    template<class V = void_t>
+    class shared_store {
+    protected:
+        // we use local pointer memory
+        std::vector<std::shared_ptr<V>> chain = {};
+
+    public: 
+        template<class T = V>
+        uintptr_t push(T const& data = {}) {
+            auto last = chain.size();
+            auto data = std::shared_ptr<V>((V*)malloc(sizeof(T)), free);
+            memcpy(data.get(), &data, sizeof(T));
+            chain->push_back(data);
+            return last;
+        };
+
+        template<class T = V>
+        uintptr_t push(std::shared_ptr<T> const& data = {}) {
+            auto last = chain.size();
+            chain->push_back(std::reinterpret_pointer_cast<V>(data));
+            return last;
+        };
+
+        std::shared_ptr<T> get(uintptr_t const& index = 0u) {
+            return std::reinterpret_pointer_cast<T>(chain[index]);
+        };
+
+        std::shared_ptr<T> get(uintptr_t const& index = 0u) const {
+            return std::reinterpret_pointer_cast<T>(chain[index]);
+        };
+    };
+
+    // for advanced vulkan structs with shared_ptr
+    template<class K = uintptr_t, class V = void_t>
+    class shared_map {
+    protected:
+        // we use local pointer memory
+        std::unordered_map<K, std::shared_ptr<V>> map = {};
+
+    public: 
+        template<class T = V>
+        shared_map<K,V>& set(K const& key, T const& data = {}) {
+            auto last = chain.size();
+            auto local = std::shared_ptr<V>((V*)malloc(sizeof(T)), free);
+            memcpy(local.get(), &data, sizeof(T));
+            map[key] = local;
+            return *this;
+        };
+
+        template<class T = V>
+        shared_map<K,V>& set(K const& key, std::shared_ptr<T> const& data = {}) {
+            map[key] = std::reinterpret_pointer_cast<V>(data); 
+            return *this;
+        };
+
+        std::shared_ptr<T> get(K const& key) {
+            return std::reinterpret_pointer_cast<T>(map.at(key));
+        };
+
+        std::shared_ptr<T> get(K const& key) const {
+            return std::reinterpret_pointer_cast<T>(map.at(key));
+        };
+    };
+    
 
 
 #ifdef VKU_ENABLE_INTERVAL
