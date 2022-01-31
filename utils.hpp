@@ -174,6 +174,15 @@ namespace stm {
 
     };
 
+    // only for construct vulkan structures
+    template<class T>
+    std::shared_ptr<T> shared_struct(T&& data) {
+        auto shared = std::shared_ptr<T>((T*)malloc(sizeof(T)), free);
+        //memcpy(shared.get(), &data, sizeof(T));
+        *shared = data;
+        return shared;
+    };
+
     //
     using localptr_t = uintptr_t;
 
