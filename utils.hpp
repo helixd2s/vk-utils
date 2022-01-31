@@ -62,9 +62,7 @@ namespace stm {
         operator bool() const { return !!ptr; };
     };
 
-
-
-
+    // 
     class link_base {
     protected: 
         void* ptr = nullptr;
@@ -74,47 +72,57 @@ namespace stm {
         link_base(const void* ptr) { this->assign(ptr); };
         ~link_base() { free(ptr); };
 
-        virtual link_base& assign(const void* obj, const uintptr_t& size) { memcpy(this->ptr = malloc(size), obj, size); return *this; };
-        virtual link_base& assign(const void* obj) { return *this; };
-        virtual link_base& operator=(const void* obj) { return this->assign(obj); };
+        // 
+        link_base& assign(const void* obj, const uintptr_t& size) { memcpy(this->ptr = malloc(size), obj, size); return *this; };
+        link_base& assign(const void* obj) { std::cerr << "sorry, but we doesn't know assign size" << std::endl; return *this; };
+        link_base& operator=(const void* obj) { return this->assign(obj); };
     };
 
+    // 
     template<class T>
     class link : public link_base { 
-    protected: 
-        T* ptr = nullptr;
 
     public: 
         link() : link_base() {};
         link(const void* const& ptr) : link_base(ptr) {};
-        link(const T* const& obj) { this->assign(obj); };
-        link(const link<T>& obj) { this->assign(obj.get()); };
+        link(const T* const& obj) { this->assign<T>(obj); };
+        link(const link<T>& obj) { this->assign<T>(obj.get()); };
 
+        // 
         T*& operator->() { return this->get(); };
         T* const& operator->() const { return this->get(); };
 
+        // 
         T& operator *() { return *this->get(); };
         T const& operator *() const { return *this->get(); };
 
+        // 
         operator T&() { return *this->get(); };
         operator T const&() const { return *this->get(); };
 
+        // 
         operator T*&() { return this->get(); };
         operator T* const&() const { return this->get(); };
 
-        T*& get() { return reinterpret_cast<T*&>(ptr); };
-        T* const& get() const { return reinterpret_cast<T* const&>(ptr); };
+        // 
+        T*& get() { return reinterpret_cast<T*&>(this->ptr); };
+        T* const& get() const { return reinterpret_cast<T* const&>(this->ptr); };
 
-        // initiate assign operators
-        virtual link_base& assign(const void* obj) override { this->ptr = new T; *this->get() = *reinterpret_cast<const T*&>(obj); return *this; };
+        //
+        template<class Ts = T>
+        link<Ts>& assign(Ts const* obj) { memcpy(this->get() = new Ts, obj, sizeof(Ts)); return reinterpret_cast<link<Ts>&>(*this); };
 
-        link<T>& operator=(const T& obj) { this->assign(&obj); return *this; };
-        link<T>& operator=(const link<T>& obj) { this->assign(obj.get()); return *this; };
+        //
+        template<class Ts = T>
+        link<Ts>& operator=(Ts const& obj) { return this->assign<Ts>(&obj); };
 
+        // 
+        template<class Ts = T>
+        link<Ts>& operator=(link<Ts> const& obj) { return this->assign<Ts>(obj.get()); };
     };
 
 
-        //
+    //
     template<class T = uintptr_t>
     inline T* pointer(ts::optional_ref<T> ref) {
         return ref ? (&ref.value()) : nullptr;
@@ -165,6 +173,56 @@ namespace stm {
         size_t size() const { return queue.size(); };
 
     };
+
+    //
+    using localptr_t = uintptr_t;
+
+    // 
+    class data_store {
+    protected:
+        // we use local pointer memory
+        std::vector<uint8_t> memory = {};
+
+    public: 
+        // 
+        data_store(std::vector<uint8_t> const& memory = {}) : memory(memory) {
+            
+        };
+
+        // 
+        template<class S>
+        localptr_t push(S const& data) {
+            auto last = memory.size();
+            memory.resize(last + sizeof(S));
+            memcpy(memory.data() + last, &data, sizeof(S));
+            return last;
+        };
+
+        // 
+        template<class S>
+        S const* ptr(localptr_t const& address) const {
+            return reinterpret_cast<S const*>(memory.data() + address);
+        };
+
+        // 
+        template<class S>
+        S* ptr(localptr_t const& address) {
+            return reinterpret_cast<S*>(memory.data() + address);
+        };
+
+        // 
+        template<class S>
+        S& ref(localptr_t const& address) {
+            return *this->ptr<S>(address);
+        };
+
+        // 
+        template<class S>
+        S const& ref(localptr_t const& address) const {
+            return *this->ptr<S>(address);
+        };
+    };
+
 
 #ifdef VKU_ENABLE_INTERVAL
     // 
