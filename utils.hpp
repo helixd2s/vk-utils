@@ -97,23 +97,23 @@ namespace stm {
     };
 
     // 
-    class link_base {
+    class link_void {
     protected: 
         void_t* ptr = nullptr;
 
     public: 
-        link_base() {};
-        link_base(const void_t* ptr) { this->assign(ptr); };
-        ~link_base() { free(ptr); };
+        link_void() {};
+        link_void(void_t const* ptr) { this->assign(ptr); };
+        ~link_void() { free(ptr); };
 
         // 
-        link_base& assign(const void_t* obj, const uintptr_t& size) { memcpy(this->ptr = (void_t*)malloc(size), obj, size); return *this; };
-        link_base& assign(const void_t* obj) { std::cerr << "sorry, but we doesn't know assign size" << std::endl; return *this; };
-        link_base& operator=(const void_t* obj) { return this->assign(obj); };
+        link_void& assign(void_t const* obj, size_t const& size) { memcpy(this->ptr = (void_t*)malloc(size), obj, size); return *this; };
+        link_void& assign(void_t const* obj) { std::cerr << "sorry, but we doesn't know assign size" << std::endl; return *this; };
+        link_void& operator=(void_t const* obj) { return this->assign(obj); };
 
         //
         template<class Ts = void_t>
-        link<Ts>& assign(Ts const* obj) { memcpy(this->ptr = new Ts, obj, sizeof(Ts)); return reinterpret_cast<link<Ts>&>(*this); };
+        link<Ts>& assign(Ts const* obj) { return reinterpret_cast<link<Ts>&>(this->assign(reinterpret_cast<void_t const*>(obj), sizeof(Ts))); };
 
         //
         template<class Ts = void_t>
@@ -146,11 +146,11 @@ namespace stm {
 
     // 
     template<class T = void_t>
-    class link : public link_base { 
+    class link : public link_void { 
 
     public: 
-        link() : link_base() {};
-        link(const void* const& ptr) : link_base(ptr) {};
+        link() : link_void() {};
+        link(const void* const& ptr) : link_void(ptr) {};
         link(const T* const& obj) { this->assign<T>(obj); };
         link(const link<T>& obj) { this->assign<T>(obj.get()); };
 
@@ -176,7 +176,7 @@ namespace stm {
 
         //
         template<class Ts = T>
-        link<Ts>& assign(Ts const* obj) { memcpy(this->get() = new Ts, obj, sizeof(Ts)); return reinterpret_cast<link<Ts>&>(*this); };
+        link<Ts>& assign(Ts const* obj) { return reinterpret_cast<link<Ts>&>(this->assign(reinterpret_cast<void_t const*>(obj), sizeof(Ts))); };
 
         //
         template<class Ts = T>
