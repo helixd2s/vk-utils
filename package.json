@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@rgrove/parse-xml": "^3.0.0"
+    "@rgrove/parse-xml": "^3.0.0",
+    "parse-xml": "^1.0.1"
   }
 }
