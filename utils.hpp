@@ -83,6 +83,18 @@ namespace stm {
         link_base& assign(const void* obj, const uintptr_t& size) { memcpy(this->ptr = malloc(size), obj, size); return *this; };
         link_base& assign(const void* obj) { std::cerr << "sorry, but we doesn't know assign size" << std::endl; return *this; };
         link_base& operator=(const void* obj) { return this->assign(obj); };
+
+        //
+        template<class Ts = void>
+        link<Ts>& assign(Ts const* obj) { memcpy(this->get() = new Ts, obj, sizeof(Ts)); return reinterpret_cast<link<Ts>&>(*this); };
+
+        //
+        template<class Ts = void>
+        link<Ts>& operator=(Ts const& obj) { return this->assign<Ts>(&obj); };
+
+        // to avoid ambiguous
+        template<class Ts = void, typename Ls = link<Ts>>
+        link<Ts>& operator=(Ls const& obj) { return this->assign<Ts>(obj.get()); };
     };
 
     // 
@@ -123,9 +135,9 @@ namespace stm {
         template<class Ts = T>
         link<Ts>& operator=(Ts const& obj) { return this->assign<Ts>(&obj); };
 
-        // 
-        template<class Ts = T>
-        link<Ts>& operator=(link<Ts> const& obj) { return this->assign<Ts>(obj.get()); };
+        // to avoid ambiguous
+        template<class Ts = T, typename Ls = link<Ts>>
+        link<Ts>& operator=(Ls const& obj) { return this->assign<Ts>(obj.get()); };
     };
 
 #ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
