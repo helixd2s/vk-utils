@@ -86,7 +86,7 @@ namespace stm {
 
         //
         template<class Ts = void>
-        link<Ts>& assign(Ts const* obj) { memcpy(this->get() = new Ts, obj, sizeof(Ts)); return reinterpret_cast<link<Ts>&>(*this); };
+        link<Ts>& assign(Ts const* obj) { memcpy(this->ptr = new Ts, obj, sizeof(Ts)); return reinterpret_cast<link<Ts>&>(*this); };
 
         //
         template<class Ts = void>
