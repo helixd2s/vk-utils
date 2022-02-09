@@ -35,6 +35,33 @@ namespace stm {
     //using void_t = uint8_t;
     class void_t { public: 
 
+        //
+        template<class Ts = void_t>
+        Ts& assign(Ts const* obj) { memcpy(this = new Ts, obj, sizeof(Ts)); return reinterpret_cast<Ts&>(*this); };
+
+        //
+        template<class Ts = void_t>
+        Ts& operator=(Ts const& obj) { return this->assign<Ts>(&obj); };
+
+        // 
+        template<class Ts = void_t> Ts*& operator->() { return this->get<Ts>(); };
+        template<class Ts = void_t> Ts* const& operator->() const { return this->get<Ts>(); };
+
+        // 
+        template<class Ts = void_t> Ts& operator *() { return *this->get<Ts>(); };
+        template<class Ts = void_t> Ts const& operator *() const { return *this->get<Ts>(); };
+
+        // 
+        template<class Ts = void_t> operator Ts&() { return *this->get<Ts>(); };
+        template<class Ts = void_t> operator Ts const&() const { return *this->get<Ts>(); };
+
+        // 
+        template<class Ts = void_t> operator Ts*&() { return this->get<Ts>(); };
+        template<class Ts = void_t> operator Ts* const&() const { return this->get<Ts>(); };
+
+        // 
+        template<class Ts = void_t> Ts*& get() { return reinterpret_cast<Ts*&>(this); };
+        template<class Ts = void_t> Ts* const& get() const { return reinterpret_cast<Ts* const&>(this); };
     };
 
     // 
@@ -64,7 +91,7 @@ namespace stm {
         T* const& get() const { return reinterpret_cast<T* const&>(ptr); };
 
         wrap_ptr<T>& operator =(T* const& ptr) { this->ptr = ptr; return *this; };
-        wrap_ptr<T>& operator =(const wrap_ptr<T>& ptr) { this->ptr = ptr.get(); return *this; };
+        wrap_ptr<T,W=wrap_ptr<T>>& operator =(W const& ptr) { this->ptr = ptr.get(); return *this; };
 
         operator bool() const { return !!ptr; };
     };
@@ -72,33 +99,53 @@ namespace stm {
     // 
     class link_base {
     protected: 
-        void* ptr = nullptr;
+        void_t* ptr = nullptr;
 
     public: 
         link_base() {};
-        link_base(const void* ptr) { this->assign(ptr); };
+        link_base(const void_t* ptr) { this->assign(ptr); };
         ~link_base() { free(ptr); };
 
         // 
-        link_base& assign(const void* obj, const uintptr_t& size) { memcpy(this->ptr = malloc(size), obj, size); return *this; };
-        link_base& assign(const void* obj) { std::cerr << "sorry, but we doesn't know assign size" << std::endl; return *this; };
-        link_base& operator=(const void* obj) { return this->assign(obj); };
+        link_base& assign(const void_t* obj, const uintptr_t& size) { memcpy(this->ptr = malloc(size), obj, size); return *this; };
+        link_base& assign(const void_t* obj) { std::cerr << "sorry, but we doesn't know assign size" << std::endl; return *this; };
+        link_base& operator=(const void_t* obj) { return this->assign(obj); };
 
         //
-        template<class Ts = void>
+        template<class Ts = void_t>
         link<Ts>& assign(Ts const* obj) { memcpy(this->ptr = new Ts, obj, sizeof(Ts)); return reinterpret_cast<link<Ts>&>(*this); };
 
         //
-        template<class Ts = void>
+        template<class Ts = void_t>
         link<Ts>& operator=(Ts const& obj) { return this->assign<Ts>(&obj); };
 
         // to avoid ambiguous
-        template<class Ts = void, typename Ls = link<Ts>>
+        template<class Ts = void_t, typename Ls = link<Ts>>
         link<Ts>& operator=(Ls const& obj) { return this->assign<Ts>(obj.get()); };
+
+        // 
+        template<class Ts = void_t> Ts*& operator->() { return this->get(); };
+        template<class Ts = void_t> Ts* const& operator->() const { return this->get(); };
+
+        // 
+        template<class Ts = void_t> Ts& operator *() { return *this->get(); };
+        template<class Ts = void_t> Ts const& operator *() const { return *this->get(); };
+
+        // 
+        template<class Ts = void_t> operator Ts&() { return *this->get(); };
+        template<class Ts = void_t> operator Ts const&() const { return *this->get(); };
+
+        // 
+        template<class Ts = void_t> operator Ts*&() { return this->get(); };
+        template<class Ts = void_t> operator Ts* const&() const { return this->get(); };
+
+        // 
+        template<class Ts = void_t> Ts*& get() { return reinterpret_cast<T*&>(this->ptr); };
+        template<class Ts = void_t> Ts* const& get() const { return reinterpret_cast<T* const&>(this->ptr); };
     };
 
     // 
-    template<class T>
+    template<class T = void_t>
     class link : public link_base { 
 
     public: 
