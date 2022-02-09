@@ -25,12 +25,19 @@
 // 
 namespace stm {
 
+    // make short alias
+#ifdef VKU_ENABLE_TYPE_SAFE
+    namespace ts {
+        using namespace type_safe;
+    };
+#endif
+
     //using void_t = uint8_t;
     class void_t { public: 
 
     };
 
-
+    // 
     template<class T>
     class wrap_ptr {
     protected:
