@@ -107,7 +107,7 @@ namespace stm {
         ~link_base() { free(ptr); };
 
         // 
-        link_base& assign(const void_t* obj, const uintptr_t& size) { memcpy(this->ptr = malloc(size), obj, size); return *this; };
+        link_base& assign(const void_t* obj, const uintptr_t& size) { memcpy(this->ptr = (void_t*)malloc(size), obj, size); return *this; };
         link_base& assign(const void_t* obj) { std::cerr << "sorry, but we doesn't know assign size" << std::endl; return *this; };
         link_base& operator=(const void_t* obj) { return this->assign(obj); };
 
