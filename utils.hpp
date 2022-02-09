@@ -37,7 +37,7 @@ namespace stm {
 
         //
         template<class Ts = void_t>
-        Ts& assign(Ts const* obj) { memcpy(this = new Ts, obj, sizeof(Ts)); return reinterpret_cast<Ts&>(*this); };
+        Ts& assign(Ts const* obj) { memcpy(this, obj, sizeof(Ts)); return reinterpret_cast<Ts&>(*this); };
 
         //
         template<class Ts = void_t>
