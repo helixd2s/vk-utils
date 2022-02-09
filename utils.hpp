@@ -121,7 +121,7 @@ namespace stm {
         link<Ts>& operator=(link<Ts> const& obj) { return this->assign<Ts>(obj.get()); };
     };
 
-
+#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
     //
     template<class T = uintptr_t>
     inline T* pointer(ts::optional_ref<T> ref) {
@@ -133,7 +133,8 @@ namespace stm {
     inline T const* pointer(ts::optional_ref<const T> ref) {
         return ref ? (&ref.value()) : nullptr;
     };
-    
+#endif
+
     //
     template<class T = uintptr_t>
     inline T* pointer(std::optional<T>& ref) {
