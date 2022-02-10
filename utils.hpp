@@ -37,11 +37,11 @@ namespace stm {
 
         //
         template<class Ts = void_t>
-        Ts& assign(Ts const* obj) { memcpy(this, obj, sizeof(Ts)); return reinterpret_cast<Ts&>(*this); };
+        decltype(auto) assign(Ts const* obj) { memcpy(this, obj, sizeof(Ts)); return reinterpret_cast<Ts&>(*this); };
 
         //
         template<class Ts = void_t>
-        Ts& operator=(Ts const& obj) { return this->assign<Ts>(&obj); };
+        decltype(auto) operator=(Ts const& obj) { return this->assign<Ts>(&obj); };
 
         // 
         template<class Ts = void_t> Ts*& operator->() { return this->get<Ts>(); };
@@ -62,7 +62,65 @@ namespace stm {
         // 
         template<class Ts = void_t> Ts*& get() { return reinterpret_cast<Ts*&>(this); };
         template<class Ts = void_t> Ts* const& get() const { return reinterpret_cast<Ts* const&>(this); };
+
+        // 
+        operator bool() const { return false; };
     };
+
+    // 
+#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
+    using optional_ref = ts::optional_ref;
+    using opt_ref = ts::opt_ref;
+    using opt_cref = ts::opt_cref;
+#else 
+    // own implementation of optional ref
+    template<class T = void_t>
+    class optional_ref {
+    private:
+        T* ptr = nullptr;
+
+        // 
+        optional_ref(optional_ref<T> const& ref) : ptr(ref ? ref.value() : nullptr) {};
+        optional_ref(optional_ref<T>& ref) : ptr(ref ? ref.value() : nullptr) {};
+        optional_ref(T& ref) : ptr(&ref) {};
+        optional_ref() {};
+
+        // 
+        operator T&() { return *this->ptr; }
+        operator T const&() const { return *this->ptr; }
+
+        // assign ref
+        decltype(auto) operator=(optional_ref<T> const& ref) { ptr = ref ? ref.value() : nullptr; return *this; };
+        decltype(auto) operator=(optional_ref<T>& ref) { ptr = ref ? ref.value() : nullptr; return *this; };
+        decltype(auto) operator=(T& ref) { ptr = &ref; return *this; };
+        decltype(auto) operator=(T const& ref) { *ptr = ref; return *this; };
+
+        // value alias
+        T& value() { return *this->ptr; }
+        T const& value() const { return *this->ptr; }
+
+        // unwrap operator
+        T& operator *() { return *this->ptr; };
+        T const& operator *() const { return *this->ptr; };
+
+        // accessor operator
+        T* operator ->() { return this->ptr; }
+        T const* operator ->() const { return this->ptr; }
+
+        // check operator
+        operator bool() const { return !!this->ptr; };
+    };
+
+    template<class T = void_t>
+    inline decltype(auto) opt_ref(T& ref) {
+        return optional_ref<T>(ref);
+    };
+
+    template<class T = void_t>
+    inline decltype(auto) opt_cref(const T& ref) {
+        return optional_ref<const T>(ref);
+    };
+#endif
 
     // 
     template<class T>
@@ -96,6 +154,10 @@ namespace stm {
         operator bool() const { return !!ptr; };
     };
 
+    //
+    template<class T = void_t>
+    class link;
+
     // 
     class link_void {
     protected: 
@@ -107,21 +169,21 @@ namespace stm {
         ~link_void() { free(ptr); };
 
         // 
-        link_void& assign(void_t const* obj, size_t const& size) { memcpy(this->ptr = (void_t*)malloc(size), obj, size); return *this; };
-        link_void& assign(void_t const* obj) { std::cerr << "sorry, but we doesn't know assign size" << std::endl; return *this; };
-        link_void& operator=(void_t const* obj) { return this->assign(obj); };
+        decltype(auto) assign(void_t const* obj, size_t const& size) { memcpy(this->ptr = (void_t*)malloc(size), obj, size); return *this; };
+        decltype(auto) assign(void_t const* obj) { std::cerr << "sorry, but we doesn't know assign size" << std::endl; return *this; };
+        decltype(auto) operator=(void_t const* obj) { return this->assign(obj); };
 
         //
         template<class Ts = void_t>
-        link<Ts>& assign(Ts const* obj) { return reinterpret_cast<link<Ts>&>(this->assign(reinterpret_cast<void_t const*>(obj), sizeof(Ts))); };
+        decltype(auto) assign(Ts const* obj) { return reinterpret_cast<link<Ts>&>(this->assign(reinterpret_cast<void_t const*>(obj), sizeof(Ts))); };
 
         //
         template<class Ts = void_t>
-        link<Ts>& operator=(Ts const& obj) { return this->assign<Ts>(&obj); };
+        decltype(auto) operator=(Ts const& obj) { return this->assign<Ts>(&obj); };
 
         // to avoid ambiguous
         template<class Ts = void_t, typename Ls = link<Ts>>
-        link<Ts>& operator=(Ls const& obj) { return this->assign<Ts>(obj.get()); };
+        decltype(auto) operator=(Ls const& obj) { return this->assign<Ts>(obj.get()); };
 
         // 
         template<class Ts = void_t> Ts*& operator->() { return this->get(); };
@@ -176,46 +238,46 @@ namespace stm {
 
         //
         template<class Ts = T>
-        link<Ts>& assign(Ts const* obj) { return reinterpret_cast<link<Ts>&>(this->assign(reinterpret_cast<void_t const*>(obj), sizeof(Ts))); };
+        decltype(auto) assign(Ts const* obj) { return reinterpret_cast<link<Ts>&>(this->assign(reinterpret_cast<void_t const*>(obj), sizeof(Ts))); };
 
         //
         template<class Ts = T>
-        link<Ts>& operator=(Ts const& obj) { return this->assign<Ts>(&obj); };
+        decltype(auto) operator=(Ts const& obj) { return this->assign<Ts>(&obj); };
 
         // to avoid ambiguous
         template<class Ts = T, typename Ls = link<Ts>>
-        link<Ts>& operator=(Ls const& obj) { return this->assign<Ts>(obj.get()); };
+        decltype(auto) operator=(Ls const& obj) { return this->assign<Ts>(obj.get()); };
     };
 
-#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
+//#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
     //
     template<class T = uintptr_t>
-    inline T* pointer(ts::optional_ref<T> ref) {
+    inline decltype(auto) pointer(optional_ref<T> ref) {
         return ref ? (&ref.value()) : nullptr;
     };
 
     //
     template<class T = uintptr_t>
-    inline T const* pointer(ts::optional_ref<const T> ref) {
+    inline decltype(auto) pointer(optional_ref<const T> ref) {
         return ref ? (&ref.value()) : nullptr;
     };
-#endif
+//#endif
 
     //
     template<class T = uintptr_t>
-    inline T* pointer(std::optional<T>& ref) {
-        return ref ? (&ref.value()) : nullptr;
-    };
-
-    //
-    template<class T = uintptr_t>
-    inline T const* pointer(std::optional<T> const& ref) {
+    inline decltype(auto) pointer(std::optional<T>& ref) {
         return ref ? (&ref.value()) : nullptr;
     };
 
     //
     template<class T = uintptr_t>
-    inline T const* pointer(std::optional<const T> const& ref) {
+    inline decltype(auto) pointer(std::optional<T> const& ref) {
+        return ref ? (&ref.value()) : nullptr;
+    };
+
+    //
+    template<class T = uintptr_t>
+    inline decltype(auto) pointer(std::optional<const T> const& ref) {
         return ref ? (&ref.value()) : nullptr;
     };
 
@@ -238,15 +300,14 @@ namespace stm {
         T const& back() const { return queue.back(); };
 
         size_t size() const { return queue.size(); };
-
     };
 
     // only for construct vulkan structures
     template<class T>
-    std::shared_ptr<T> shared_struct(T&& data) {
+    inline decltype(auto) shared_struct(T const& data) {
         auto shared = std::shared_ptr<T>((T*)malloc(sizeof(T)), free);
         //memcpy(shared.get(), &data, sizeof(T));
-        *shared = data;
+        *shared = data; // what if structure can self-copy?
         return shared;
     };
 
@@ -267,7 +328,7 @@ namespace stm {
 
         // 
         template<class S>
-        localptr_t push(S const& data) {
+        decltype(auto) push(S const& data) {
             auto last = memory.size();
             memory.resize(last + sizeof(S));
             memcpy(memory.data() + last, &data, sizeof(S));
@@ -276,25 +337,25 @@ namespace stm {
 
         // 
         template<class S>
-        S const* ptr(localptr_t const& address) const {
+        decltype(auto) ptr(localptr_t const& address) const {
             return reinterpret_cast<S const*>(memory.data() + address);
         };
 
         // 
         template<class S>
-        S* ptr(localptr_t const& address) {
+        decltype(auto) ptr(localptr_t const& address) {
             return reinterpret_cast<S*>(memory.data() + address);
         };
 
         // 
         template<class S>
-        S& ref(localptr_t const& address) {
+        decltype(auto) ref(localptr_t const& address) {
             return *this->ptr<S>(address);
         };
 
         // 
         template<class S>
-        S const& ref(localptr_t const& address) const {
+        decltype(auto) const& ref(localptr_t const& address) const {
             return *this->ptr<S>(address);
         };
     };
@@ -308,7 +369,7 @@ namespace stm {
 
     public: 
         template<class T = V>
-        uintptr_t push(T const& data = {}) {
+        decltype(auto) push(T const& data = {}) {
             auto last = chain.size();
             auto data = std::shared_ptr<V>((V*)malloc(sizeof(T)), free);
             memcpy(data.get(), &data, sizeof(T));
@@ -317,17 +378,17 @@ namespace stm {
         };
 
         template<class T = V>
-        uintptr_t push(std::shared_ptr<T> const& data = {}) {
+        decltype(auto) push(std::shared_ptr<T> const& data = {}) {
             auto last = chain.size();
             chain->push_back(std::reinterpret_pointer_cast<V>(data));
             return last;
         };
 
-        std::shared_ptr<T> get(uintptr_t const& index = 0u) {
+        decltype(auto) get(uintptr_t const& index = 0u) {
             return std::reinterpret_pointer_cast<T>(chain[index]);
         };
 
-        std::shared_ptr<T> get(uintptr_t const& index = 0u) const {
+        decltype(auto) get(uintptr_t const& index = 0u) const {
             return std::reinterpret_pointer_cast<T>(chain[index]);
         };
     };
@@ -341,7 +402,7 @@ namespace stm {
 
     public: 
         template<class T = V>
-        std::shared_ptr<T> set(K const& key, T const& data = {}) {
+        decltype(auto) set(K const& key, T const& data = {}) {
             auto last = chain.size();
             auto local = std::shared_ptr<V>((V*)malloc(sizeof(T)), free);
             memcpy(local.get(), &data, sizeof(T));
@@ -350,21 +411,19 @@ namespace stm {
         };
 
         template<class T = V>
-        shared_map<K,V>& set(K const& key, std::shared_ptr<T> const& data = {}) {
+        decltype(auto) set(K const& key, std::shared_ptr<T> const& data = {}) {
             map[key] = std::reinterpret_pointer_cast<V>(data); 
             return *this;
         };
 
-        std::shared_ptr<T> get(K const& key) {
+        decltype(auto) get(K const& key) {
             return std::reinterpret_pointer_cast<T>(map.at(key));
         };
 
-        std::shared_ptr<T> get(K const& key) const {
+        decltype(auto) get(K const& key) const {
             return std::reinterpret_pointer_cast<T>(map.at(key));
         };
     };
-    
-
 
 #ifdef VKU_ENABLE_INTERVAL
     // 
@@ -374,14 +433,14 @@ namespace stm {
         lib_interval_tree::interval_tree_t<N> intervals = {};
 
     public:
-        interval_map* insert( lib_interval_tree::interval<N, lib_interval_tree::closed> const& interval, T const& obj) {
+        decltype(auto) insert( lib_interval_tree::interval<N, lib_interval_tree::closed> const& interval, T const& obj) {
             auto it = intervals.overlap_find({ interval.low(), interval.low() });
             if (map.find(interval.low()) == map.end()) { map[interval.low()] = obj; };
             if (it != intervals.end()) { intervals.insert(interval); intervals.deoverlap(); };
             return this;
         };
 
-        interval_map* erase( N const& address = 0ull) {
+        decltype(auto) erase( N const& address = 0ull) {
             auto it = intervals.overlap_find({ address, address });
             if (it != intervals.end()) {
                 auto mt = map.find(it->interval().low());
@@ -391,15 +450,15 @@ namespace stm {
             return this;
         };
 
-        ts::optional_ref<T> find( N const& address = 0ull) {
+        decltype(auto) find( N const& address = 0ull) {
             auto it = intervals.overlap_find({ address, address });
-            return it != intervals.end() ? ts::opt_ref<T>(map.at(it->interval().low())) : ts::optional_ref<T>{};
+            return it != intervals.end() ? opt_ref<T>(map.at(it->interval().low())) : optional_ref<T>{};
         };
 
-        ts::optional_ref<const T> find( N const& address = 0ull) const {
+        decltype(auto) find( N const& address = 0ull) const {
             auto& intervals = const_cast<lib_interval_tree::interval_tree_t<N>&>(this->intervals);
             auto it = intervals.overlap_find({ address, address });
-            return it != intervals.end() ? ts::opt_cref<T>(map.at(it->interval().low())) : ts::optional_ref<const T>{};
+            return it != intervals.end() ? opt_cref<T>(map.at(it->interval().low())) : optional_ref<const T>{};
         };
     };
 #endif
