@@ -82,6 +82,7 @@ namespace stm {
         // 
         optional_ref(optional_ref<T> const& ref) : ptr(ref ? ref.value() : nullptr) {};
         optional_ref(optional_ref<T>& ref) : ptr(ref ? ref.value() : nullptr) {};
+        optional_ref(T const& ref) : ptr(&ref) {};
         optional_ref(T& ref) : ptr(&ref) {};
         optional_ref() {};
 
