@@ -1,4 +1,4 @@
-# Vk-Utils
+# Vk-Utils (or VKU)
 
 Vulkan API (1.3) utils, types and interfaces.
 
