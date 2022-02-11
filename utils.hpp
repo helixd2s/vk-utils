@@ -392,6 +392,10 @@ namespace stm {
 
     //
     [[deprecated]]
+    class link_void;
+
+    //
+    [[deprecated]]
     template<class T = void_t>
     class link;
 
@@ -407,19 +411,29 @@ namespace stm {
         ~link_void() { free(ptr); };
 
         // 
-        decltype(auto) assign(void_t const* obj, size_t const& size) { memcpy(this->ptr = (void_t*)malloc(size), obj, size); return *this; };
+        decltype(auto) assign(void_t const* obj, size_t const& size) { if (!this->ptr) { this->ptr = (void_t*)malloc(size) }; memcpy(this->ptr, obj, size); return *this; };
         decltype(auto) assign(void_t const* obj) { std::cerr << "sorry, but we doesn't know assign size" << std::endl; return *this; };
         decltype(auto) operator=(void_t const* obj) { return this->assign(obj); };
 
         //
-        decltype(auto) assign(auto const* obj) { using Ts = std::decay(decltype(obj))::type; return reinterpret_cast<link<Ts>&>(this->assign(reinterpret_cast<void_t const*>(obj), sizeof(Ts))); };
+        //decltype(auto) assign(auto const* obj) { using Ts = std::decay(decltype(obj))::type; return reinterpret_cast<link<Ts>&>(this->assign(reinterpret_cast<void_t const*>(obj), sizeof(Ts))); };
+        decltype(auto) assign(auto const* obj) {
+            using Ts = std::decay(decltype(obj))::type;
+            if (!this->ptr) { this->ptr = new Ts; };
+            *reinterpret_cast<Ts*>(this->ptr) = &obj;
+            return reinterpret_cast<link<Ts>&>(*this);
+        };
+
+        // type aliasing
+        decltype(auto) assign(auto const& obj) { return this->assign(&obj); };
 
         //
-        decltype(auto) operator=(auto const& obj) { return this->assign(&obj); };
+        decltype(auto) operator=(auto const& obj) { return this->assign(obj); };
+        decltype(auto) operator=(auto const* obj) { return this->assign(obj); };
 
         // to avoid ambiguous
         template<class Ts = void_t, class Ls = link<Ts>>
-        decltype(auto) operator=(Ls const& obj) { return this->assign(obj.get()); };
+        decltype(auto) operator=(Ls const& obj) { return this->assign(obj.get<Ts>()); };
 
         // 
         template<class Ts = void_t> decltype(auto) operator->() { return this->get(); };
