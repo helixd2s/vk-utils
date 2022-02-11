@@ -611,8 +611,7 @@ namespace stm {
         shared_vector(std::vector<std::shared_ptr<V>> const& chain) : chain(chain) {};
 
         // 
-        template<class T = V>
-        decltype(auto) push(T const& data = {}) {
+        decltype(auto) push(auto const& data = {}) {
             auto last = chain.size();
             auto data = std::shared_ptr<V>((V*)malloc(sizeof(T)), free);
             memcpy(data.get(), &data, sizeof(T));
@@ -621,8 +620,7 @@ namespace stm {
         };
 
         // 
-        template<class T = V>
-        decltype(auto) push(std::shared_ptr<T> const& data = {}) {
+        decltype(auto) push(std::shared_ptr<auto> const& data = {}) {
             auto last = chain.size();
             chain->push_back(std::reinterpret_pointer_cast<V>(data));
             return last;
