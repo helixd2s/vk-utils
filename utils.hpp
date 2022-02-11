@@ -40,12 +40,12 @@ namespace stm {
         void_t(){};
 
         //
-        template<class Ts = void_t>
-        decltype(auto) assign(Ts const* obj) { memcpy(this, obj, sizeof(Ts)); return reinterpret_cast<Ts&>(*this); };
+        decltype(auto) assign(auto const* obj) { memcpy(this, obj, sizeof(Ts)); return reinterpret_cast<Ts&>(*this); };
+        decltype(auto) assign(auto const& obj) { return this->assign(&obj); };
 
         //
-        template<class Ts = void_t>
-        decltype(auto) operator=(Ts const& obj) { return this->assign<Ts>(&obj); };
+        decltype(auto) operator=(auto const& obj) { return this->assign<Ts>(obj); };
+        decltype(auto) operator=(auto const* obj) { return this->assign<Ts>(obj); };
 
         // 
         template<class Ts = void_t> decltype(auto) operator->() { return this->get<Ts>(); };
@@ -184,9 +184,6 @@ namespace stm {
         };
 
     public: 
-        template<class T = void_t> decltype(auto) assign(T const& ref) { if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = ref; return *this; };
-        template<class T = void_t> decltype(auto) assign(T const* ptr = nullptr) { if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = *ptr; return *this; };
-
         //
         template<class T = void_t> decltype(auto) get() { return reinterpret_cast<T*>(ptr); };
         template<class T = void_t> decltype(auto) get() const { return reinterpret_cast<T const*>(ptr); };
@@ -200,8 +197,12 @@ namespace stm {
         template<class T = void_t> decltype(auto) value() const { return this->ref(); };
 
         // 
-        template<class T = void_t> decltype(auto) operator=(T& ref) { return this->assign(ref); };
-        template<class T = void_t> decltype(auto) operator=(T* ptr) { return this->assign(ptr); };
+        decltype(auto) assign(auto const& ref) { if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = ref; return *this; };
+        decltype(auto) assign(auto const* ptr = nullptr) { if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = *ptr; return *this; };
+
+        // 
+        decltype(auto) operator=(auto& ref) { return this->assign(ref); };
+        decltype(auto) operator=(auto* ptr) { return this->assign(ptr); };
 
         // 
         decltype(auto) assign(self_copy_intrusive const& I) { if (!this->ptr) { this->ptr = (void_t*)this->malloc(this->size = I->size); }; this->memcpy(this->ptr, I->ptr, I->size); return *this; };
@@ -267,8 +268,8 @@ namespace stm {
         decltype(auto) value() const { return this->ref(); };
 
         //
-        decltype(auto) assign(T const& ref) { this->assign<T>(ref); return *this; };
-        decltype(auto) assign(T const* ptr = nullptr) { this->assign<T>(ref); return *this; };
+        decltype(auto) assign(T const& ref) { self_copy_intrusive::assign(ref); return *this; };
+        decltype(auto) assign(T const* ptr = nullptr) { self_copy_intrusive::assign(ptr); return *this; };
 
         // 
         decltype(auto) operator=(T& ref) { return this->assign(ref); };
@@ -647,20 +648,17 @@ namespace stm {
 
     public: 
         // 
-        template<class T = V>
-        decltype(auto) set(K const& key, T const& data = {}) {
+        decltype(auto) set(K const& key, auto const& data = {}) {
             auto last = chain.size();
             auto local = std::shared_ptr<V>((V*)malloc(sizeof(T)), free);
             memcpy(local.get(), &data, sizeof(T));
             map[key] = local;
             return std::reinterpret_pointer_cast<T>(local);
         };
-        
+
         // 
-        template<class T = V>
-        decltype(auto) set(K const& key, std::shared_ptr<T> const& data = {}) {
-            map[key] = std::reinterpret_pointer_cast<V>(data); 
-            return *this;
+        decltype(auto) set(auto const& key, std::shared_ptr<auto> const& data = {}) {
+            map[key] = std::reinterpret_pointer_cast<V>(data); return *this;
         };
 
         // 
