@@ -312,29 +312,6 @@ namespace stm {
         operator self_copy_intrusive const&() const { return dynamic_cast<self_copy_intrusive const&>(*this); };
     };
 
-    // 
-    template<class T = void_t, class E = void_t, class Vp = void_t*, class I = self_copy_intrusive_t<T,E,Vp>>
-    class enable_self_copy_from_this : public I {
-        public: using T = T; using E = E; using Vp = Vp; using I = I;
-
-        // 
-        enable_self_copy_from_this() : I(reinterpret_cast<T*>(this), sizeof(T)) {};
-
-        // 
-        decltype(auto) self_copy_from_this() {
-            using Ts = std::decay(decltype(this))::type;
-            reinterpret_cast<T*>(this->ptr) = reinterpret_cast<T*>(this); // for any case
-            return self_copy_ptr<T>(dynamic_cast<I&>(*this));
-        };
-
-        // 
-        decltype(auto) self_copy_from_this() const {
-            using Ts = std::decay(decltype(this))::type;
-            const_cast<T*>(reinterpret_cast<T const*>(this->ptr)) = const_cast<T*>(reinterpret_cast<T const*>(this)); // for any case
-            return self_copy_ptr<const T>(dynamic_cast<I&>(*this));
-        };
-    };
-
 
 
     /* 
@@ -393,6 +370,29 @@ namespace stm {
         //
         decltype(auto) operator->() { return this->get(); };
         decltype(auto) operator->() const { return this->get(); };
+    };
+
+    // 
+    template<class T = void_t, class E = void_t, class Vp = void_t*, class I = self_copy_intrusive_t<T,E,Vp>>
+    class enable_self_copy_from_this : public I {
+        public: using T = T; using E = E; using Vp = Vp; using I = I;
+
+        // 
+        enable_self_copy_from_this() : I(reinterpret_cast<T*>(this), sizeof(T)) {};
+
+        // 
+        decltype(auto) self_copy_from_this() {
+            using Ts = std::decay(decltype(this))::type;
+            reinterpret_cast<T*>(this->ptr) = reinterpret_cast<T*>(this); // for any case
+            return self_copy_ptr<T>(dynamic_cast<I&>(*this));
+        };
+
+        // 
+        decltype(auto) self_copy_from_this() const {
+            using Ts = std::decay(decltype(this))::type;
+            const_cast<T*>(reinterpret_cast<T const*>(this->ptr)) = const_cast<T*>(reinterpret_cast<T const*>(this)); // for any case
+            return self_copy_ptr<const T>(dynamic_cast<I&>(*this));
+        };
     };
 
 
