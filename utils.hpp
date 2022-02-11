@@ -68,16 +68,23 @@ namespace stm {
     };
 
     // 
-#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
-    using optional_ref = ts::optional_ref;
-    using opt_ref = ts::opt_ref;
-    using opt_cref = ts::opt_cref;
-#else 
+//#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
+//    using optional_ref = ts::optional_ref;
+//    using opt_ref = ts::opt_ref;
+//    using opt_cref = ts::opt_cref;
+//#else 
     // own implementation of optional ref
     template<class T = void_t>
     class optional_ref {
-    private:
+    protected:
         T* ptr = nullptr;
+
+    public: 
+        // 
+#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
+        optional_ref(ts::optional_ref<T> const& ref) : ptr(ref ? ref.value() : nullptr) {};
+        optional_ref(ts::optional_ref<T>& ref) : ptr(ref ? ref.value() : nullptr) {};
+#endif
 
         // 
         optional_ref(optional_ref<T> const& ref) : ptr(ref ? ref.value() : nullptr) {};
@@ -87,8 +94,23 @@ namespace stm {
         optional_ref() {};
 
         // 
+        //~optional_ref() { delete ptr; };
+
+        // 
         operator T&() { return *this->ptr; }
         operator T const&() const { return *this->ptr; }
+
+        //
+#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
+        ts::optional_ref<T>() { return ts::opt_ref(*this->ptr); };
+        ts::optional_ref<const T>() const { return ts::opt_cref(*this->ptr); };
+#endif
+
+        //
+#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
+        decltype(auto) operator=(ts::optional_ref<T> const& ref) { ptr = ref ? ref.value() : nullptr; return *this; };
+        decltype(auto) operator=(ts::optional_ref<T>& ref) { ptr = ref ? ref.value() : nullptr; return *this; };
+#endif
 
         // assign ref
         decltype(auto) operator=(optional_ref<T> const& ref) { ptr = ref ? ref.value() : nullptr; return *this; };
@@ -121,13 +143,214 @@ namespace stm {
     inline decltype(auto) opt_cref(const T& ref) {
         return optional_ref<const T>(ref);
     };
-#endif
+//#endif
 
+    //
+    class self_copy_intrusive {
+    protected:
+        void_t* ptr = nullptr;
+        size_t size = 0ull;
+
+    public:
+        ~self_copy_intrusive() {
+            this->free(this->ptr);
+        }
+
+        self_copy_intrusive(
+            void_t* ptr = nullptr, 
+            size_t size = 0ull
+        ) : ptr(ptr ? ptr : this->malloc(size)), size(size),
+        {
+            
+        }
+
+    public: 
+        virtual void memcpy(void* _to, void const* _from, size_t _size) {
+            ::memcpy(_to, _from, _size);
+        };
+
+        virtual void free(void* _memory) {
+            ::free(_memory);
+        };
+
+        virtual void* malloc(size_t size) {
+            return ::malloc(size);
+        };
+
+    public: 
+        template<class T = void_t>
+        decltype(auto) assign(T const& ref) { if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = ref; return *this; };
+
+        //
+        template<class T = void_t>
+        decltype(auto) assign(T const* ptr = nullptr) { if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = *ptr; return *this; };
+
+        // 
+        decltype(auto) assign(self_copy_intrusive const& I) { if (!this->ptr) { this->ptr = (void_t*)this->malloc(this->size = I->size); }; this->memcpy(this->ptr, I->ptr, I->size); return *this; };
+
+        //
+        template<class T = void_t>
+        decltype(auto) get() { return reinterpret_cast<T*>(ptr); };
+
+        //
+        template<class T = void_t>
+        decltype(auto) get() const { return reinterpret_cast<T const*>(ptr); };
+
+        //
+        template<class T = void_t>
+        decltype(auto) ref() { return *this->get<T>(); };
+
+        //
+        template<class T = void_t>
+        decltype(auto) ref() const { return *this->get<T>(); };
+
+        // 
+        template<class T = void_t>
+        decltype(auto) operator=(T& ref) { return this->assign(ref); };
+
+        // 
+        template<class T = void_t>
+        decltype(auto) operator=(T* ptr) { return this->assign(ptr); };
+
+        // 
+        decltype(auto) operator=(self_copy_intrusive const& I) { return this->assign(I); };
+    };
+
+    //
+    template<class T = void>
+    void _free(void* ptr_) {
+        if (ptr_) { delete reinterpret_cast<T*>(ptr_); };
+    };
+
+    //
+    template<class Tt = void, class Tf>
+    void _memcpy(void* _to, void const* _from, size_t _size) {
+        (*reinterpret_cast<Tt*>(to)) = (*reinterpret_cast<Tf const*>(from));
+    };
+
+    //
+    template<class T>
+    void* _malloc(size_t _size) {
+        // TODO: correct division
+        return (new T[_size/sizeof(T)]);
+    };
+
+    //
+    template<class T = void_t>
+    class self_copy_intrusive_t : public self_copy_intrusive {
+
+        // 
+        virtual void memcpy(void* _to, void const* _from, size_t _size) override {
+            _memcpy<T,T>(_to,_from,_size);
+        };
+
+        // 
+        virtual void free(void _memory) override {
+            _free<T>(_memory);
+        };
+
+        // 
+        virtual void* malloc(size_t _size) override {
+            return _malloc<T>(_size);
+        };
+
+        // 
+        self_copy_intrusive_t(T* ptr = nullptr, size_t size = 0ull) 
+        : self_copy_intrusive(reinterpret_cast<void_t*>(ptr), size ? size : sizeof(T)) {};
+
+        // 
+        self_copy_intrusive_t(T* ptr = nullptr) 
+        : self_copy_intrusive(reinterpret_cast<void_t*>(ptr), sizeof(T)) {};
+
+        //
+        decltype(auto) get() { return this->get<T>(); };
+        decltype(auto) get() const { return this->get<T>(); };
+
+        //
+        decltype(auto) ref() { return *this->get(); };
+        decltype(auto) ref() const { return *this->get(); };
+
+        //
+        decltype(auto) assign(T const& ref) { this->assign<T>(ref); return *this; };
+        decltype(auto) assign(T const* ptr = nullptr) { this->assign<T>(ref); return *this; };
+
+        // 
+        decltype(auto) operator=(T& ref) { return this->assign(ref); };
+        decltype(auto) operator=(T* ptr) { return this->assign(ptr); };
+
+        //
+        operator T&() { return this->ref(); };
+        operator T const&() const { return this->ref(); };
+
+        //
+        operator T*() { return this->get(); };
+        operator T const*() const { return this->get(); };
+
+        //
+        operator self_copy_intrusive&() { return dynamic_cast<self_copy_intrusive&>(*this); };
+        operator self_copy_intrusive const&() const { return dynamic_cast<self_copy_intrusive const&>(*this); };
+    };
+
+    // 
+    template<class T = void_t, class I = self_copy_intrusive_t<T>>
+    class self_copy_ptr {
+    protected:
+        I* ptr = {};
+
+    public: 
+        // 
+        self_copy_ptr(T* ptr = nullptr)  {
+            this->ptr = new I( ptr );
+        };
+
+        // 
+        self_copy_ptr(T& ptr)  {
+            this->ptr = new I( &ptr );
+        };
+
+        //
+        ~self_copy_ptr() { delete this->ptr; }
+
+        //
+        decltype(auto) get() { this->ptr->get(); };
+        decltype(auto) get() const { this->ptr->get(); };
+
+        //
+        decltype(auto) ref() { this->ptr->ref(); };
+        decltype(auto) ref() const { this->ptr->ref(); };
+
+        //
+        decltype(auto) assign(T const& ref) { this->ptr->assign(ref); return *this; };
+        decltype(auto) assign(T const* ptr = nullptr) { this->ptr->assign(ptr); return *this; };
+
+        // 
+        decltype(auto) operator=(T& ref) { return this->assign(ref); };
+        decltype(auto) operator=(T* ptr) { return this->assign(ptr); };
+
+        //
+        operator T&() { return this->ref(); };
+        operator T const&() const { return this->ref(); };
+
+        //
+        operator T*() { return this->get(); };
+        operator T const*() const { return this->get(); };
+
+        //
+        decltype(auto) operator*() { return this->ref(); };
+        decltype(auto) operator*() const { return this->ref(); };
+
+        //
+        decltype(auto) operator->() { return this->get(); };
+        decltype(auto) operator->() const { return this->get(); };
+    };
+
+    
     // 
     template<class T>
     class wrap_ptr {
     protected:
         T* ptr = nullptr;
+
     public:
         wrap_ptr(T* ptr = nullptr) { this->ptr = ptr; };
 
