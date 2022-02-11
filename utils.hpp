@@ -351,7 +351,7 @@ namespace stm {
         T* ptr = nullptr;
 
     public:
-        wrap_ptr(T* ptr = nullptr) { this->ptr = ptr; };
+        wrap_ptr(T* const& ptr = nullptr) { this->ptr = ptr; };
 
         // 
         decltype(auto) operator->() { return this->get(); };
