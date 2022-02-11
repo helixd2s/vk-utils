@@ -379,29 +379,38 @@ namespace stm {
         decltype(auto) operator->() { return this->get(); };
         decltype(auto) operator->() const { return this->get(); };
 
+        // 
         decltype(auto) operator *() { return *this->get(); };
         decltype(auto) operator *() const { return *this->get(); };
 
+        // 
         operator T& () { return *this->get(); };
         operator const T& () const { return *this->get(); };
 
+        // 
         operator T*& () { return this->get(); };
         operator T* const& () const { return this->get(); };
 
+        // 
         decltype(auto) ref() { return *this->get(); };
         decltype(auto) ref() const { return *this->get(); };
 
+        // 
         decltype(auto) value() { return *this->get(); };
         decltype(auto) value() const { return *this->get(); };
 
+        //
         decltype(auto) get() { return reinterpret_cast<T*&>(ptr); };
         decltype(auto) get() const { return reinterpret_cast<T* const&>(ptr); };
 
+        // 
         decltype(auto) operator =(T* const& ptr) { this->ptr = ptr; return *this; };
 
+        // 
         template<class W=wrap_ptr<T>>
         decltype(auto) operator =(W const& ptr) { this->ptr = ptr.get(); return *this; };
 
+        // 
         operator bool() const { return !!ptr; };
     };
 
