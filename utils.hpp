@@ -492,8 +492,8 @@ namespace stm {
         decltype(auto) assign(auto const& obj) { return this->assign(&obj); };
 
         //
-        decltype(auto) operator=(auto const& obj) { return this->assign(&obj); };
         decltype(auto) operator=(auto const* obj) { return this->assign(obj); };
+        decltype(auto) operator=(auto const& obj) { return this->assign(obj); };
 
         // to avoid ambiguous
         template<class Ts = T, class Ls = link<Ts>>
