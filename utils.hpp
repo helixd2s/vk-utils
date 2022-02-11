@@ -32,6 +32,11 @@ namespace stm {
     };
 #endif
 
+    /* 
+        // What is "void_t"? This is specific type, replacement for C void for most case. Less conflicts, more compatible, more functional. But sometime C++ may make this type 1-byte sized.
+        // Mostly used with pointers and with address spaces, and operates with it.
+    */
+
     //using void_t = uint8_t;
     class void_t { public: 
         //uint8_t : 0;
@@ -44,8 +49,8 @@ namespace stm {
         decltype(auto) assign(auto const& obj) { return this->assign(&obj); };
 
         //
-        decltype(auto) operator=(auto const& obj) { return this->assign<Ts>(obj); };
-        decltype(auto) operator=(auto const* obj) { return this->assign<Ts>(obj); };
+        decltype(auto) operator=(auto const& obj) { return this->assign(obj); };
+        decltype(auto) operator=(auto const* obj) { return this->assign(obj); };
 
         // 
         template<class Ts = void_t> decltype(auto) operator->() { return this->get<Ts>(); };
@@ -78,6 +83,12 @@ namespace stm {
 //    using opt_cref = ts::opt_cref;
 //#else 
     // own implementation of optional ref
+
+
+    /* 
+        // What is optional ref pointer? This is our implementation optional_ref from type_safe, more functional.
+    */
+
     template<class T = void_t>
     class optional_ref {
     protected:
@@ -146,25 +157,26 @@ namespace stm {
     };
 
     //
-    template<class E = void_t>
+    template<class E = void_t, class Vp = void_t*>
     class self_copy_intrusive;
 
     // 
-    template<class T = void_t, class E = void_t>
+    template<class T = void_t, class E = void_t, class Vp = void_t*>
     class self_copy_intrusive_t;
-    
+
     // 
     template<class T = void_t, class I = self_copy_intrusive_t<T>>
     class self_copy_ptr;
 
     // E is extension in before pointer
-    template<class E = void_t> // when extension is needed
+    template<class E = void_t, class Vp = void_t*> // when extension is needed
     class self_copy_intrusive {
+    public: using E = E; using Vp = Vp;
     public:
         E sType = {};
         union {
-            void_t* pNext; // for Vulkan API
-            void_t* ptr = nullptr;
+            Vp pNext; // for Vulkan API
+            Vp ptr = nullptr;
         };
         size_t size = 0ull;
 
@@ -174,8 +186,7 @@ namespace stm {
         };
 
         self_copy_intrusive(
-            void_t* ptr = nullptr, 
-            size_t size = 0ull
+            Vp ptr = nullptr, size_t size = 0ull
         ) : ptr(ptr ? ptr : this->malloc(size)), size(size),
         {};
 
@@ -242,8 +253,10 @@ namespace stm {
     };
 
     //
-    template<class T = void_t, class E = void_t>
+    template<class T = void_t, class E = void_t, class Vp = void_t*>
     class self_copy_intrusive_t : public self_copy_intrusive<E> {
+    public: using T = T; using E = E; using Vp = Vp;
+
         self_copy_intrusive_t(T const& ref) { *this = ref; };
         self_copy_intrusive_t(T const* ref) { *this = &ref; };
 
@@ -304,24 +317,34 @@ namespace stm {
     };
 
     // 
-    template<class T = void_t, class E = void_t, class I = self_copy_intrusive_t<T,E>>
+    template<class T = void_t, class E = void_t, class Vp = void_t*, class I = self_copy_intrusive_t<T,E,Vp>>
     class enable_self_copy_from_this : public I {
+        public: using T = T; using E = E; using Vp = Vp; using I = I;
 
         // 
-        enable_self_copy_from_this() : I(this, sizeof(T)) {};
+        enable_self_copy_from_this() : I(reinterpret_cast<T*>(this), sizeof(T)) {};
 
         // 
         decltype(auto) self_copy_from_this() {
-            this->ptr = this; // for any case
+            using Ts = std::decay(decltype(this))::type;
+            reinterpret_cast<T*>(this->ptr) = reinterpret_cast<T*>(this); // for any case
             return self_copy_ptr<T>(dynamic_cast<I&>(*this));
+        };
+
+        // 
+        decltype(auto) self_copy_from_this() const {
+            using Ts = std::decay(decltype(this))::type;
+            const_cast<T*>(reinterpret_cast<T const*>(this->ptr)) = const_cast<T*>(reinterpret_cast<T const*>(this)); // for any case
+            return self_copy_ptr<const T>(dynamic_cast<I&>(*this));
         };
     };
 
 
 
     /* 
-        What is self-copy pointer? This is two-level, with nested intrusive class-pointer.
-        Can self copy even with changed type to unknown, but used assign operation. 
+        // What is self-copy pointer? This is two-level, with nested intrusive class-pointer.
+        // Can self copy even with changed type to unknown, but used assign operation. 
+        // Size of is 8...
     */
 
     // 
@@ -379,8 +402,9 @@ namespace stm {
     /* 
         // What is wrap_ptr? This is wrapper for C pointers, for avoid some conflicts and problems.
         // There is no specifical features, only pointers compatibility...
+        // Size of is 8...
     */
-    
+
     // 
     template<class T>
     class wrap_ptr {
@@ -428,6 +452,8 @@ namespace stm {
         // 
         operator bool() const { return !!ptr; };
     };
+
+
 
     /* 
         // What is link? This is self-copy pointer, but without known size for deep operations
