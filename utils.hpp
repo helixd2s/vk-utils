@@ -40,7 +40,7 @@ namespace stm {
         void_t(){};
 
         //
-        decltype(auto) assign(auto const* obj) { memcpy(this, obj, sizeof(Ts)); return reinterpret_cast<Ts&>(*this); };
+        decltype(auto) assign(auto const* obj) { using Ts = std::decay(decltype(obj))::type; memcpy(this, obj, sizeof(Ts)); return reinterpret_cast<Ts&>(*this); };
         decltype(auto) assign(auto const& obj) { return this->assign(&obj); };
 
         //
@@ -412,16 +412,14 @@ namespace stm {
         decltype(auto) operator=(void_t const* obj) { return this->assign(obj); };
 
         //
-        template<class Ts = void_t>
-        decltype(auto) assign(Ts const* obj) { return reinterpret_cast<link<Ts>&>(this->assign(reinterpret_cast<void_t const*>(obj), sizeof(Ts))); };
+        decltype(auto) assign(auto const* obj) { using Ts = std::decay(decltype(obj))::type; return reinterpret_cast<link<Ts>&>(this->assign(reinterpret_cast<void_t const*>(obj), sizeof(Ts))); };
 
         //
-        template<class Ts = void_t>
-        decltype(auto) operator=(Ts const& obj) { return this->assign<Ts>(&obj); };
+        decltype(auto) operator=(auto const& obj) { return this->assign(&obj); };
 
         // to avoid ambiguous
         template<class Ts = void_t, class Ls = link<Ts>>
-        decltype(auto) operator=(Ls const& obj) { return this->assign<Ts>(obj.get()); };
+        decltype(auto) operator=(Ls const& obj) { return this->assign(obj.get()); };
 
         // 
         template<class Ts = void_t> decltype(auto) operator->() { return this->get(); };
@@ -452,8 +450,8 @@ namespace stm {
     public: 
         link() : link_void() {};
         link(const void* const& ptr) : link_void(ptr) {};
-        link(const T* const& obj) { this->assign<T>(obj); };
-        link(const link<T>& obj) { this->assign<T>(obj.get()); };
+        link(const T* const& obj) { this->assign(obj); };
+        link(const link<T>& obj) { this->assign(obj.get()); };
 
         // 
         decltype(auto) operator->() { return this->get(); };
@@ -476,16 +474,15 @@ namespace stm {
         decltype(auto) get() const { return reinterpret_cast<T* const&>(this->ptr); };
 
         //
-        template<class Ts = T>
-        decltype(auto) assign(Ts const* obj) { return reinterpret_cast<link<Ts>&>(this->assign(reinterpret_cast<void_t const*>(obj), sizeof(Ts))); };
+        decltype(auto) assign(auto const* obj) { using Ts = std::decay(decltype(obj))::type; return reinterpret_cast<link<Ts>&>(this->assign(reinterpret_cast<void_t const*>(obj), sizeof(Ts))); };
 
         //
-        template<class Ts = T>
-        decltype(auto) operator=(Ts const& obj) { return this->assign<Ts>(&obj); };
+        decltype(auto) operator=(auto const& obj) { return this->assign(&obj); };
+        decltype(auto) operator=(auto const* obj) { return this->assign(obj); };
 
         // to avoid ambiguous
         template<class Ts = T, class Ls = link<Ts>>
-        decltype(auto) operator=(Ls const& obj) { return this->assign<Ts>(obj.get()); };
+        decltype(auto) operator=(Ls const& obj) { return this->assign(obj.get()); };
     };
 
 //#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
@@ -516,8 +513,8 @@ namespace stm {
     };
 
     // 
-    inline void* shift(void* data, uintptr_t offset = 0ull) { return (void*)(reinterpret_cast<uintptr_t&>(data) + offset); };
-    inline const void* shift(const void* data, uintptr_t offset = 0ull) { return (const void*)(reinterpret_cast<const uintptr_t&>(data) + offset); };
+    inline decltype(auto) shift(auto* data, uintptr_t offset = 0ull) { return reinterpret_cast<decltype(data)>(reinterpret_cast<uintptr_t&>(data) + offset); };
+    inline decltype(auto) shift(const auto* data, uintptr_t offset = 0ull) { return reinterpret_cast<decltype(data)>(reinterpret_cast<const uintptr_t&>(data) + offset); };
 
     //
     template<class T, uint32_t count = 16u>
