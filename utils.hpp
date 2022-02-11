@@ -34,6 +34,7 @@ namespace stm {
 
     //using void_t = uint8_t;
     class void_t { public: 
+        void_t(){};
 
         //
         template<class Ts = void_t>
