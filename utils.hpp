@@ -490,33 +490,28 @@ namespace stm {
 
 //#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
     //
-    template<class T = uintptr_t>
-    inline decltype(auto) pointer(optional_ref<T> ref) {
+    inline decltype(auto) pointer(optional_ref<auto> ref) {
         return ref ? (&ref.value()) : nullptr;
     };
 
     //
-    template<class T = uintptr_t>
-    inline decltype(auto) pointer(optional_ref<const T> ref) {
+    inline decltype(auto) pointer(optional_ref<const auto> ref) {
         return ref ? (&ref.value()) : nullptr;
     };
 //#endif
 
     //
-    template<class T = uintptr_t>
-    inline decltype(auto) pointer(std::optional<T>& ref) {
+    inline decltype(auto) pointer(std::optional<auto>& ref) {
         return ref ? (&ref.value()) : nullptr;
     };
 
     //
-    template<class T = uintptr_t>
-    inline decltype(auto) pointer(std::optional<T> const& ref) {
+    inline decltype(auto) pointer(std::optional<auto> const& ref) {
         return ref ? (&ref.value()) : nullptr;
     };
 
     //
-    template<class T = uintptr_t>
-    inline decltype(auto) pointer(std::optional<const T> const& ref) {
+    inline decltype(auto) pointer(std::optional<const auto> const& ref) {
         return ref ? (&ref.value()) : nullptr;
     };
 
