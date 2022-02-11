@@ -186,7 +186,7 @@ namespace stm {
         };
 
         self_copy_intrusive(
-            Vp ptr = nullptr, size_t size = 0ull
+            Vp ptr = nullptr, size_t const& size = 0ull
         ) : ptr(ptr ? ptr : this->malloc(size)), size(size),
         {};
 
@@ -256,9 +256,13 @@ namespace stm {
     template<class T = void_t, class E = void_t, class Vp = void_t*>
     class self_copy_intrusive_t : public self_copy_intrusive<E> {
     public: using T = T; using E = E; using Vp = Vp;
+        // if changable
+        self_copy_intrusive_t(T& ref, size_t const& size = sizeof(T)) : self_copy_intrusive(reinterpret_cast<Vp*>(&ref), size ? size : sizeof(T)) {  };
+        self_copy_intrusive_t(T* ptr, size_t const& size = sizeof(T)) : self_copy_intrusive(reinterpret_cast<Vp*>(ptr), size ? size : sizeof(T)) {  };
 
-        self_copy_intrusive_t(T const& ref) { *this = ref; };
-        self_copy_intrusive_t(T const* ref) { *this = &ref; };
+        // if constants
+        self_copy_intrusive_t(T const& ref, size_t const& size = sizeof(T)) { *this = ref; };
+        self_copy_intrusive_t(T const* ptr, size_t const& size = sizeof(T)) { *this = ptr; };
 
         // 
         virtual void memcpy(void* _to, void const* _from, size_t _size) override {
@@ -274,14 +278,6 @@ namespace stm {
         virtual void* malloc(size_t _size) override {
             return _malloc<T>(_size);
         };
-
-        // 
-        self_copy_intrusive_t(T* ptr = nullptr, size_t size = 0ull) 
-        : self_copy_intrusive(reinterpret_cast<void_t*>(ptr), size ? size : sizeof(T)) {};
-
-        // 
-        self_copy_intrusive_t(T* ptr = nullptr) 
-        : self_copy_intrusive(reinterpret_cast<void_t*>(ptr), sizeof(T)) {};
 
         //
         decltype(auto) get() { return this->get<T>(); };
@@ -300,8 +296,8 @@ namespace stm {
         decltype(auto) assign(T const* ptr = nullptr) { self_copy_intrusive::assign(ptr); return *this; };
 
         // 
-        decltype(auto) operator=(T& ref) { return this->assign(ref); };
-        decltype(auto) operator=(T* ptr) { return this->assign(ptr); };
+        decltype(auto) operator=(T const& ref) { return this->assign(ref); };
+        decltype(auto) operator=(T const* ptr) { return this->assign(ptr); };
 
         //
         operator T&() { return this->ref(); };
@@ -379,8 +375,8 @@ namespace stm {
         decltype(auto) assign(T const* ptr = nullptr) { this->intrusive->assign(ptr); return *this; };
 
         // 
-        decltype(auto) operator=(T& ref) { return this->assign(ref); };
-        decltype(auto) operator=(T* ptr) { return this->assign(ptr); };
+        decltype(auto) operator=(T const& ref) { return this->assign(ref); };
+        decltype(auto) operator=(T const* ptr) { return this->assign(ptr); };
 
         //
         operator T&() { return this->ref(); };
