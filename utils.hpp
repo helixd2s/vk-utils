@@ -44,12 +44,12 @@ namespace stm {
         decltype(auto) operator=(Ts const& obj) { return this->assign<Ts>(&obj); };
 
         // 
-        template<class Ts = void_t> Ts*& operator->() { return this->get<Ts>(); };
-        template<class Ts = void_t> Ts* const& operator->() const { return this->get<Ts>(); };
+        template<class Ts = void_t> decltype(auto) operator->() { return this->get<Ts>(); };
+        template<class Ts = void_t> decltype(auto) operator->() const { return this->get<Ts>(); };
 
         // 
-        template<class Ts = void_t> Ts& operator *() { return *this->get<Ts>(); };
-        template<class Ts = void_t> Ts const& operator *() const { return *this->get<Ts>(); };
+        template<class Ts = void_t> decltype(auto) operator *() { return *this->get<Ts>(); };
+        template<class Ts = void_t> decltype(auto) operator *() const { return *this->get<Ts>(); };
 
         // 
         template<class Ts = void_t> operator Ts&() { return *this->get<Ts>(); };
@@ -60,8 +60,8 @@ namespace stm {
         template<class Ts = void_t> operator Ts* const&() const { return this->get<Ts>(); };
 
         // 
-        template<class Ts = void_t> Ts*& get() { return reinterpret_cast<Ts*&>(this); };
-        template<class Ts = void_t> Ts* const& get() const { return reinterpret_cast<Ts* const&>(this); };
+        template<class Ts = void_t> decltype(auto) get() { return reinterpret_cast<Ts*&>(this); };
+        template<class Ts = void_t> decltype(auto) get() const { return reinterpret_cast<Ts* const&>(this); };
 
         // 
         operator bool() const { return false; };
