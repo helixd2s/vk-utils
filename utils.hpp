@@ -350,6 +350,7 @@ namespace stm {
     // 
     template<class T = void_t, class I = self_copy_intrusive_t<T>>
     class self_copy_ptr {
+    public: using T = T; using I = I;
     protected:
         I* intrusive = {};
 
