@@ -171,7 +171,7 @@ namespace stm {
     // E is extension in before pointer
     template<class E = void_t, class Vp = void_t*> // when extension is needed
     class self_copy_intrusive {
-    public: using E = E; using Vp = Vp;
+    public: using E = E; using Vp = Vp; using I = self_copy_intrusive<E,Vp>;
     public:
         E sType = {};
         union {
@@ -190,7 +190,7 @@ namespace stm {
         ) : ptr(ptr ? ptr : this->malloc(size)), size(size),
         {};
 
-        self_copy_intrusive(self_copy_intrusive const& intrusive) {
+        self_copy_intrusive(I const& intrusive) {
             this->assign(intrusive);
         };
 
@@ -229,8 +229,8 @@ namespace stm {
         decltype(auto) operator=(auto* ptr) { return this->assign(ptr); };
 
         // 
-        decltype(auto) assign(self_copy_intrusive const& I) { if (!this->ptr) { this->ptr = (void_t*)this->malloc(this->size = I->size); }; this->memcpy(this->ptr, I->ptr, I->size); return *this; };
-        decltype(auto) operator=(self_copy_intrusive const& I) { return this->assign(I); };
+        decltype(auto) assign(I const& intrusive) { if (!this->ptr) { this->ptr = (void_t*)this->malloc(this->size = intrusive.size); }; this->memcpy(this->ptr, intrusive.ptr, intrusive.size); return *this; };
+        decltype(auto) operator=(I const& intrusive) { return this->assign(intrusive); };
     };
 
     //
@@ -253,12 +253,13 @@ namespace stm {
     };
 
     //
-    template<class T = void_t, class E = void_t, class Vp = void_t*>
-    class self_copy_intrusive_t : public self_copy_intrusive<E> {
-    public: using T = T; using E = E; using Vp = Vp;
+    template<class T = void_t, class I = self_copy_intrusive<T>>
+    class self_copy_intrusive_t : public I {
+    public: using T = T; using I = I;
+
         // if changable
-        self_copy_intrusive_t(T& ref, size_t const& size = sizeof(T)) : self_copy_intrusive(reinterpret_cast<Vp*>(&ref), size ? size : sizeof(T)) {  };
-        self_copy_intrusive_t(T* ptr, size_t const& size = sizeof(T)) : self_copy_intrusive(reinterpret_cast<Vp*>(ptr), size ? size : sizeof(T)) {  };
+        self_copy_intrusive_t(T& ref, size_t const& size = sizeof(T)) : self_copy_intrusive(reinterpret_cast<I::Vp*>(&ref), size ? size : sizeof(T)) {  };
+        self_copy_intrusive_t(T* ptr, size_t const& size = sizeof(T)) : self_copy_intrusive(reinterpret_cast<I::Vp*>(ptr), size ? size : sizeof(T)) {  };
 
         // if constants
         self_copy_intrusive_t(T const& ref, size_t const& size = sizeof(T)) { *this = ref; };
@@ -292,8 +293,8 @@ namespace stm {
         decltype(auto) value() const { return this->ref(); };
 
         //
-        decltype(auto) assign(T const& ref) { self_copy_intrusive::assign(ref); return *this; };
-        decltype(auto) assign(T const* ptr = nullptr) { self_copy_intrusive::assign(ptr); return *this; };
+        decltype(auto) assign(T const& ref) { I::assign(ref); return *this; };
+        decltype(auto) assign(T const* ptr = nullptr) { I::assign(ptr); return *this; };
 
         // 
         decltype(auto) operator=(T const& ref) { return this->assign(ref); };
@@ -308,8 +309,8 @@ namespace stm {
         operator T const*() const { return this->get(); };
 
         //
-        operator self_copy_intrusive&() { return dynamic_cast<self_copy_intrusive&>(*this); };
-        operator self_copy_intrusive const&() const { return dynamic_cast<self_copy_intrusive const&>(*this); };
+        operator I&() { return dynamic_cast<I&>(*this); };
+        operator I const&() const { return dynamic_cast<I const&>(*this); };
     };
 
 
