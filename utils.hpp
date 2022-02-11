@@ -373,9 +373,9 @@ namespace stm {
     };
 
     // 
-    template<class T = void_t, class E = void_t, class Vp = void_t*, class I = self_copy_intrusive_t<T,E,Vp>>
+    template<class T = void_t, class I = self_copy_intrusive_t<T>>
     class enable_self_copy_from_this : public I {
-        public: using T = T; using E = E; using Vp = Vp; using I = I;
+        public: using T = T; using I = I;
 
         // 
         enable_self_copy_from_this() : I(reinterpret_cast<T*>(this), sizeof(T)) {};
