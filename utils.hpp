@@ -715,11 +715,13 @@ namespace stm {
         };
 
         // 
+        template<class T = V>
         decltype(auto) get(uintptr_t const& index = 0u) {
             return std::reinterpret_pointer_cast<T>(chain[index]);
         };
 
         // 
+        template<class T = V>
         decltype(auto) get(uintptr_t const& index = 0u) const {
             return std::reinterpret_pointer_cast<T>(chain[index]);
         };
@@ -745,16 +747,18 @@ namespace stm {
         };
 
         // 
-        decltype(auto) set(auto const& key, std::shared_ptr<auto> const& data = {}) {
+        decltype(auto) set(K const& key, std::shared_ptr<auto> const& data = {}) {
             map[key] = std::reinterpret_pointer_cast<V>(data); return *this;
         };
 
         // 
+        template<class T = V>
         decltype(auto) get(K const& key) {
             return std::reinterpret_pointer_cast<T>(map.at(key));
         };
 
         // 
+        template<class T = V>
         decltype(auto) get(K const& key) const {
             return std::reinterpret_pointer_cast<T>(map.at(key));
         };
