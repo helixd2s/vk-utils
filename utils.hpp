@@ -187,49 +187,27 @@ namespace stm {
         };
 
     public: 
-        template<class T = void_t>
-        decltype(auto) assign(T const& ref) { if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = ref; return *this; };
+        template<class T = void_t> decltype(auto) assign(T const& ref) { if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = ref; return *this; };
+        template<class T = void_t> decltype(auto) assign(T const* ptr = nullptr) { if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = *ptr; return *this; };
 
         //
-        template<class T = void_t>
-        decltype(auto) assign(T const* ptr = nullptr) { if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = *ptr; return *this; };
+        template<class T = void_t> decltype(auto) get() { return reinterpret_cast<T*>(ptr); };
+        template<class T = void_t> decltype(auto) get() const { return reinterpret_cast<T const*>(ptr); };
+
+        //
+        template<class T = void_t> decltype(auto) ref() { return *this->get<T>(); };
+        template<class T = void_t> decltype(auto) ref() const { return *this->get<T>(); };
+
+        //
+        template<class T = void_t> decltype(auto) value() { return this->ref(); };
+        template<class T = void_t> decltype(auto) value() const { return this->ref(); };
+
+        // 
+        template<class T = void_t> decltype(auto) operator=(T& ref) { return this->assign(ref); };
+        template<class T = void_t> decltype(auto) operator=(T* ptr) { return this->assign(ptr); };
 
         // 
         decltype(auto) assign(self_copy_intrusive const& I) { if (!this->ptr) { this->ptr = (void_t*)this->malloc(this->size = I->size); }; this->memcpy(this->ptr, I->ptr, I->size); return *this; };
-
-        //
-        template<class T = void_t>
-        decltype(auto) get() { return reinterpret_cast<T*>(ptr); };
-
-        //
-        template<class T = void_t>
-        decltype(auto) get() const { return reinterpret_cast<T const*>(ptr); };
-
-        //
-        template<class T = void_t>
-        decltype(auto) ref() { return *this->get<T>(); };
-
-        //
-        template<class T = void_t>
-        decltype(auto) ref() const { return *this->get<T>(); };
-
-        //
-        template<class T = void_t>
-        decltype(auto) value() { return this->ref(); };
-
-        //
-        template<class T = void_t>
-        decltype(auto) value() const { return this->ref(); };
-
-        // 
-        template<class T = void_t>
-        decltype(auto) operator=(T& ref) { return this->assign(ref); };
-
-        // 
-        template<class T = void_t>
-        decltype(auto) operator=(T* ptr) { return this->assign(ptr); };
-
-        // 
         decltype(auto) operator=(self_copy_intrusive const& I) { return this->assign(I); };
     };
 
@@ -625,12 +603,16 @@ namespace stm {
 
     // for vulkan structs with shared_ptr
     template<class V = void_t>
-    class shared_store {
+    class shared_vector {
     protected:
         // we use local pointer memory
         std::vector<std::shared_ptr<V>> chain = {};
 
     public: 
+        // 
+        shared_vector(std::vector<std::shared_ptr<V>> const& chain) : chain(chain) {};
+
+        // 
         template<class T = V>
         decltype(auto) push(T const& data = {}) {
             auto last = chain.size();
@@ -640,6 +622,7 @@ namespace stm {
             return last;
         };
 
+        // 
         template<class T = V>
         decltype(auto) push(std::shared_ptr<T> const& data = {}) {
             auto last = chain.size();
@@ -647,10 +630,12 @@ namespace stm {
             return last;
         };
 
+        // 
         decltype(auto) get(uintptr_t const& index = 0u) {
             return std::reinterpret_pointer_cast<T>(chain[index]);
         };
 
+        // 
         decltype(auto) get(uintptr_t const& index = 0u) const {
             return std::reinterpret_pointer_cast<T>(chain[index]);
         };
@@ -664,6 +649,7 @@ namespace stm {
         std::unordered_map<K, std::shared_ptr<V>> map = {};
 
     public: 
+        // 
         template<class T = V>
         decltype(auto) set(K const& key, T const& data = {}) {
             auto last = chain.size();
@@ -672,17 +658,20 @@ namespace stm {
             map[key] = local;
             return std::reinterpret_pointer_cast<T>(local);
         };
-
+        
+        // 
         template<class T = V>
         decltype(auto) set(K const& key, std::shared_ptr<T> const& data = {}) {
             map[key] = std::reinterpret_pointer_cast<V>(data); 
             return *this;
         };
 
+        // 
         decltype(auto) get(K const& key) {
             return std::reinterpret_pointer_cast<T>(map.at(key));
         };
 
+        // 
         decltype(auto) get(K const& key) const {
             return std::reinterpret_pointer_cast<T>(map.at(key));
         };
@@ -696,6 +685,7 @@ namespace stm {
         lib_interval_tree::interval_tree_t<N> intervals = {};
 
     public:
+        // 
         decltype(auto) insert( lib_interval_tree::interval<N, lib_interval_tree::closed> const& interval, T const& obj) {
             auto it = intervals.overlap_find({ interval.low(), interval.low() });
             if (map.find(interval.low()) == map.end()) { map[interval.low()] = obj; };
@@ -703,6 +693,7 @@ namespace stm {
             return this;
         };
 
+        // 
         decltype(auto) erase( N const& address = 0ull) {
             auto it = intervals.overlap_find({ address, address });
             if (it != intervals.end()) {
@@ -713,11 +704,13 @@ namespace stm {
             return this;
         };
 
+        // 
         decltype(auto) find( N const& address = 0ull) {
             auto it = intervals.overlap_find({ address, address });
             return it != intervals.end() ? opt_ref<T>(map.at(it->interval().low())) : optional_ref<T>{};
         };
 
+        // 
         decltype(auto) find( N const& address = 0ull) const {
             auto& intervals = const_cast<lib_interval_tree::interval_tree_t<N>&>(this->intervals);
             auto it = intervals.overlap_find({ address, address });
