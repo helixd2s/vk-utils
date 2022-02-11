@@ -146,10 +146,15 @@ namespace stm {
     };
 //#endif
 
-    //
+    // E is extension in before pointer
+    template<class E = void_t> // when extension is needed
     class self_copy_intrusive {
-    protected:
-        void_t* ptr = nullptr;
+    public:
+        E sType = {};
+        union {
+            void_t* pNext; // for Vulkan API
+            void_t* ptr = nullptr;
+        };
         size_t size = 0ull;
 
     public:
@@ -245,8 +250,8 @@ namespace stm {
     };
 
     //
-    template<class T = void_t>
-    class self_copy_intrusive_t : public self_copy_intrusive {
+    template<class T = void_t, class E = void_t>
+    class self_copy_intrusive_t : public self_copy_intrusive<E> {
 
         // 
         virtual void memcpy(void* _to, void const* _from, size_t _size) override {
