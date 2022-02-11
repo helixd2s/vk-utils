@@ -618,14 +618,14 @@ namespace stm {
 
     // for vulkan structs with shared_ptr
     template<class V = void_t>
-    class shared_vector {
+    class vector_of_shared {
     protected:
         // we use local pointer memory
         std::vector<std::shared_ptr<V>> chain = {};
 
     public: 
         // 
-        shared_vector(std::vector<std::shared_ptr<V>> const& chain) : chain(chain) {};
+        vector_of_shared(std::vector<std::shared_ptr<V>> const& chain) : chain(chain) {};
 
         // 
         decltype(auto) push(auto const& data = {}) {
@@ -656,12 +656,14 @@ namespace stm {
 
     // for advanced vulkan structs with shared_ptr
     template<class K = uintptr_t, class V = void_t>
-    class shared_map {
+    class map_of_shared {
     protected:
         // we use local pointer memory
         std::unordered_map<K, std::shared_ptr<V>> map = {};
 
     public: 
+        map_of_shared(std::unordered_map<K, std::shared_ptr<V>> const& map = {}) : map(map) {};
+
         // 
         decltype(auto) set(K const& key, auto const& data = {}) {
             auto last = chain.size();
