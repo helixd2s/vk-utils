@@ -347,6 +347,10 @@ namespace stm {
         decltype(auto) ref() const { this->intrusive->ref<T>(); };
 
         //
+        decltype(auto) value() { this->intrusive->value<T>(); };
+        decltype(auto) value() const { this->intrusive->value<T>(); };
+
+        //
         decltype(auto) assign(T const& ref) { this->intrusive->assign(ref); return *this; };
         decltype(auto) assign(T const* ptr = nullptr) { this->intrusive->assign(ptr); return *this; };
 
