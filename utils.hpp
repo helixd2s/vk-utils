@@ -98,9 +98,6 @@ namespace stm {
         optional_ref() {};
 
         // 
-        //~optional_ref() { delete ptr; };
-
-        // 
         operator T&() { return *this->ptr; }
         operator T const&() const { return *this->ptr; }
 
@@ -123,16 +120,16 @@ namespace stm {
         decltype(auto) operator=(T const& ref) { *ptr = ref; return *this; };
 
         // value alias
-        T& value() { return *this->ptr; }
-        T const& value() const { return *this->ptr; }
+        decltype(auto) value() { return *this->ptr; }
+        decltype(auto) value() const { return *this->ptr; }
 
-        // unwrap operator
-        T& operator *() { return *this->ptr; };
-        T const& operator *() const { return *this->ptr; };
+        // accessing operator
+        decltype(auto) operator *() { return *this->ptr; };
+        decltype(auto) operator *() const { return *this->ptr; };
 
-        // accessor operator
-        T* operator ->() { return this->ptr; }
-        T const* operator ->() const { return this->ptr; }
+        // const accessing operator
+        decltype(auto) operator ->() { return this->ptr; };
+        decltype(auto) operator ->() const { return this->ptr; };
 
         // check operator
         operator bool() const { return !!this->ptr; };
