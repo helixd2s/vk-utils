@@ -258,8 +258,8 @@ namespace stm {
     public: using T = T; using I = I;
 
         // if changable
-        self_copy_intrusive_t(T& ref, size_t const& size = sizeof(T)) : self_copy_intrusive(reinterpret_cast<I::Vp*>(&ref), size ? size : sizeof(T)) {  };
-        self_copy_intrusive_t(T* ptr, size_t const& size = sizeof(T)) : self_copy_intrusive(reinterpret_cast<I::Vp*>(ptr), size ? size : sizeof(T)) {  };
+        self_copy_intrusive_t(T& ref, size_t const& size = sizeof(T)) : self_copy_intrusive(reinterpret_cast<I::Vp>(&ref), size ? size : sizeof(T)) {  };
+        self_copy_intrusive_t(T* ptr, size_t const& size = sizeof(T)) : self_copy_intrusive(reinterpret_cast<I::Vp>(ptr), size ? size : sizeof(T)) {  };
 
         // if constants
         self_copy_intrusive_t(T const& ref, size_t const& size = sizeof(T)) { *this = ref; };
