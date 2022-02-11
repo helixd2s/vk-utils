@@ -375,23 +375,23 @@ namespace stm {
     // 
     template<class T = void_t, class I = self_copy_intrusive_t<T>>
     class enable_self_copy_from_this : public I {
-        public: using T = T; using I = I;
+        public: using T = T; using I = I; using Ie = decltype(*this);
 
         // 
         enable_self_copy_from_this() : I(reinterpret_cast<T*>(this), sizeof(T)) {};
 
         // 
         decltype(auto) self_copy_from_this() {
-            using Ts = std::decay(decltype(this))::type;
+            //using Ts = std::decay(Ie)::type;
             reinterpret_cast<T*>(this->ptr) = reinterpret_cast<T*>(this); // for any case
-            return self_copy_ptr<T>(dynamic_cast<I&>(*this));
+            return self_copy_ptr<T, Ie>(*this);
         };
 
         // 
         decltype(auto) self_copy_from_this() const {
-            using Ts = std::decay(decltype(this))::type;
+            //using Ts = std::decay(Ie)::type;
             const_cast<T*>(reinterpret_cast<T const*>(this->ptr)) = const_cast<T*>(reinterpret_cast<T const*>(this)); // for any case
-            return self_copy_ptr<const T>(dynamic_cast<I&>(*this));
+            return self_copy_ptr<const T, Ie>(*this);
         };
     };
 
