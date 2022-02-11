@@ -525,7 +525,7 @@ namespace stm {
     };
 
     // 
-    [[deprecated]]
+    //[[deprecated]]
     template<class T = void_t>
     class link : public link_void { 
 
