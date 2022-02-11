@@ -144,7 +144,18 @@ namespace stm {
     inline decltype(auto) opt_cref(const T& ref) {
         return optional_ref<const T>(ref);
     };
-//#endif
+
+    //
+    template<class E = void_t>
+    class self_copy_intrusive;
+
+    // 
+    template<class T = void_t, class E = void_t>
+    class self_copy_intrusive_t;
+    
+    // 
+    template<class T = void_t, class I = self_copy_intrusive_t<T>>
+    class self_copy_ptr;
 
     // E is extension in before pointer
     template<class E = void_t> // when extension is needed
@@ -160,15 +171,17 @@ namespace stm {
     public:
         ~self_copy_intrusive() {
             this->free(this->ptr);
-        }
+        };
 
         self_copy_intrusive(
             void_t* ptr = nullptr, 
             size_t size = 0ull
         ) : ptr(ptr ? ptr : this->malloc(size)), size(size),
-        {
-            
-        }
+        {};
+
+        self_copy_intrusive(self_copy_intrusive const& intrusive) {
+            this->assign(intrusive);
+        };
 
     public: 
         virtual void memcpy(void* _to, void const* _from, size_t _size) {
@@ -231,6 +244,8 @@ namespace stm {
     //
     template<class T = void_t, class E = void_t>
     class self_copy_intrusive_t : public self_copy_intrusive<E> {
+        self_copy_intrusive_t(T const& ref) { *this = ref; };
+        self_copy_intrusive_t(T const* ref) { *this = &ref; };
 
         // 
         virtual void memcpy(void* _to, void const* _from, size_t _size) override {
@@ -289,36 +304,55 @@ namespace stm {
     };
 
     // 
+    template<class T = void_t, class E = void_t, class I = self_copy_intrusive_t<T,E>>
+    class enable_self_copy_from_this : public I {
+
+        // 
+        enable_self_copy_from_this() : I(this, sizeof(T)) {};
+
+        // 
+        decltype(auto) self_copy_from_this() {
+            this->ptr = this; // for any case
+            return self_copy_ptr<T>(dynamic_cast<I&>(*this));
+        };
+    };
+
+
+
+    /* 
+        What is self-copy pointer? This is two-level, with nested intrusive class-pointer.
+        Can self copy even with changed type to unknown, but used assign operation. 
+    */
+
+    // 
     template<class T = void_t, class I = self_copy_intrusive_t<T>>
     class self_copy_ptr {
     protected:
-        I* ptr = {};
+        I* intrusive = {};
 
     public: 
         // 
-        self_copy_ptr(T* ptr = nullptr)  {
-            this->ptr = new I( ptr );
-        };
+        self_copy_ptr(I* intrusive = nullptr) { this->intrusive = intrusive; };
+        self_copy_ptr(I& intrusive)  { this->intrusive = &intrusive; };
 
         // 
-        self_copy_ptr(T& ptr)  {
-            this->ptr = new I( &ptr );
-        };
+        self_copy_ptr(T* ptr = nullptr) { this->ptr = new I( ptr ); };
+        self_copy_ptr(T& ptr) { this->ptr = new I( &ptr ); };
 
         //
-        ~self_copy_ptr() { delete this->ptr; }
+        ~self_copy_ptr() { delete this->intrusive; }
 
         //
-        decltype(auto) get() { this->ptr->get(); };
-        decltype(auto) get() const { this->ptr->get(); };
+        decltype(auto) get() { this->intrusive->get<T>(); };
+        decltype(auto) get() const { this->intrusive->get<T>(); };
 
         //
-        decltype(auto) ref() { this->ptr->ref(); };
-        decltype(auto) ref() const { this->ptr->ref(); };
+        decltype(auto) ref() { this->intrusive->ref<T>(); };
+        decltype(auto) ref() const { this->intrusive->ref<T>(); };
 
         //
-        decltype(auto) assign(T const& ref) { this->ptr->assign(ref); return *this; };
-        decltype(auto) assign(T const* ptr = nullptr) { this->ptr->assign(ptr); return *this; };
+        decltype(auto) assign(T const& ref) { this->intrusive->assign(ref); return *this; };
+        decltype(auto) assign(T const* ptr = nullptr) { this->intrusive->assign(ptr); return *this; };
 
         // 
         decltype(auto) operator=(T& ref) { return this->assign(ref); };
@@ -341,6 +375,11 @@ namespace stm {
         decltype(auto) operator->() const { return this->get(); };
     };
 
+
+    /* 
+        // What is wrap_ptr? This is wrapper for C pointers, for avoid some conflicts and problems.
+        // There is no specifical features, only pointers compatibility...
+    */
     
     // 
     template<class T>
@@ -390,17 +429,23 @@ namespace stm {
         operator bool() const { return !!ptr; };
     };
 
+    /* 
+        // What is link? This is self-copy pointer, but without known size for deep operations
+        // Usable for type-known classes, methods, structures...
+        // Size of only 8 byte, not nested...
+    */
+
     //
-    [[deprecated]]
+    //[[deprecated]]
     class link_void;
 
     //
-    [[deprecated]]
+    //[[deprecated]]
     template<class T = void_t>
     class link;
 
     // 
-    [[deprecated]]
+    //[[deprecated]]
     class link_void {
     protected: 
         void_t* ptr = nullptr;
