@@ -204,6 +204,14 @@ namespace stm {
         template<class T = void_t>
         decltype(auto) ref() const { return *this->get<T>(); };
 
+        //
+        template<class T = void_t>
+        decltype(auto) value() { return this->ref(); };
+
+        //
+        template<class T = void_t>
+        decltype(auto) value() const { return this->ref(); };
+
         // 
         template<class T = void_t>
         decltype(auto) operator=(T& ref) { return this->assign(ref); };
@@ -269,6 +277,10 @@ namespace stm {
         //
         decltype(auto) ref() { return *this->get(); };
         decltype(auto) ref() const { return *this->get(); };
+
+        //
+        decltype(auto) value() { return this->ref(); };
+        decltype(auto) value() const { return this->ref(); };
 
         //
         decltype(auto) assign(T const& ref) { this->assign<T>(ref); return *this; };
@@ -354,11 +366,12 @@ namespace stm {
     public:
         wrap_ptr(T* ptr = nullptr) { this->ptr = ptr; };
 
-        T*& operator->() { return this->get(); };
-        T* const& operator->() const { return this->get(); };
+        // 
+        decltype(auto) operator->() { return this->get(); };
+        decltype(auto) operator->() const { return this->get(); };
 
-        T& operator *() { return *this->get(); };
-        T const& operator *() const { return *this->get(); };
+        decltype(auto) operator *() { return *this->get(); };
+        decltype(auto) operator *() const { return *this->get(); };
 
         operator T& () { return *this->get(); };
         operator const T& () const { return *this->get(); };
@@ -366,23 +379,30 @@ namespace stm {
         operator T*& () { return this->get(); };
         operator T* const& () const { return this->get(); };
 
-        T& value() { return *this->get(); };
-        T const& value() const { return *this->get(); };
+        decltype(auto) ref() { return *this->get(); };
+        decltype(auto) ref() const { return *this->get(); };
 
-        T*& get() { return reinterpret_cast<T*&>(ptr); };
-        T* const& get() const { return reinterpret_cast<T* const&>(ptr); };
+        decltype(auto) value() { return *this->get(); };
+        decltype(auto) value() const { return *this->get(); };
 
-        wrap_ptr<T>& operator =(T* const& ptr) { this->ptr = ptr; return *this; };
-        wrap_ptr<T,W=wrap_ptr<T>>& operator =(W const& ptr) { this->ptr = ptr.get(); return *this; };
+        decltype(auto) get() { return reinterpret_cast<T*&>(ptr); };
+        decltype(auto) get() const { return reinterpret_cast<T* const&>(ptr); };
+
+        decltype(auto) operator =(T* const& ptr) { this->ptr = ptr; return *this; };
+
+        template<class W=wrap_ptr<T>>
+        decltype(auto) operator =(W const& ptr) { this->ptr = ptr.get(); return *this; };
 
         operator bool() const { return !!ptr; };
     };
 
     //
+    [[deprecated]]
     template<class T = void_t>
     class link;
 
     // 
+    [[deprecated]]
     class link_void {
     protected: 
         void_t* ptr = nullptr;
@@ -406,16 +426,16 @@ namespace stm {
         decltype(auto) operator=(Ts const& obj) { return this->assign<Ts>(&obj); };
 
         // to avoid ambiguous
-        template<class Ts = void_t, typename Ls = link<Ts>>
+        template<class Ts = void_t, class Ls = link<Ts>>
         decltype(auto) operator=(Ls const& obj) { return this->assign<Ts>(obj.get()); };
 
         // 
-        template<class Ts = void_t> Ts*& operator->() { return this->get(); };
-        template<class Ts = void_t> Ts* const& operator->() const { return this->get(); };
+        template<class Ts = void_t> decltype(auto) operator->() { return this->get(); };
+        template<class Ts = void_t> decltype(auto) operator->() const { return this->get(); };
 
         // 
-        template<class Ts = void_t> Ts& operator *() { return *this->get(); };
-        template<class Ts = void_t> Ts const& operator *() const { return *this->get(); };
+        template<class Ts = void_t> decltype(auto) operator *() { return *this->get(); };
+        template<class Ts = void_t> decltype(auto) operator *() const { return *this->get(); };
 
         // 
         template<class Ts = void_t> operator Ts&() { return *this->get(); };
@@ -426,11 +446,12 @@ namespace stm {
         template<class Ts = void_t> operator Ts* const&() const { return this->get(); };
 
         // 
-        template<class Ts = void_t> Ts*& get() { return reinterpret_cast<T*&>(this->ptr); };
-        template<class Ts = void_t> Ts* const& get() const { return reinterpret_cast<T* const&>(this->ptr); };
+        template<class Ts = void_t> decltype(auto) get() { return reinterpret_cast<Ts*&>(this->ptr); };
+        template<class Ts = void_t> decltype(auto) get() const { return reinterpret_cast<Ts* const&>(this->ptr); };
     };
 
     // 
+    [[deprecated]]
     template<class T = void_t>
     class link : public link_void { 
 
@@ -441,12 +462,12 @@ namespace stm {
         link(const link<T>& obj) { this->assign<T>(obj.get()); };
 
         // 
-        T*& operator->() { return this->get(); };
-        T* const& operator->() const { return this->get(); };
+        decltype(auto) operator->() { return this->get(); };
+        decltype(auto) operator->() const { return this->get(); };
 
         // 
-        T& operator *() { return *this->get(); };
-        T const& operator *() const { return *this->get(); };
+        decltype(auto) operator *() { return *this->get(); };
+        decltype(auto) operator *() const { return *this->get(); };
 
         // 
         operator T&() { return *this->get(); };
@@ -457,8 +478,8 @@ namespace stm {
         operator T* const&() const { return this->get(); };
 
         // 
-        T*& get() { return reinterpret_cast<T*&>(this->ptr); };
-        T* const& get() const { return reinterpret_cast<T* const&>(this->ptr); };
+        decltype(auto) get() { return reinterpret_cast<T*&>(this->ptr); };
+        decltype(auto) get() const { return reinterpret_cast<T* const&>(this->ptr); };
 
         //
         template<class Ts = T>
@@ -469,7 +490,7 @@ namespace stm {
         decltype(auto) operator=(Ts const& obj) { return this->assign<Ts>(&obj); };
 
         // to avoid ambiguous
-        template<class Ts = T, typename Ls = link<Ts>>
+        template<class Ts = T, class Ls = link<Ts>>
         decltype(auto) operator=(Ls const& obj) { return this->assign<Ts>(obj.get()); };
     };
 
