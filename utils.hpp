@@ -185,9 +185,7 @@ namespace stm {
             this->free(this->ptr);
         };
 
-        self_copy_intrusive(
-            Vp ptr = nullptr, size_t const& size = 0ull
-        ) : ptr(ptr ? ptr : this->malloc(size)), size(size),
+        self_copy_intrusive(Vp ptr = nullptr, size_t const& size = 0ull) : ptr(ptr ? ptr : this->malloc(size)), size(size)
         {};
 
         self_copy_intrusive(I const& intrusive) {
@@ -330,12 +328,12 @@ namespace stm {
 
     public: 
         // 
-        self_copy_ptr(I* intrusive = nullptr) { this->intrusive = intrusive; };
-        self_copy_ptr(I& intrusive)  { this->intrusive = &intrusive; };
+        self_copy_ptr(I* intrusive = nullptr) : intrusive(intrusive) {};
+        self_copy_ptr(I& intrusive) : intrusive(&intrusive) {};
 
         // 
-        self_copy_ptr(T* ptr = nullptr) { this->ptr = new I( ptr ); };
-        self_copy_ptr(T& ptr) { this->ptr = new I( &ptr ); };
+        self_copy_ptr(T* ptr = nullptr) : intrusive(new I( ptr )) { };
+        self_copy_ptr(T& ptr) : intrusive(new I( &ptr )) { };
 
         //
         ~self_copy_ptr() { delete this->intrusive; }
