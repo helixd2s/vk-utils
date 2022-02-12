@@ -146,6 +146,12 @@ namespace stm {
         operator bool() const { return !!this->ptr; };
     };
 
+
+
+    /* 
+        // What is intrusive self-copy pointer? I tell about it later...
+    */
+
     template<class T = void_t>
     inline decltype(auto) opt_ref(T& ref) {
         return optional_ref<T>(ref);
