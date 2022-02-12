@@ -817,6 +817,326 @@ namespace stm {
     };
 #endif
 
-    
+    // boolean 32-bit capable for C++
+    class bool32_t { // TODO: support operators
+    protected: union {
+        uint32_t b_ : 1; bool bb = false;
+    };
+    public: friend bool32_t;
+        constexpr bool32_t(): b_(0u) {};
+        inline bool32_t(bool const&a=false): b_(a?1u:0u) {};
+        inline bool32_t(uint32_t const&a): b_(a&1u) {}; // make bitmasked
+        inline bool32_t(bool32_t const&a): b_(a) {};
+
+        // type conversion operators
+        inline operator bool() const {return bool(b_&1u);};
+        inline operator uint32_t() const {return (b_&1u);};
+
+        // 
+        inline decltype(auto) operator=(const bool&a){b_=(a?1u:0u);return *this;};
+        inline decltype(auto) operator=(const uint32_t&a){b_=a&1u;return *this;};
+        inline decltype(auto) operator=(const bool32_t&a){b_=a;return *this;};
+    };
+
+
+    // Prefer Owner with Shared PTR!
+    template<class T = uint8_t>
+    class uni_ptr {
+    protected: //using T = uint8_t;
+        std::shared_ptr<T> shared = {};
+        optional_ref<T> regular = {};
+
+    public:
+        long size = 0ull;
+        void* owner = nullptr;
+        //T storage = {};
+
+    public: friend uni_ptr<T>; // 
+        inline uni_ptr() {};
+        //inline uni_ptr(uni_ptr<T> const& ptr) : shared(ptr.shared), regular(opt_ref(*ptr.regular)), size(ptr.size), owner(ptr.owner) { 
+        //    if (shared && !owner) { owner = &this->shared; }; // JavaCPP direct shared_ptr
+        //};
+        inline uni_ptr(std::shared_ptr<T> const& shared) : shared(shared), regular(opt_ref(*shared)) { 
+            if (shared && !owner) { owner = &this->shared; }; // JavaCPP direct shared_ptr
+        };
+        inline uni_ptr(T* ptr) : regular(opt_ref(*ptr)) {};
+        inline uni_ptr(T& ptr) : regular(opt_ref(ptr)) {};  // for argument passing
+        inline uni_ptr(T* ptr, long size, void* owner) : regular(opt_ref(*ptr)), size(size), owner(owner) {
+            shared = owner != NULL && owner != ptr ? *(std::shared_ptr<T>*)owner : std::shared_ptr<T>(ptr);
+        };
+        inline decltype(auto) assign(T* ptr, int size, void* owner) {
+            this->regular = opt_ref(*ptr);
+            this->size = size;
+            this->owner = owner;
+            this->shared = owner != NULL && owner != ptr ? *(std::shared_ptr<T>*)owner : std::shared_ptr<T>(ptr);
+            return this;
+        };
+        static inline void deallocate(void* owner) {
+            if (owner) { delete (std::shared_ptr<T>*)owner; }; // only when shared available
+        };
+
+        // 
+        inline decltype(auto) operator= (T* ptr) { regular = opt_ref(*ptr); return this; };
+        inline decltype(auto) operator= (T& ptr) { regular = opt_ref( ptr); return this; }; // for argument passing
+        inline decltype(auto) operator= (std::shared_ptr<T> const& ptr) {
+            shared = ptr, regular = opt_ref(*ptr); 
+            if (shared && !owner) { owner = &this->shared; }; // JavaCPP direct shared_ptr
+            return this;
+        };
+        //virtual inline uni_ptr* operator= (const uni_ptr<T>& ptr) {
+        //    T& ref = *ptr.regular;
+        //    shared = ptr.shared, regular = opt_ref(ref), owner = ptr.owner, size = ptr.size;
+        //    if (shared && !owner) { owner = &this->shared; }; // JavaCPP direct shared_ptr
+        //    return this;
+        //};
+
+        // 
+        template<class M = T>
+        inline decltype(auto) dyn_cast() const { T& r = *regular; return shared ? uni_ptr<M>(std::dynamic_pointer_cast<M>(shared)) : uni_ptr<M>(dynamic_cast<M&>(r)); };
+
+        // 
+        //template<class... A>
+        //uni_ptr<T>(A... args) : shared(std::make_shared<T>(args...)) {};
+
+        // TODO: resolve, should or not save a pointer or data copy?
+        inline decltype(auto) get_shared() { return (this->shared = (this->shared ? this->shared : std::shared_ptr<T>(get_ptr()))); };
+        inline decltype(auto) get_shared() const { return (this->shared ? this->shared : std::shared_ptr<T>(const_cast<T*>(get_ptr()))); };
+
+        // 
+        inline decltype(auto) get_ptr() { 
+            T& r = *regular;
+            if (shared && (owner == NULL || owner == &r)) {
+                owner = new std::shared_ptr<T>(shared);
+            };
+            return (T*)((void*)(shared ? &(*shared) : &r));
+        };
+
+        // 
+        inline decltype(auto) get_ptr() const {
+            const T& r = *regular;
+            return (T*)((void*)(shared ? &(*shared) : &r));
+        };
+
+        // 
+        inline bool has() { return regular && shared; };
+        inline bool has() const { return regular && shared; };
+
+        //
+        inline decltype(auto) get() { return get_ptr(); };
+        inline decltype(auto) get() const { return get_ptr(); };
+
+        // 
+        inline decltype(auto) ptr() { return get_ptr(); };
+        inline decltype(auto) ptr() const { return get_ptr(); };
+
+        // 
+        inline decltype(auto) ref() { return *regular; };
+        inline decltype(auto) ref() const { return *regular; };
+
+        // experimental
+        inline operator T& () { return ref(); };
+        inline operator T const& () const { return ref(); };
+
+        // 
+        inline operator T* () { return ptr(); };
+        inline operator T const* () const { return ptr(); };
+
+        // 
+        inline operator decltype(auto) () { return get_shared(); };
+        inline operator decltype(auto) () const { return get_shared(); };
+
+        // 
+        inline decltype(auto) operator->() { return get_ptr(); };
+        inline decltype(auto) operator->() const { return get_ptr(); };
+
+        // 
+        inline decltype(auto) operator*() { return *get_ptr(); };
+        inline decltype(auto) operator*() const { return *get_ptr(); };
+    };
+
+    // 
+    template<class T = uint8_t>
+    class uni_arg {
+    protected: 
+        std::optional<T> storage = std::nullopt;
+    public: // 
+        uni_arg() {};
+        uni_arg(T const& t) { storage = t; };
+        uni_arg(T const* t) { if (t) { storage = *t; }; };
+        uni_arg(uni_ptr<T> const& p) : storage(*p) {}; // UnUsual and Vain
+        uni_arg(uni_arg<T> const& a) : storage(*a) {};
+
+        //
+        inline uni_arg<T>& operator= (T const& ptr) { storage = ptr; return *this; };
+        inline uni_arg<T>& operator= (T const* ptr) { if (ptr) { storage = *ptr; }; return *this; };
+        inline uni_arg<T>& operator= (uni_arg<T> t) { if (t.has()) { storage = t.ref(); }; return *this; };
+        inline uni_arg<T>& operator= (uni_ptr<T> p) { if (p.has()) { storage = *p.ptr(); }; return *this; };
+
+        // experimental
+        inline operator T& () { return ref(); };
+        inline operator T const& () const { return ref(); };
+
+        // 
+        inline operator T* () { return ptr(); };
+        inline operator T const* () const { return ptr(); };
+
+        // 
+        inline operator uni_ptr<T>() { handle(has()); return *storage; };
+        inline operator uni_ptr<const T>() const { handle(has()); return *storage; };
+
+        // 
+        inline decltype(auto) has_value() const { return storage.has_value(); };
+        inline decltype(auto) has() const { return this->has_value(); };
+
+        // 
+        inline decltype(auto) ptr() { handle(has()); return (T*)((void*)(&(*storage))); };
+        inline decltype(auto) ptr() const { handle(has()); return (T*)((void*)(&(*storage))); };
+
+        //
+        template<class M = T> inline decltype(auto) ptr() { handle(has()); return &reinterpret_cast<M&>(this->ref()); };
+        template<class M = T> inline decltype(auto) ptr() const { handle(has()); return &reinterpret_cast<M const&>(this->ref()); };
+
+        // 
+        inline decltype(auto) ref() { handle(has()); return *storage; };
+        inline decltype(auto) ref() const { handle(has()); return *storage; };
+
+        // 
+        inline decltype(auto) operator->() { return ptr(); };
+        inline decltype(auto) operator->() const { return ptr(); };
+
+        //
+        inline decltype(auto) operator*() { return ref(); };
+        inline decltype(auto) operator*() const { return ref(); };
+    };
+
+    // Bi-Directional Conversion
+    template<class T = uint8_t, class B = char8_t>
+    class uni_dir {
+    protected:
+        std::optional<T> storage = std::nullopt;
+    public: // 
+        uni_dir() {};
+        uni_dir(T const& t) : storage(t) {};
+        uni_dir(B const& t) : storage(reinterpret_cast<const T&>(t)) {};
+        uni_dir(T const* t) : storage(*t) {};
+        uni_dir(B const* t) : storage(reinterpret_cast<const T&>(*t)) {};
+
+        // 
+        uni_dir(uni_ptr<T> const& p) : storage(*p) {}; // UnUsual and Vain
+        uni_dir(uni_ptr<B> const& p) : storage(reinterpret_cast<T&>(*p)) {}; // UnUsual and Vain
+        uni_dir(uni_arg<T> const& a) : storage(*a) {};
+        uni_dir(uni_arg<B> const& a) : storage(reinterpret_cast<T&>(*a)) {};
+
+        //
+        inline decltype(auto) operator= (T const& ptr) { storage = ptr; return *this; };
+        inline decltype(auto) operator= (T const* ptr) { storage = *ptr; return *this; };
+        inline decltype(auto) operator= (uni_arg<T> t) { storage = t.ref(); return *this; };
+        inline decltype(auto) operator= (uni_ptr<T> p) { storage = *p.ptr(); return *this; };
+
+        //
+        inline decltype(auto) operator= (B const& ptr) { storage = reinterpret_cast<T const&>(ptr); return *this; };
+        inline decltype(auto) operator= (B const* ptr) { storage = reinterpret_cast<T const&>(*ptr); return *this; };
+        inline decltype(auto) operator= (uni_arg<B> t) { storage = reinterpret_cast<T&>(t.ref()); return *this; };
+        inline decltype(auto) operator= (uni_ptr<B> p) { storage = reinterpret_cast<T&>(*p.ptr()); return *this; };
+
+        // 
+        inline operator T& () { return ref(); };
+        inline operator T const& () const { return ref(); };
+
+        // 
+        inline operator T* () { return ptr(); };
+        inline operator T const* () const { return ptr(); };
+
+        // 
+        inline operator B& () { return reinterpret_cast<B&>(ref()); };
+        inline operator B const& () const { return reinterpret_cast<B const&>(ref()); };
+
+        // 
+        inline operator B* () { return reinterpret_cast<B*>(ptr()); };
+        inline operator B const* () const { return reinterpret_cast<B const*>(ptr()); };
+
+        // 
+        inline operator uni_ptr<T>() { handle(has()); return *storage; };
+        inline operator uni_ptr<const T>() const { handle(has()); return *storage; };
+
+        // 
+        inline decltype(auto) has_value() const { return storage.has_value(); };
+        inline decltype(auto) has() const { return this->has_value(); };
+
+        // 
+        inline decltype(auto) ptr() { handle(has()); return &(*storage); };
+        inline decltype(auto) ptr() const { handle(has()); return &(*storage); };
+
+        //
+        template<class M = T> inline decltype(auto) ptr() { handle(has()); return &reinterpret_cast<M&>(this->ref()); };
+        template<class M = T> inline decltype(auto) ptr() const { handle(has()); return &reinterpret_cast<M const&>(this->ref()); };
+
+        // 
+        inline decltype(auto) ref() { handle(has()); return *storage; };
+        inline decltype(auto) ref() const { handle(has()); return *storage; };
+
+        // 
+        inline decltype(auto) operator->() { return ptr(); };
+        inline decltype(auto) operator->() const { return ptr(); };
+
+        //
+        inline decltype(auto) operator*() { return ref(); };
+        inline decltype(auto) operator*() const { return ref(); };
+    };
+
+    // aggregate cache
+    inline auto* cache = new unsigned char[256u*256u];
+
+    // 
+    inline decltype(auto) aggregate(auto str){
+        using T = std::decay(decltype(str))::type;
+        memcpy(cache, &str, sizeof(T));
+        return reinterpret_cast<T&>(*cache);
+    };
+
+    // 
+    inline decltype(auto) aggregate(auto str, auto& cache_pointer){
+        using T = std::decay(decltype(str))::type;
+        memcpy(cache, &str, sizeof(T));
+        return reinterpret_cast<T&>(*cache);
+    };
+
+    inline decltype(auto) unlock32(auto& cache) {
+        return reinterpret_cast<uint32_t&>(cache);
+    };
+
+    inline decltype(auto) zero32(auto& cache) {
+        return (reinterpret_cast<uint32_t& >(cache) = 0u);
+    };
+
+    inline decltype(auto) unlock64(auto& cache){
+        return reinterpret_cast<uint64_t&>(cache);
+    };
+
+    inline decltype(auto) zero64(auto& cache){
+        return (reinterpret_cast<uint64_t& >(cache) = 0u);
+    };
+
+    //
+    enum default_t : uint32_t {
+
+    };
+
+    //#ifdef USE_VULKAN
+    static inline decltype(auto) sgn(auto const& val) { using T = std::decay(decltype(val))::type; return (T(0) < val) - (val < T(0)); }
+    static inline decltype(auto) tiled(auto const& sz, auto const& gmaxtile) {
+        // return (int32_t)ceil((double)sz / (double)gmaxtile);
+        return sz <= 0 ? 0 : (sz / gmaxtile + sgn(sz % gmaxtile));
+    };
+
+    template <class T> static inline decltype(auto) strided(vkh::uni_arg<size_t> const& sizeo) { return sizeof(T) * sizeo; }
+    template <class T> static inline decltype(auto) makeVector(T const* ptr, size_t const& size = 1) { std::vector<T>v(size); memcpy(v.data(), ptr, strided<T>(size)); return v; };
+
+    template<class T>
+    inline decltype(auto) vector_cast(std::vector<auto> const& Vy) {
+        std::vector<T> V{}; for (auto& v : Vy) { V.push_back(reinterpret_cast<T const&>(v)); }; return std::move(V);
+    };
+
+
 
 };
