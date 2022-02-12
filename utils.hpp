@@ -642,14 +642,15 @@ namespace stm {
     using localptr_t = uintptr_t;
 
     // for vulkan structs or descriptor set data bucket
-    class data_store {
+    template<Vc = std::vector<uint8_t>>
+    class memory_stack {
     protected:
         // we use local pointer memory
-        std::vector<uint8_t> memory = {};
+        Vc memory = {};
 
     public: 
         // 
-        data_store(std::vector<uint8_t> const& memory = {}) : memory(memory) {
+        memory_stack(Vc const& memory = {}) : memory(memory) {
             
         };
 
@@ -688,15 +689,15 @@ namespace stm {
     };
 
     // for vulkan structs with shared_ptr
-    template<class V = void_t>
+    template<class V = void_t, class Vc = std::vector<V>>
     class vector_of_shared {
     protected:
         // we use local pointer memory
-        std::vector<std::shared_ptr<V>> chain = {};
+        Vc<std::shared_ptr<V>> chain = {};
 
     public: 
         // 
-        vector_of_shared(std::vector<std::shared_ptr<V>> const& chain) : chain(chain) {};
+        vector_of_shared(Vc<std::shared_ptr<V>> const& chain) : chain(chain) {};
 
         // 
         decltype(auto) push(auto const& data = {}) {
