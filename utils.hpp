@@ -639,8 +639,8 @@ namespace stm {
     inline decltype(auto) shared_struct(auto const& data) {
         using T = decltype(data);
         auto shared = std::shared_ptr<T>((T*)malloc(sizeof(T)), free);
-        //memcpy(shared.get(), &data, sizeof(T));
-        *shared = data; // what if structure can self-copy?
+        memcpy(shared.get(), &data, sizeof(T));
+        //*shared = data; // what if structure can self-copy?
         return shared;
     };
 
