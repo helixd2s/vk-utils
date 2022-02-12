@@ -636,12 +636,16 @@ namespace stm {
 
     // only for construct vulkan structures
     //template<class T>
-    inline decltype(auto) shared_struct(auto const& data) {
-        using T = decltype(data);
+    inline decltype(auto) shared_struct(auto const* data) {
+        using T = std::decay(decltype(data))::type;
         auto shared = std::shared_ptr<T>((T*)malloc(sizeof(T)), free);
-        memcpy(shared.get(), &data, sizeof(T));
+        memcpy(shared.get(), data, sizeof(T));
         //*shared = data; // what if structure can self-copy?
         return shared;
+    };
+
+    inline decltype(auto) shared_struct(auto const& data) {
+        return shared_struct(&data);
     };
 
     //
