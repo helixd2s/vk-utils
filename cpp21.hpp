@@ -18,6 +18,7 @@
 #include <type_safe/integer.hpp>
 #endif
 
+// 
 #ifdef VKU_ENABLE_INTERVAL
 #include <interval-tree/interval_tree.hpp>
 #endif
@@ -36,6 +37,71 @@ namespace stm {
         // What is "void_t"? This is specific type, replacement for C void for most case. Less conflicts, more compatible, more functional. But sometime C++ may make this type 1-byte sized.
         // Mostly used with pointers and with address spaces, and operates with it.
     */
+
+
+    // aggregate cache
+    inline auto* cache = new unsigned char[256u*256u];
+
+    // 
+    inline decltype(auto) aggregate(auto str){
+        using T = std::decay(decltype(str))::type;
+        memcpy(cache, &str, sizeof(T));
+        return reinterpret_cast<T&>(*cache);
+    };
+
+    // 
+    inline decltype(auto) aggregate(auto str, auto& cache_pointer){
+        using T = std::decay(decltype(str))::type;
+        memcpy(cache, &str, sizeof(T));
+        return reinterpret_cast<T&>(*cache);
+    };
+
+    // 
+    inline decltype(auto) unlock32(auto& cache) {
+        return reinterpret_cast<uint32_t&>(cache);
+    };
+
+    // 
+    inline decltype(auto) zero32(auto& cache) {
+        return (reinterpret_cast<uint32_t& >(cache) = 0u);
+    };
+
+    // 
+    inline decltype(auto) unlock64(auto& cache){
+        return reinterpret_cast<uint64_t&>(cache);
+    };
+
+    // 
+    inline decltype(auto) zero64(auto& cache){
+        return (reinterpret_cast<uint64_t& >(cache) = 0u);
+    };
+
+    //
+    enum default_t : uint32_t {
+
+    };
+
+    //#ifdef USE_VULKAN
+    static inline decltype(auto) sgn(auto const& val) { using T = std::decay(decltype(val))::type; return (T(0) < val) - (val < T(0)); }
+    static inline decltype(auto) tiled(auto const& sz, auto const& gmaxtile) {
+        // return (int32_t)ceil((double)sz / (double)gmaxtile);
+        return sz <= 0 ? 0 : (sz / gmaxtile + sgn(sz % gmaxtile));
+    };
+
+    // 
+    template <class T> static inline decltype(auto) strided(size_t const& size = 1u) { return sizeof(T) * size; };
+    template <class T> static inline decltype(auto) makeVector(T const* ptr, size_t const& size = 1) { std::vector<T>v(size); memcpy(v.data(), ptr, strided<T>(size)); return v; };
+
+    // 
+    template<class T, class Ts = T>
+    inline decltype(auto) vector_cast(std::vector<Ts> const& Vy) {
+        std::vector<T> V{}; for (auto& v : Vy) { V.push_back(reinterpret_cast<T const&>(v)); }; return std::move(V);
+    };
+
+    // 
+    inline decltype(auto) shift(auto* data, uintptr_t offset = 0ull) { return reinterpret_cast<decltype(data)>(reinterpret_cast<uintptr_t&>(data) + offset); };
+    inline decltype(auto) shift(const auto* data, uintptr_t offset = 0ull) { return reinterpret_cast<decltype(data)>(reinterpret_cast<const uintptr_t&>(data) + offset); };
+
 
     //using void_t = uint8_t;
     class void_t { public: 
@@ -622,10 +688,6 @@ namespace stm {
     };
 #endif
 
-    // 
-    inline decltype(auto) shift(auto* data, uintptr_t offset = 0ull) { return reinterpret_cast<decltype(data)>(reinterpret_cast<uintptr_t&>(data) + offset); };
-    inline decltype(auto) shift(const auto* data, uintptr_t offset = 0ull) { return reinterpret_cast<decltype(data)>(reinterpret_cast<const uintptr_t&>(data) + offset); };
-
     //
     template<class T, uint32_t count = 16u>
     class limited_list { public: 
@@ -1101,60 +1163,5 @@ namespace stm {
         inline decltype(auto) operator*() { return ref(); };
         inline decltype(auto) operator*() const { return ref(); };
     };
-
-    // aggregate cache
-    inline auto* cache = new unsigned char[256u*256u];
-
-    // 
-    inline decltype(auto) aggregate(auto str){
-        using T = std::decay(decltype(str))::type;
-        memcpy(cache, &str, sizeof(T));
-        return reinterpret_cast<T&>(*cache);
-    };
-
-    // 
-    inline decltype(auto) aggregate(auto str, auto& cache_pointer){
-        using T = std::decay(decltype(str))::type;
-        memcpy(cache, &str, sizeof(T));
-        return reinterpret_cast<T&>(*cache);
-    };
-
-    inline decltype(auto) unlock32(auto& cache) {
-        return reinterpret_cast<uint32_t&>(cache);
-    };
-
-    inline decltype(auto) zero32(auto& cache) {
-        return (reinterpret_cast<uint32_t& >(cache) = 0u);
-    };
-
-    inline decltype(auto) unlock64(auto& cache){
-        return reinterpret_cast<uint64_t&>(cache);
-    };
-
-    inline decltype(auto) zero64(auto& cache){
-        return (reinterpret_cast<uint64_t& >(cache) = 0u);
-    };
-
-    //
-    enum default_t : uint32_t {
-
-    };
-
-    //#ifdef USE_VULKAN
-    static inline decltype(auto) sgn(auto const& val) { using T = std::decay(decltype(val))::type; return (T(0) < val) - (val < T(0)); }
-    static inline decltype(auto) tiled(auto const& sz, auto const& gmaxtile) {
-        // return (int32_t)ceil((double)sz / (double)gmaxtile);
-        return sz <= 0 ? 0 : (sz / gmaxtile + sgn(sz % gmaxtile));
-    };
-
-    template <class T> static inline decltype(auto) strided(stm::uni_arg<size_t> const& sizeo) { return sizeof(T) * sizeo; }
-    template <class T> static inline decltype(auto) makeVector(T const* ptr, size_t const& size = 1) { std::vector<T>v(size); memcpy(v.data(), ptr, strided<T>(size)); return v; };
-
-    template<class T, class Ts = T>
-    inline decltype(auto) vector_cast(std::vector<Ts> const& Vy) {
-        std::vector<T> V{}; for (auto& v : Vy) { V.push_back(reinterpret_cast<T const&>(v)); }; return std::move(V);
-    };
-
-
 
 };
