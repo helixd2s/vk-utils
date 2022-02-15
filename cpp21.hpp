@@ -768,6 +768,7 @@ namespace stm {
         // 
         template<class M = T>
         inline decltype(auto) dyn_cast() const { T& r = *regular; return shared ? uni_ptr<M>(std::dynamic_pointer_cast<M>(shared)) : uni_ptr<M>(dynamic_cast<M&>(r)); };
+        inline decltype(auto) rip_cast() const { T& r = *regular; return shared ? uni_ptr<M>(std::reinterpret_pointer_cast<M>(shared)) : uni_ptr<M>(reinterpret_cast<M&>(r)); };
 
         // 
         //template<class... A>
