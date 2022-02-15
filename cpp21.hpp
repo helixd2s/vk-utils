@@ -97,6 +97,13 @@ namespace stm {
     };
 
     //
+    template<class T = std::string>
+    inline decltype(auto) toCString(std::vector<T> const& Vs) {
+        std::vector<void const*> cVect(Vs.size());
+        return std::transform(Vs.begin(), Vs.end(), cVect.begin(), [](std::string& str) { return str.c_str(); });
+    };
+
+    //
     using localptr_t = uintptr_t;
 
 
