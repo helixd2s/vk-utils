@@ -722,7 +722,7 @@ namespace stm {
         optional_ref<T> regular = {};
 
     public:
-        long size = 0ull;
+        long size = sizeof(T);
         void* owner = nullptr;
         //T storage = {};
 
@@ -734,12 +734,12 @@ namespace stm {
         inline uni_ptr(std::shared_ptr<T> const& shared) : shared(shared), regular(opt_ref(*shared)) { 
             if (shared && !owner) { owner = &this->shared; }; // JavaCPP direct shared_ptr
         };
-        inline uni_ptr(T* ptr) : regular(opt_ref(*ptr)) {};
+        //inline uni_ptr(T* ptr) : regular(opt_ref(*ptr)) {};
         inline uni_ptr(T& ptr) : regular(opt_ref(ptr)) {};  // for argument passing
-        inline uni_ptr(T* ptr, long size, void* owner) : regular(opt_ref(*ptr)), size(size), owner(owner) {
+        inline uni_ptr(T* ptr, long size = sizeof(T), void* owner = nullptr) : regular(opt_ref(*ptr)), size(size), owner(owner) {
             shared = owner != NULL && owner != ptr ? *(std::shared_ptr<T>*)owner : std::shared_ptr<T>(ptr);
         };
-        inline decltype(auto) assign(T* ptr, int size, void* owner) {
+        inline decltype(auto) assign(T* ptr, int size = sizeof(T), void* owner = nullptr) {
             this->regular = opt_ref(*ptr);
             this->size = size;
             this->owner = owner;
