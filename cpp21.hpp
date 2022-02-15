@@ -1079,13 +1079,17 @@ namespace stm {
         // 
         decltype(auto) set(K const& key, auto const& data = {}) {
             using T = std::decay_t<decltype(data)>;
-            return uni_ptr(map[key] = std::reinterpret_pointer_cast<T>(copy_as_shared(data)));
+            return uni_ptr<T>(std::reinterpret_pointer_cast<T>(
+                map[key] = std::reinterpret_pointer_cast<T>(copy_as_shared(data))
+            ));
         };
 
         // 
         template<class T = V>
         decltype(auto) set(K const& key, std::shared_ptr<T> const& data = {}) {
-            return uni_ptr(map[key] = std::reinterpret_pointer_cast<V>(data));
+            return uni_ptr<T>(std::reinterpret_pointer_cast<T>(
+                (map[key] = std::reinterpret_pointer_cast<V>(data))
+            ));
         };
 
         // 
