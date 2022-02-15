@@ -44,14 +44,14 @@ namespace stm {
 
     // 
     inline decltype(auto) aggregate(auto str){
-        using T = std::decay(decltype(str))::type;
+        using T = std::decay_t<decltype(str)>;
         memcpy(cache, &str, sizeof(T));
         return reinterpret_cast<T&>(*cache);
     };
 
     // 
     inline decltype(auto) aggregate(auto str, auto& cache_pointer){
-        using T = std::decay(decltype(str))::type;
+        using T = std::decay_t<decltype(str)>;
         memcpy(cache, &str, sizeof(T));
         return reinterpret_cast<T&>(*cache);
     };
@@ -84,7 +84,7 @@ namespace stm {
     // only for construct vulkan structures
     //template<class T>
     inline decltype(auto) copy_as_shared(auto const* data) {
-        using T = std::decay(decltype(data))::type;
+        using T = std::decay_t<decltype(data)>;
         auto shared = std::shared_ptr<T>((T*)malloc(sizeof(T)), free);
         memcpy(shared.get(), data, sizeof(T));
         //*shared = data; // what if structure can self-copy?
@@ -101,7 +101,7 @@ namespace stm {
 
 
     //#ifdef USE_VULKAN
-    static inline decltype(auto) sgn(auto const& val) { using T = std::decay(decltype(val))::type; return (T(0) < val) - (val < T(0)); }
+    static inline decltype(auto) sgn(auto const& val) { using T = std::decay_t<decltype(val)>; return (T(0) < val) - (val < T(0)); }
     static inline decltype(auto) tiled(auto const& sz, auto const& gmaxtile) {
         // return (int32_t)ceil((double)sz / (double)gmaxtile);
         return sz <= 0 ? 0 : (sz / gmaxtile + sgn(sz % gmaxtile));
@@ -130,7 +130,7 @@ namespace stm {
         void_t(){};
 
         //
-        decltype(auto) assign(auto const* obj) { using Ts = std::decay(decltype(obj))::type; memcpy(this, obj, sizeof(Ts)); return reinterpret_cast<Ts&>(*this); };
+        decltype(auto) assign(auto const* obj) { using Ts = std::decay_t<decltype(obj)>; memcpy(this, obj, sizeof(Ts)); return reinterpret_cast<Ts&>(*this); };
         decltype(auto) assign(auto const& obj) { return this->assign(&obj); };
 
         //
@@ -476,14 +476,12 @@ namespace stm {
 
         // 
         decltype(auto) self_copy_from_this() {
-            //using Ts = std::decay(Ie)::type;
             reinterpret_cast<T*>(this->ptr) = reinterpret_cast<T*>(this); // for any case
             return self_copy_ptr<T, Ie>(*this);
         };
 
         // 
         decltype(auto) self_copy_from_this() const {
-            //using Ts = std::decay(Ie)::type;
             const_cast<T*>(reinterpret_cast<T const*>(this->ptr)) = const_cast<T*>(reinterpret_cast<T const*>(this)); // for any case
             return self_copy_ptr<const T, Ie>(*this);
         };
@@ -581,7 +579,7 @@ namespace stm {
         //
         //decltype(auto) assign(auto const* obj) { using Ts = std::decay(decltype(obj))::type; return reinterpret_cast<link<Ts>&>(this->assign(reinterpret_cast<void_t const*>(obj), sizeof(Ts))); };
         decltype(auto) assign(auto const* obj) {
-            using Ts = std::decay(decltype(obj))::type;
+            using Ts = std::decay_t<decltype(obj)>;
             if (!this->ptr) { this->ptr = new Ts; };
             *reinterpret_cast<Ts*>(this->ptr) = *obj;
             return reinterpret_cast<link<Ts>&>(*this);
@@ -651,8 +649,8 @@ namespace stm {
         decltype(auto) get() const { return reinterpret_cast<T* const&>(this->ptr); };
 
         //
-        decltype(auto) assign(auto const* obj) { return reinterpret_cast<link<std::decay(decltype(obj))::type>>(link_void::assign(obj)); };
-        decltype(auto) assign(auto const& obj) { return reinterpret_cast<link<std::decay(decltype(obj))::type>>(link_void::assign(obj)); };
+        decltype(auto) assign(auto const* obj) { return reinterpret_cast<link<std::decay_t<decltype(obj)>>>(link_void::assign(obj)); };
+        decltype(auto) assign(auto const& obj) { return reinterpret_cast<link<std::decay_t<decltype(obj)>>>(link_void::assign(obj)); };
 
         //
         decltype(auto) operator=(auto const* obj) { return this->assign(obj); };
@@ -1035,7 +1033,7 @@ namespace stm {
 
         // 
         decltype(auto) push(auto const& data = {}) {
-            using T = std::decay(decltype(data))::type;
+            using T = std::decay_t<decltype(data)>;
             auto last = chain.size();
             chain->push_back(std::reinterpret_pointer_cast<T>(copy_as_shared(data)));
             return last;
@@ -1080,7 +1078,7 @@ namespace stm {
 
         // 
         decltype(auto) set(K const& key, auto const& data = {}) {
-            using T = std::decay(decltype(data))::type;
+            using T = std::decay_t<decltype(data)>;
             return uni_ptr(map[key] = std::reinterpret_pointer_cast<T>(copy_as_shared(data)));
         };
 
