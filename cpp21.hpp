@@ -9,6 +9,7 @@
 #include <optional>
 #include <coroutine>
 #include <tuple>
+#include <type_traits>
 
 // 
 #ifdef VKU_ENABLE_TYPE_SAFE
