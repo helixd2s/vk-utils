@@ -81,6 +81,25 @@ namespace stm {
 
     };
 
+    // only for construct vulkan structures
+    //template<class T>
+    inline decltype(auto) copy_as_shared(auto const* data) {
+        using T = std::decay(decltype(data))::type;
+        auto shared = std::shared_ptr<T>((T*)malloc(sizeof(T)), free);
+        memcpy(shared.get(), data, sizeof(T));
+        //*shared = data; // what if structure can self-copy?
+        return shared;
+    };
+
+    // 
+    inline decltype(auto) copy_as_shared(auto const& data) {
+        return copy_as_shared(&data);
+    };
+
+    //
+    using localptr_t = uintptr_t;
+
+
     //#ifdef USE_VULKAN
     static inline decltype(auto) sgn(auto const& val) { using T = std::decay(decltype(val))::type; return (T(0) < val) - (val < T(0)); }
     static inline decltype(auto) tiled(auto const& sz, auto const& gmaxtile) {
@@ -687,237 +706,13 @@ namespace stm {
         return ref ? (&ref.value()) : nullptr;
     };
 #endif
-
-    //
-    template<class T, uint32_t count = 16u>
-    class limited_list { public: 
-        std::list<T> queue = {};
-
-        limited_list* push_back( T const& e) {
-            if (queue.size() >= count) { queue.pop_front(); };
-            queue.push_back(e);
-            return this;
-        };
-
-        T& back() { return queue.back(); };
-        T const& back() const { return queue.back(); };
-
-        size_t size() const { return queue.size(); };
-    };
-
-    // only for construct vulkan structures
-    //template<class T>
-    //inline decltype(auto) shared_struct(T const& data) {
-    //    auto shared = std::shared_ptr<T>((T*)malloc(sizeof(T)), free);
-    //    //memcpy(shared.get(), &data, sizeof(T));
-    //    *shared = data; // what if structure can self-copy?
-    //    return shared;
-    //};
-
-    // only for construct vulkan structures
-    //template<class T>
-    inline decltype(auto) copy_as_shared(auto const* data) {
-        using T = std::decay(decltype(data))::type;
-        auto shared = std::shared_ptr<T>((T*)malloc(sizeof(T)), free);
-        memcpy(shared.get(), data, sizeof(T));
-        //*shared = data; // what if structure can self-copy?
-        return shared;
-    };
-
-    inline decltype(auto) copy_as_shared(auto const& data) {
-        return copy_as_shared(&data);
-    };
-
-    //
-    using localptr_t = uintptr_t;
-
-    // for vulkan structs or descriptor set data bucket
-    template<class Vc = std::vector<uint8_t>>
-    class memory_stack {
-    protected:
-        // we use local pointer memory
-        Vc memory = {};
-
-    public: 
-        // 
-        memory_stack(Vc const& memory = {}) : memory(memory) {
-            
-        };
-
-        // 
-        template<class S>
-        decltype(auto) push(S const& data) {
-            auto last = memory.size();
-            memory.resize(last + sizeof(S));
-            memcpy(memory.data() + last, &data, sizeof(S));
-            return last;
-        };
-
-        // 
-        template<class S>
-        decltype(auto) ptr(localptr_t const& address) const {
-            return reinterpret_cast<S const*>(memory.data() + address);
-        };
-
-        // 
-        template<class S>
-        decltype(auto) ptr(localptr_t const& address) {
-            return reinterpret_cast<S*>(memory.data() + address);
-        };
-
-        // 
-        template<class S>
-        decltype(auto) ref(localptr_t const& address) {
-            return *this->ptr<S>(address);
-        };
-
-        // 
-        template<class S>
-        decltype(auto) const& ref(localptr_t const& address) const {
-            return *this->ptr<S>(address);
-        };
-    };
-
-    // for vulkan structs with shared_ptr
-    template<class V = void_t, class Vc = std::vector<V>>
-    class vector_of_shared {
-    protected:
-        // we use local pointer memory
-        Vc<std::shared_ptr<V>> chain = {};
-
-    public: 
-        // 
-        vector_of_shared(Vc<std::shared_ptr<V>> const& chain) : chain(chain) {};
-
-        // 
-        decltype(auto) push(auto const& data = {}) {
-            auto last = chain.size();
-            auto data = std::shared_ptr<V>((V*)malloc(sizeof(T)), free);
-            memcpy(data.get(), &data, sizeof(T));
-            chain->push_back(data);
-            return last;
-        };
-
-        // 
-        decltype(auto) push(std::shared_ptr<auto> const& data = {}) {
-            auto last = chain.size();
-            chain->push_back(std::reinterpret_pointer_cast<V>(data));
-            return last;
-        };
-
-        // 
-        template<class T = V>
-        decltype(auto) get(uintptr_t const& index = 0u) {
-            return std::reinterpret_pointer_cast<T>(chain[index]);
-        };
-
-        // 
-        template<class T = V>
-        decltype(auto) get(uintptr_t const& index = 0u) const {
-            return std::reinterpret_pointer_cast<T>(chain[index]);
-        };
-    };
-
-    // for advanced vulkan structs with shared_ptr
-    template<class K = uintptr_t, class V = void_t>
-    class map_of_shared {
-    protected:
-        // we use local pointer memory
-        std::unordered_map<K, std::shared_ptr<V>> map = {};
-
-    public: 
-        map_of_shared(std::unordered_map<K, std::shared_ptr<V>> const& map = {}) : map(map) {};
-
-        // 
-        decltype(auto) set(K const& key, auto const& data = {}) {
-            auto last = chain.size();
-            auto local = std::shared_ptr<V>((V*)malloc(sizeof(T)), free);
-            memcpy(local.get(), &data, sizeof(T));
-            map[key] = local;
-            return std::reinterpret_pointer_cast<T>(local);
-        };
-
-        // 
-        decltype(auto) set(K const& key, std::shared_ptr<auto> const& data = {}) {
-            map[key] = std::reinterpret_pointer_cast<V>(data); return *this;
-        };
-
-        // 
-        template<class T = V>
-        decltype(auto) get(K const& key) {
-            return std::reinterpret_pointer_cast<T>(map.at(key));
-        };
-
-        // 
-        template<class T = V>
-        decltype(auto) get(K const& key) const {
-            return std::reinterpret_pointer_cast<T>(map.at(key));
-        };
-    };
-
-#ifdef VKU_ENABLE_INTERVAL
+    
     // 
-    template<class N, class T>
-    class interval_map { public: 
-        std::unordered_map<N, T> map = {};
-        lib_interval_tree::interval_tree_t<N> intervals = {};
-
-    public:
-        // 
-        decltype(auto) insert( lib_interval_tree::interval<N, lib_interval_tree::closed> const& interval, T const& obj) {
-            auto it = intervals.overlap_find({ interval.low(), interval.low() });
-            if (map.find(interval.low()) == map.end()) { map[interval.low()] = obj; };
-            if (it != intervals.end()) { intervals.insert(interval); intervals.deoverlap(); };
-            return this;
-        };
-
-        // 
-        decltype(auto) erase( N const& address = 0ull) {
-            auto it = intervals.overlap_find({ address, address });
-            if (it != intervals.end()) {
-                auto mt = map.find(it->interval().low());
-                map.erase(mt);
-                intervals.erase(it);
-            };
-            return this;
-        };
-
-        // 
-        decltype(auto) find( N const& address = 0ull) {
-            auto it = intervals.overlap_find({ address, address });
-            return it != intervals.end() ? opt_ref<T>(map.at(it->interval().low())) : optional_ref<T>{};
-        };
-
-        // 
-        decltype(auto) find( N const& address = 0ull) const {
-            auto& intervals = const_cast<lib_interval_tree::interval_tree_t<N>&>(this->intervals);
-            auto it = intervals.overlap_find({ address, address });
-            return it != intervals.end() ? opt_cref<T>(map.at(it->interval().low())) : optional_ref<const T>{};
+    inline void handle(const bool& valid = false) {
+        if (!valid) {
+            //std::cerr << "std::optional is wrong or not initialized" << std::endl; assert(valid);
         };
     };
-#endif
-
-    // boolean 32-bit capable for C++
-    class bool32_t { // TODO: support operators
-    protected: union {
-        uint32_t b_ : 1; bool bb = false;
-    };
-    public: friend bool32_t;
-        constexpr bool32_t(): b_(0u) {};
-        inline bool32_t(bool const&a=false): b_(a?1u:0u) {};
-        inline bool32_t(uint32_t const&a): b_(a&1u) {}; // make bitmasked
-        inline bool32_t(bool32_t const&a): b_(a) {};
-
-        // type conversion operators
-        inline operator bool() const {return bool(b_&1u);};
-        inline operator uint32_t() const {return (b_&1u);};
-
-        // 
-        inline decltype(auto) operator=(const bool&a){b_=(a?1u:0u);return *this;};
-        inline decltype(auto) operator=(const uint32_t&a){b_=a&1u;return *this;};
-        inline decltype(auto) operator=(const bool32_t&a){b_=a;return *this;};
-    };
-
 
     // Prefer Owner with Shared PTR!
     template<class T = uint8_t>
@@ -1038,6 +833,7 @@ namespace stm {
     template<class T = uint8_t>
     class uni_arg {
     protected: 
+        //optional_ref<T> storage = {};
         std::optional<T> storage = std::nullopt;
     public: // 
         uni_arg() {};
@@ -1156,12 +952,218 @@ namespace stm {
         inline decltype(auto) ref() const { handle(has()); return *storage; };
 
         // 
-        inline decltype(auto) operator->() { return ptr(); };
-        inline decltype(auto) operator->() const { return ptr(); };
+        inline decltype(auto) operator->() { return this->ptr(); };
+        inline decltype(auto) operator->() const { return this->ptr(); };
 
         //
         inline decltype(auto) operator*() { return ref(); };
         inline decltype(auto) operator*() const { return ref(); };
     };
+
+    //
+    template<class T, uint32_t count = 16u>
+    class limited_list { public: 
+        std::list<T> queue = {};
+
+        limited_list* push_back( T const& e) {
+            if (queue.size() >= count) { queue.pop_front(); };
+            queue.push_back(e);
+            return this;
+        };
+
+        T& back() { return queue.back(); };
+        T const& back() const { return queue.back(); };
+
+        size_t size() const { return queue.size(); };
+    };
+
+    // only for construct vulkan structures
+    //template<class T>
+    //inline decltype(auto) shared_struct(T const& data) {
+    //    auto shared = std::shared_ptr<T>((T*)malloc(sizeof(T)), free);
+    //    //memcpy(shared.get(), &data, sizeof(T));
+    //    *shared = data; // what if structure can self-copy?
+    //    return shared;
+    //};
+
+    // for vulkan structs or descriptor set data bucket
+    template<class U = uint8_t, class Vc = std::vector<U>>
+    class memory_stack {
+    protected:
+        // we use local pointer memory
+        Vc memory = {};
+
+    public: 
+        // 
+        memory_stack(Vc const& memory = {}) : memory(memory) {
+            
+        };
+
+        // 
+        template<class S = U>
+        decltype(auto) push(S const& data) {
+            auto last = memory.size();
+            memory.resize(last + sizeof(S));
+            memcpy(memory.data() + last, &data, sizeof(S));
+            return last;
+        };
+
+        // 
+        template<class S = U>
+        decltype(auto) get(localptr_t const& address) {
+            return uni_ptr(reinterpret_cast<S*>(memory.data() + address));
+        };
+
+        // 
+        template<class S = U>
+        decltype(auto) get(localptr_t const& address) const {
+            return uni_ptr(reinterpret_cast<const S*>(memory.data() + address));
+        };
+    };
+
+    // for vulkan structs with shared_ptr
+    template<class V = void_t, class Vc = std::vector<V>>
+    class vector_of_shared {
+    protected:
+        // we use local pointer memory
+        Vc<std::shared_ptr<V>> chain = {};
+
+    public: 
+        // 
+        vector_of_shared(Vc<std::shared_ptr<V>> const& chain) : chain(chain) {};
+
+        // 
+        decltype(auto) push(auto const& data = {}) {
+            using T = std::decay(decltype(data))::type;
+            auto last = chain.size();
+            chain->push_back(std::reinterpret_pointer_cast<T>(copy_as_shared(data)));
+            return last;
+        };
+
+        // 
+        template<class T = V>
+        decltype(auto) push(std::shared_ptr<T> const& data = {}) {
+            auto last = chain.size();
+            chain->push_back(std::reinterpret_pointer_cast<V>(data));
+            return last;
+        };
+
+        // 
+        template<class T = V>
+        decltype(auto) get(uintptr_t const& index = 0u) {
+            return uni_ptr(std::reinterpret_pointer_cast<T>(chain[index]));
+        };
+
+        // 
+        template<class T = V>
+        decltype(auto) get(uintptr_t const& index = 0u) const {
+            return uni_ptr(std::reinterpret_pointer_cast<T>(chain[index]));
+        };
+
+        //
+        template<class T = V>
+        decltype(auto) push_get(auto const& data = {}) {
+            return this->get<T>(this->push(data));
+        };
+    };
+
+    // for advanced vulkan structs with shared_ptr
+    template<class K = uintptr_t, class V = void_t>
+    class map_of_shared {
+    protected:
+        // we use local pointer memory
+        std::unordered_map<K, std::shared_ptr<V>> map = {};
+
+    public: 
+        map_of_shared(std::unordered_map<K, std::shared_ptr<V>> const& map = {}) : map(map) {};
+
+        // 
+        decltype(auto) set(K const& key, auto const& data = {}) {
+            return uni_ptr(map[key] = std::reinterpret_pointer_cast<T>(copy_as_shared(data)));
+        };
+
+        // 
+        decltype(auto) set(K const& key, std::shared_ptr<auto> const& data = {}) {
+            return uni_ptr(map[key] = std::reinterpret_pointer_cast<V>(data));
+        };
+
+        // 
+        template<class T = V>
+        decltype(auto) get(K const& key) {
+            return uni_ptr(std::reinterpret_pointer_cast<T>(map.at(key)));
+        };
+
+        // 
+        template<class T = V>
+        decltype(auto) get(K const& key) const {
+            return uni_ptr(std::reinterpret_pointer_cast<T>(map.at(key)));
+        };
+    };
+
+#ifdef VKU_ENABLE_INTERVAL
+    // 
+    template<class N, class T>
+    class interval_map { public: 
+        std::unordered_map<N, T> map = {};
+        lib_interval_tree::interval_tree_t<N> intervals = {};
+
+    public:
+        // 
+        decltype(auto) insert( lib_interval_tree::interval<N, lib_interval_tree::closed> const& interval, T const& obj) {
+            auto it = intervals.overlap_find({ interval.low(), interval.low() });
+            if (map.find(interval.low()) == map.end()) { map[interval.low()] = obj; };
+            if (it != intervals.end()) { intervals.insert(interval); intervals.deoverlap(); };
+            return this;
+        };
+
+        // 
+        decltype(auto) erase( N const& address = 0ull) {
+            auto it = intervals.overlap_find({ address, address });
+            if (it != intervals.end()) {
+                auto mt = map.find(it->interval().low());
+                map.erase(mt);
+                intervals.erase(it);
+            };
+            return this;
+        };
+
+        // 
+        decltype(auto) find( N const& address = 0ull) {
+            auto it = intervals.overlap_find({ address, address });
+            return it != intervals.end() ? opt_ref<T>(map.at(it->interval().low())) : optional_ref<T>{};
+        };
+
+        // 
+        decltype(auto) find( N const& address = 0ull) const {
+            auto& intervals = const_cast<lib_interval_tree::interval_tree_t<N>&>(this->intervals);
+            auto it = intervals.overlap_find({ address, address });
+            return it != intervals.end() ? opt_cref<T>(map.at(it->interval().low())) : optional_ref<const T>{};
+        };
+    };
+#endif
+
+    // boolean 32-bit capable for C++
+    class bool32_t { // TODO: support operators
+    protected: union {
+        uint32_t b_ : 1; bool bb = false;
+    };
+    public: friend bool32_t;
+        constexpr bool32_t(): b_(0u) {};
+        inline bool32_t(bool const&a=false): b_(a?1u:0u) {};
+        inline bool32_t(uint32_t const&a): b_(a&1u) {}; // make bitmasked
+        inline bool32_t(bool32_t const&a): b_(a) {};
+
+        // type conversion operators
+        inline operator bool() const {return bool(b_&1u);};
+        inline operator uint32_t() const {return (b_&1u);};
+
+        // 
+        inline decltype(auto) operator=(const bool&a){b_=(a?1u:0u);return *this;};
+        inline decltype(auto) operator=(const uint32_t&a){b_=a&1u;return *this;};
+        inline decltype(auto) operator=(const bool32_t&a){b_=a;return *this;};
+    };
+
+
+
 
 };
