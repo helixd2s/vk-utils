@@ -167,7 +167,7 @@ namespace stm {
     class self_copy_intrusive;
 
     // 
-    template<class T = void_t, class E = void_t, class Vp = void_t*>
+    template<class T = void_t, class I = self_copy_intrusive<T>>
     class self_copy_intrusive_t;
 
     // 
@@ -483,14 +483,15 @@ namespace stm {
         void_t* ptr = nullptr;
 
     public: 
+        // 
+        decltype(auto) assign(void_t const* obj, size_t const& size) { if (!this->ptr) { this->ptr = (void_t*)malloc(size); }; memcpy(this->ptr, obj, size); return *this; };
+        decltype(auto) assign(void_t const* obj) { std::cerr << "sorry, but we doesn't know assign size" << std::endl; return *this; };
+        decltype(auto) operator=(void_t const* obj) { return this->assign(obj); };
+
+        // 
         link_void() {};
         link_void(void_t const* ptr) { this->assign(ptr); };
         ~link_void() { free(ptr); };
-
-        // 
-        decltype(auto) assign(void_t const* obj, size_t const& size) { if (!this->ptr) { this->ptr = (void_t*)malloc(size) }; memcpy(this->ptr, obj, size); return *this; };
-        decltype(auto) assign(void_t const* obj) { std::cerr << "sorry, but we doesn't know assign size" << std::endl; return *this; };
-        decltype(auto) operator=(void_t const* obj) { return this->assign(obj); };
 
         //
         //decltype(auto) assign(auto const* obj) { using Ts = std::decay(decltype(obj))::type; return reinterpret_cast<link<Ts>&>(this->assign(reinterpret_cast<void_t const*>(obj), sizeof(Ts))); };
@@ -577,32 +578,49 @@ namespace stm {
         decltype(auto) operator=(Ls const& obj) { return this->assign(obj.get()); };
     };
 
-//#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
     //
-    inline decltype(auto) pointer(optional_ref<auto> ref) {
+    template<class Ts = void_t>
+    inline decltype(auto) pointer(optional_ref<Ts> ref) {
         return ref ? (&ref.value()) : nullptr;
     };
 
     //
-    inline decltype(auto) pointer(optional_ref<const auto> ref) {
-        return ref ? (&ref.value()) : nullptr;
-    };
-//#endif
-
-    //
-    inline decltype(auto) pointer(std::optional<auto>& ref) {
+    template<class Ts = void_t>
+    inline decltype(auto) pointer(optional_ref<const Ts> ref) {
         return ref ? (&ref.value()) : nullptr;
     };
 
     //
-    inline decltype(auto) pointer(std::optional<auto> const& ref) {
+    template<class Ts = void_t>
+    inline decltype(auto) pointer(std::optional<Ts>& ref) {
         return ref ? (&ref.value()) : nullptr;
     };
 
     //
-    inline decltype(auto) pointer(std::optional<const auto> const& ref) {
+    template<class Ts = void_t>
+    inline decltype(auto) pointer(std::optional<Ts> const& ref) {
         return ref ? (&ref.value()) : nullptr;
     };
+
+    //
+    template<class Ts = void_t>
+    inline decltype(auto) pointer(std::optional<const Ts> const& ref) {
+        return ref ? (&ref.value()) : nullptr;
+    };
+
+#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
+    //
+    template<class Ts = void_t>
+    inline decltype(auto) pointer(ts::optional_ref<Ts> ref) {
+        return ref ? (&ref.value()) : nullptr;
+    };
+
+    //
+    template<class Ts = void_t>
+    inline decltype(auto) pointer(ts::optional_ref<const Ts> ref) {
+        return ref ? (&ref.value()) : nullptr;
+    };
+#endif
 
     // 
     inline decltype(auto) shift(auto* data, uintptr_t offset = 0ull) { return reinterpret_cast<decltype(data)>(reinterpret_cast<uintptr_t&>(data) + offset); };
@@ -652,7 +670,7 @@ namespace stm {
     using localptr_t = uintptr_t;
 
     // for vulkan structs or descriptor set data bucket
-    template<Vc = std::vector<uint8_t>>
+    template<class Vc = std::vector<uint8_t>>
     class memory_stack {
     protected:
         // we use local pointer memory
@@ -1129,11 +1147,11 @@ namespace stm {
         return sz <= 0 ? 0 : (sz / gmaxtile + sgn(sz % gmaxtile));
     };
 
-    template <class T> static inline decltype(auto) strided(vkh::uni_arg<size_t> const& sizeo) { return sizeof(T) * sizeo; }
+    template <class T> static inline decltype(auto) strided(stm::uni_arg<size_t> const& sizeo) { return sizeof(T) * sizeo; }
     template <class T> static inline decltype(auto) makeVector(T const* ptr, size_t const& size = 1) { std::vector<T>v(size); memcpy(v.data(), ptr, strided<T>(size)); return v; };
 
-    template<class T>
-    inline decltype(auto) vector_cast(std::vector<auto> const& Vy) {
+    template<class T, class Ts = T>
+    inline decltype(auto) vector_cast(std::vector<Ts> const& Vy) {
         std::vector<T> V{}; for (auto& v : Vy) { V.push_back(reinterpret_cast<T const&>(v)); }; return std::move(V);
     };
 
