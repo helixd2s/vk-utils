@@ -98,8 +98,8 @@ namespace stm {
 
     //
     template<class T = std::string>
-    inline decltype(auto) toCString(std::vector<T> const& Vs) {
-        std::vector<char const*> cVect(Vs.size());
+    inline decltype(auto) toCString(std::vector<char const*>& cVect, std::vector<T> const& Vs = {}) {
+        cVect.resize(Vs.size());
         std::transform(Vs.begin(), Vs.end(), cVect.begin(), [](std::string& str) { return str.c_str(); });
         return cVect;
     };
