@@ -99,7 +99,7 @@ namespace stm {
     //
     template<class T = std::string>
     inline decltype(auto) toCString(std::vector<T> const& Vs) {
-        std::vector<void const*> cVect(Vs.size());
+        std::vector<char const*> cVect(Vs.size());
         std::transform(Vs.begin(), Vs.end(), cVect.begin(), [](std::string& str) { return str.c_str(); });
         return cVect;
     };
