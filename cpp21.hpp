@@ -679,7 +679,7 @@ namespace stm {
 
         //
         //decltype(auto) assign(auto const* obj) { using Ts = std::decay(decltype(obj))::type; return reinterpret_cast<link<Ts>&>(this->assign(reinterpret_cast<void_t const*>(obj), sizeof(Ts))); };
-        decltype(auto) assign(auto const* obj) {
+        inline decltype(auto) assign(auto const* obj) {
             using Ts = std::decay_t<decltype(obj)>;
             if (!this->ptr) { this->ptr = new Ts; };
             *reinterpret_cast<Ts*>(this->ptr) = *obj;
