@@ -490,15 +490,21 @@ namespace stm {
         template<class T = void_t> inline decltype(auto) value() const { return this->ref(); };
 
         // 
-        inline decltype(auto) assign(auto const& ref) { if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = ref; return *this; };
-        inline decltype(auto) assign(auto const* ptr = nullptr) { if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = *ptr; return *this; };
+        inline decltype(auto) assign(auto const& ref) { using T = std::decay_t<decltype(ref)>; if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = ref; return *this; };
+        inline decltype(auto) assign(auto const* ptr = nullptr) { using T = std::decay_t<decltype(ptr)>; if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = *ptr; return *this; };
 
         // 
         inline decltype(auto) operator=(auto& ref) { return this->assign(ref); };
         inline decltype(auto) operator=(auto* ptr) { return this->assign(ptr); };
 
         // 
-        inline decltype(auto) assign(I const& intrusive) { if (!this->ptr) { this->ptr = (void_t*)this->malloc(this->size = intrusive.size); }; this->memcpy(this->ptr, intrusive.ptr, intrusive.size); return *this; };
+        inline decltype(auto) assign(I const& intrusive) { 
+            if (this->type_info() == intrusive.type_info()) { // if type are equal...
+                if (!this->ptr) { this->ptr = (void_t*)this->malloc(this->size = intrusive.size); }; 
+                this->memcpy(this->ptr, intrusive.ptr, intrusive.size);
+            };
+            return *this; 
+        };
         inline decltype(auto) operator=(I const& intrusive) { return this->assign(intrusive); };
     };
 
