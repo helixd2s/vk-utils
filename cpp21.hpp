@@ -338,53 +338,57 @@ namespace stm {
     public: 
         // 
 #ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
-        optional_ref(ts::optional_ref<T> const& ref) : ptr(ref ? ref.value() : nullptr) {};
-        optional_ref(ts::optional_ref<T>& ref) : ptr(ref ? ref.value() : nullptr) {};
+        inline optional_ref(ts::optional_ref<T> const& ref) : ptr(ref ? ref.value() : nullptr) {};
+        inline optional_ref(ts::optional_ref<T>& ref) : ptr(ref ? ref.value() : nullptr) {};
 #endif
 
         // 
-        optional_ref(optional_ref<T> const& ref) : ptr(ref ? ref.value() : nullptr) {};
-        optional_ref(optional_ref<T>& ref) : ptr(ref ? ref.value() : nullptr) {};
-        optional_ref(T const& ref) : ptr(&ref) {};
-        optional_ref(T& ref) : ptr(&ref) {};
-        optional_ref() {};
+        inline optional_ref(optional_ref<T> const& ref) : ptr(ref ? ref.value() : nullptr) {};
+        inline optional_ref(optional_ref<T>& ref) : ptr(ref ? ref.value() : nullptr) {};
+        inline optional_ref(T const& ref) : ptr(&ref) {};
+        inline optional_ref(T& ref) : ptr(&ref) {};
+        inline optional_ref() {};
 
-        // 
+        // check operator
+        operator bool() const { return !!this->ptr; };
+
+        // type conversion
         operator T&() { return *this->ptr; }
         operator T const&() const { return *this->ptr; }
 
         //
 #ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
-        ts::optional_ref<T>() { return ts::opt_ref(*this->ptr); };
-        ts::optional_ref<const T>() const { return ts::opt_cref(*this->ptr); };
+        inline ts::optional_ref<T>() { return ts::opt_ref(*this->ptr); };
+        inline ts::optional_ref<const T>() const { return ts::opt_cref(*this->ptr); };
 #endif
 
         //
 #ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
-        decltype(auto) operator=(ts::optional_ref<T> const& ref) { ptr = ref ? ref.value() : nullptr; return *this; };
-        decltype(auto) operator=(ts::optional_ref<T>& ref) { ptr = ref ? ref.value() : nullptr; return *this; };
+        inline decltype(auto) operator=(ts::optional_ref<T> const& ref) { ptr = ref ? ref.value() : nullptr; return *this; };
+        inline decltype(auto) operator=(ts::optional_ref<T>& ref) { ptr = ref ? ref.value() : nullptr; return *this; };
 #endif
 
         // assign ref
-        decltype(auto) operator=(optional_ref<T> const& ref) { ptr = ref ? ref.value() : nullptr; return *this; };
-        decltype(auto) operator=(optional_ref<T>& ref) { ptr = ref ? ref.value() : nullptr; return *this; };
-        decltype(auto) operator=(T& ref) { ptr = &ref; return *this; };
-        decltype(auto) operator=(T const& ref) { *ptr = ref; return *this; };
+        inline decltype(auto) operator=(optional_ref<T> const& ref) { ptr = ref ? ref.value() : nullptr; return *this; };
+        inline decltype(auto) operator=(optional_ref<T>& ref) { ptr = ref ? ref.value() : nullptr; return *this; };
+        inline decltype(auto) operator=(T& ref) { ptr = &ref; return *this; };
+        inline decltype(auto) operator=(T const& ref) { *ptr = ref; return *this; };
 
         // value alias
-        decltype(auto) value() { return *this->ptr; }
-        decltype(auto) value() const { return *this->ptr; }
+        inline decltype(auto) value() { return *this->ptr; }
+        inline decltype(auto) value() const { return *this->ptr; }
 
         // accessing operator
-        decltype(auto) operator *() { return *this->ptr; };
-        decltype(auto) operator *() const { return *this->ptr; };
+        inline decltype(auto) operator *() { return *this->ptr; };
+        inline decltype(auto) operator *() const { return *this->ptr; };
 
         // const accessing operator
-        decltype(auto) operator ->() { return this->ptr; };
-        decltype(auto) operator ->() const { return this->ptr; };
+        inline decltype(auto) operator ->() { return this->ptr; };
+        inline decltype(auto) operator ->() const { return this->ptr; };
 
-        // check operator
-        operator bool() const { return !!this->ptr; };
+        // because it's reference, pointer must got directly...
+        inline decltype(auto) operator&() { return this->ptr; };
+        inline decltype(auto) operator&() const { return this->ptr; };
     };
 
     template<class T = void_t>
