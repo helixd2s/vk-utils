@@ -33,12 +33,6 @@ namespace stm {
     };
 #endif
 
-    /* 
-        // What is "void_t"? This is specific type, replacement for C void for most case. Less conflicts, more compatible, more functional. But sometime C++ may make this type 1-byte sized.
-        // Mostly used with pointers and with address spaces, and operates with it.
-    */
-
-
     // aggregate cache
     inline auto* cache = new unsigned char[256u*256u];
 
@@ -130,6 +124,33 @@ namespace stm {
     inline decltype(auto) shift(const auto* data, uintptr_t offset = 0ull) { return reinterpret_cast<decltype(data)>(reinterpret_cast<const uintptr_t&>(data) + offset); };
 
 
+
+    // boolean 32-bit capable for C++
+    class bool32_t { // TODO: support operators
+    protected: union {
+        uint32_t b_ : 1; bool bb = false;
+    };
+    public: friend bool32_t;
+        constexpr bool32_t(): b_(0u) {};
+        inline bool32_t(bool const&a=false): b_(a?1u:0u) {};
+        inline bool32_t(uint32_t const&a): b_(a&1u) {}; // make bitmasked
+        inline bool32_t(bool32_t const&a): b_(a) {};
+
+        // type conversion operators
+        inline operator bool() const {return bool(b_&1u);};
+        inline operator uint32_t() const {return (b_&1u);};
+
+        // 
+        inline decltype(auto) operator=(const bool&a){b_=(a?1u:0u);return *this;};
+        inline decltype(auto) operator=(const uint32_t&a){b_=a&1u;return *this;};
+        inline decltype(auto) operator=(const bool32_t&a){b_=a;return *this;};
+    };
+
+    /* 
+        // What is "void_t"? This is specific type, replacement for C void for most case. Less conflicts, more compatible, more functional. But sometime C++ may make this type 1-byte sized.
+        // Mostly used with pointers and with address spaces, and operates with it.
+    */
+
     //using void_t = uint8_t;
     class void_t { public: 
         //uint8_t : 0;
@@ -177,15 +198,141 @@ namespace stm {
 //#else 
     // own implementation of optional ref
 
+   /* 
+        // What is wrap_ptr? This is wrapper for C pointers, for avoid some conflicts and problems.
+        // There is no specifical features, only pointers compatibility...
+        // Size of is 8...
+    */
+
+    // 
+    template<class T>
+    class wrap_ptr {
+    protected:
+        T* ptr = nullptr;
+
+    public:
+        wrap_ptr(T* const& ptr = nullptr) { this->ptr = ptr; };
+
+        //
+        inline decltype(auto) operator[](uintptr_t const& index) { return ptr[index]; };
+        inline decltype(auto) operator[](uintptr_t const& index) const { return ptr[index]; };
+
+        // 
+        inline decltype(auto) operator->() { return this->get(); };
+        inline decltype(auto) operator->() const { return this->get(); };
+
+        // 
+        inline decltype(auto) operator *() { return *this->get(); };
+        inline decltype(auto) operator *() const { return *this->get(); };
+
+        // 
+        inline decltype(auto) ref() { return *this->get(); };
+        inline decltype(auto) ref() const { return *this->get(); };
+
+        // 
+        inline decltype(auto) value() { return *this->get(); };
+        inline decltype(auto) value() const { return *this->get(); };
+
+        //
+        inline decltype(auto) get() { return reinterpret_cast<T*&>(ptr); };
+        inline decltype(auto) get() const { return reinterpret_cast<T* const&>(ptr); };
+
+        // 
+        inline decltype(auto) operator =(T* const& ptr) { this->ptr = ptr; return *this; };
+
+        // 
+        template<class W=wrap_ptr<T>>
+        inline decltype(auto) operator =(W const& ptr) { this->ptr = ptr.get(); return *this; };
+
+        // 
+        operator T& () { return *this->get(); };
+        operator const T& () const { return *this->get(); };
+
+        // 
+        operator T*& () { return this->get(); };
+        operator T* const& () const { return this->get(); };
+
+        // 
+        operator bool() const { return !!ptr; };
+    };
+
+
+
+    /* 
+        // Official version of vector from descriptors of Ramen...
+        // This class reusing free cells, instead erase or delete...
+    */
+
+    template<class T = void_t, template<class Ts = T> class V = std::vector> class bucket { protected: 
+        V<T> used = {};
+        V<uintptr_t> free = {};
+    
+    public: 
+        // 
+        bucket(V<T> used = {}, V<unitptr_t> free = {}) : used(used), free(free) {
+            
+        };
+
+        // 
+        inline decltype(auto) add(T const& e) {
+            uintptr_t index = 0u;
+            if (free.size() > 0) {
+                used[index = free.back()] = e;
+                free.pop_back();
+            } else {
+                index = free.size();
+                used.push_back(e);
+            };
+            return index;
+        };
+
+        // 
+        inline decltype(auto) removeByIndex(uintptr_t const& idx) {
+            decltype(auto) last = used.size()-1;
+            if (idx <= last) {
+                used[idx] = {};
+                if (idx == last) { used.resize(last); } else { free.push_back(idx); };
+            };
+            return *this;
+        };
+
+        //
+        inline decltype(auto) removeByValue(T const& element = {}) {
+            //decltype(auto) found = this->used.find();
+            //return this->removeByIndex((found == this->used.end()) ? std::distance(used.begin(), found) : this->used.size());
+            return this->removeByIndex(std::distance(used.begin(), this->used.find()));
+        };
+
+        //
+        inline decltype(auto) remove(uintptr_t const& idx) {
+            return this->removeByIndex(idx);
+        };
+
+        //
+        inline decltype(auto) operator[](uintptr_t const& index) { return used[index]; };
+        inline decltype(auto) operator[](uintptr_t const& index) const { return used[index]; };
+
+        //
+        inline decltype(auto) clear() { used.clear(); free.clear(); used.resize(0u); free.resize(0u); };
+        inline decltype(auto) size() { return used.size(); };
+        inline decltype(auto) data() { return used.data(); };
+        inline decltype(auto) data() const { return used.data(); };
+
+        //
+        inline operator T*() { return used.data(); };
+        inline operator T const*() const { return used.data(); };
+    };
+
 
     /* 
         // What is optional ref pointer? This is our implementation optional_ref from type_safe, more functional.
     */
 
+    // 
     template<class T = void_t>
     class optional_ref {
     protected:
-        T* ptr = nullptr;
+        wrap_ptr<T> ptr = nullptr;
 
     public: 
         // 
@@ -239,12 +386,6 @@ namespace stm {
         operator bool() const { return !!this->ptr; };
     };
 
-
-
-    /* 
-        // What is intrusive self-copy pointer? I tell about it later...
-    */
-
     template<class T = void_t>
     inline decltype(auto) opt_ref(T& ref) {
         return optional_ref<T>(ref);
@@ -253,6 +394,31 @@ namespace stm {
     template<class T = void_t>
     inline decltype(auto) opt_cref(const T& ref) {
         return optional_ref<const T>(ref);
+    };
+
+
+
+    /* 
+        // What is intrusive self-copy pointer? I tell about it later...
+    */
+
+    //
+    template<class T = void>
+    void _free(void* ptr_) {
+        if (ptr_) { delete reinterpret_cast<T*>(ptr_); };
+    };
+
+    //
+    template<class Tt = void, class Tf>
+    void _memcpy(void* _to, void const* _from, size_t _size) {
+        (*reinterpret_cast<Tt*>(to)) = (*reinterpret_cast<Tf const*>(from));
+    };
+
+    //
+    template<class T>
+    void* _malloc(size_t _size) {
+        // TODO: correct division
+        return (new T[_size/sizeof(T)]);
     };
 
     //
@@ -330,24 +496,6 @@ namespace stm {
         decltype(auto) operator=(I const& intrusive) { return this->assign(intrusive); };
     };
 
-    //
-    template<class T = void>
-    void _free(void* ptr_) {
-        if (ptr_) { delete reinterpret_cast<T*>(ptr_); };
-    };
-
-    //
-    template<class Tt = void, class Tf>
-    void _memcpy(void* _to, void const* _from, size_t _size) {
-        (*reinterpret_cast<Tt*>(to)) = (*reinterpret_cast<Tf const*>(from));
-    };
-
-    //
-    template<class T>
-    void* _malloc(size_t _size) {
-        // TODO: correct division
-        return (new T[_size/sizeof(T)]);
-    };
 
     //
     template<class T = void_t, class I = self_copy_intrusive<T>>
@@ -496,61 +644,6 @@ namespace stm {
     };
 
 
-    /* 
-        // What is wrap_ptr? This is wrapper for C pointers, for avoid some conflicts and problems.
-        // There is no specifical features, only pointers compatibility...
-        // Size of is 8...
-    */
-
-    // 
-    template<class T>
-    class wrap_ptr {
-    protected:
-        T* ptr = nullptr;
-
-    public:
-        wrap_ptr(T* const& ptr = nullptr) { this->ptr = ptr; };
-
-        // 
-        decltype(auto) operator->() { return this->get(); };
-        decltype(auto) operator->() const { return this->get(); };
-
-        // 
-        decltype(auto) operator *() { return *this->get(); };
-        decltype(auto) operator *() const { return *this->get(); };
-
-        // 
-        operator T& () { return *this->get(); };
-        operator const T& () const { return *this->get(); };
-
-        // 
-        operator T*& () { return this->get(); };
-        operator T* const& () const { return this->get(); };
-
-        // 
-        decltype(auto) ref() { return *this->get(); };
-        decltype(auto) ref() const { return *this->get(); };
-
-        // 
-        decltype(auto) value() { return *this->get(); };
-        decltype(auto) value() const { return *this->get(); };
-
-        //
-        decltype(auto) get() { return reinterpret_cast<T*&>(ptr); };
-        decltype(auto) get() const { return reinterpret_cast<T* const&>(ptr); };
-
-        // 
-        decltype(auto) operator =(T* const& ptr) { this->ptr = ptr; return *this; };
-
-        // 
-        template<class W=wrap_ptr<T>>
-        decltype(auto) operator =(W const& ptr) { this->ptr = ptr.get(); return *this; };
-
-        // 
-        operator bool() const { return !!ptr; };
-    };
-
-
 
     /* 
         // What is link? This is self-copy pointer, but without known size for deep operations
@@ -559,16 +652,13 @@ namespace stm {
     */
 
     //
-    //[[deprecated]]
     class link_void;
 
     //
-    //[[deprecated]]
     template<class T = void_t>
     class link;
 
     // 
-    //[[deprecated]]
     class link_void {
     protected: 
         void_t* ptr = nullptr;
@@ -626,7 +716,6 @@ namespace stm {
     };
 
     // 
-    //[[deprecated]]
     template<class T = void_t>
     class link : public link_void { 
 
@@ -719,6 +808,7 @@ namespace stm {
             //std::cerr << "std::optional is wrong or not initialized" << std::endl; assert(valid);
         };
     };
+
 
     // Prefer Owner with Shared PTR!
     template<class T = uint8_t>
@@ -836,12 +926,14 @@ namespace stm {
         inline decltype(auto) operator*() const { return *get_ptr(); };
     };
 
+
     // 
     template<class T = uint8_t>
     class uni_arg {
     protected: 
         //optional_ref<T> storage = {};
-        std::optional<T> storage = std::nullopt;
+        std::optional<T> storage = std::nullopt_t;
+    
     public: // 
         uni_arg() {};
         uni_arg(T const& t) { storage = t; };
@@ -891,6 +983,7 @@ namespace stm {
         inline decltype(auto) operator*() { return ref(); };
         inline decltype(auto) operator*() const { return ref(); };
     };
+
 
     // Bi-Directional Conversion
     template<class T = uint8_t, class B = char8_t>
@@ -967,6 +1060,7 @@ namespace stm {
         inline decltype(auto) operator*() const { return ref(); };
     };
 
+
     //
     template<class T, uint32_t count = 16u>
     class limited_list { public: 
@@ -984,14 +1078,6 @@ namespace stm {
         size_t size() const { return queue.size(); };
     };
 
-    // only for construct vulkan structures
-    //template<class T>
-    //inline decltype(auto) shared_struct(T const& data) {
-    //    auto shared = std::shared_ptr<T>((T*)malloc(sizeof(T)), free);
-    //    //memcpy(shared.get(), &data, sizeof(T));
-    //    *shared = data; // what if structure can self-copy?
-    //    return shared;
-    //};
 
     // for vulkan structs or descriptor set data bucket
     template<class U = uint8_t, class Vc = std::vector<U>>
@@ -1007,11 +1093,13 @@ namespace stm {
         };
 
         // 
-        template<class S = U>
-        decltype(auto) push(S const& data) {
+        
+        decltype(auto) push(auto const& data) {
+            using S = std::decay_t<decltype(data)>;
             auto last = memory.size();
             memory.resize(last + sizeof(S));
-            memcpy(memory.data() + last, &data, sizeof(S));
+            //memcpy(memory.data() + last, &data, sizeof(S));
+            reinterpret_cast<S&>(memory.data()) = data;
             return last;
         };
 
@@ -1027,6 +1115,7 @@ namespace stm {
             return uni_ptr(reinterpret_cast<const S*>(memory.data() + address));
         };
     };
+
 
     // for vulkan structs with shared_ptr
     template<class V = void_t, class Vc = std::vector<V>>
@@ -1073,6 +1162,7 @@ namespace stm {
             return this->get<T>(this->push(data));
         };
     };
+
 
     // for advanced vulkan structs with shared_ptr
     template<class K = uintptr_t, class V = void_t>
@@ -1154,29 +1244,5 @@ namespace stm {
         };
     };
 #endif
-
-    // boolean 32-bit capable for C++
-    class bool32_t { // TODO: support operators
-    protected: union {
-        uint32_t b_ : 1; bool bb = false;
-    };
-    public: friend bool32_t;
-        constexpr bool32_t(): b_(0u) {};
-        inline bool32_t(bool const&a=false): b_(a?1u:0u) {};
-        inline bool32_t(uint32_t const&a): b_(a&1u) {}; // make bitmasked
-        inline bool32_t(bool32_t const&a): b_(a) {};
-
-        // type conversion operators
-        inline operator bool() const {return bool(b_&1u);};
-        inline operator uint32_t() const {return (b_&1u);};
-
-        // 
-        inline decltype(auto) operator=(const bool&a){b_=(a?1u:0u);return *this;};
-        inline decltype(auto) operator=(const uint32_t&a){b_=a&1u;return *this;};
-        inline decltype(auto) operator=(const bool32_t&a){b_=a;return *this;};
-    };
-
-
-
 
 };
