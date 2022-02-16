@@ -533,6 +533,7 @@ namespace stm {
 
         // 
         virtual std::type_info& type_info() override const {
+            using T = T;
             return typeid(T);
         };
 
@@ -582,7 +583,7 @@ namespace stm {
     class self_copy_ptr {
     public: using T = T; using I = I;
     protected:
-        I* intrusive = {};
+        wrap_ptr<I> intrusive = {};
 
     public: 
         // 
@@ -595,6 +596,11 @@ namespace stm {
 
         //
         ~self_copy_ptr() { delete this->intrusive; }
+
+        // 
+        inline decltype(auto) type_info() override const {
+            return this->intrusive->type_info();
+        };
 
         //
         inline decltype(auto) get() { this->intrusive->get<T>(); };
@@ -631,6 +637,10 @@ namespace stm {
         //
         inline decltype(auto) operator->() { return this->get(); };
         inline decltype(auto) operator->() const { return this->get(); };
+
+        //
+        inline decltype(auto) operator&() { return this->get(); };
+        inline decltype(auto) operator&() const { return this->get(); };
     };
 
     // 
