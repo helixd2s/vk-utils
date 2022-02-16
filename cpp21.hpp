@@ -472,7 +472,10 @@ namespace stm {
         virtual void* malloc(size_t size) {
             return ::malloc(size);
         };
-
+        
+        virtual std::type_info& type_info() const {
+            return typeid(E);
+        };
     public: 
         //
         template<class T = void_t> inline decltype(auto) get() { return reinterpret_cast<T*>(ptr); };
@@ -526,6 +529,11 @@ namespace stm {
         // 
         virtual void* malloc(size_t _size) override {
             return _malloc<T>(_size);
+        };
+
+        // 
+        virtual std::type_info& type_info() override const {
+            return typeid(T);
         };
 
         //
@@ -1095,7 +1103,6 @@ namespace stm {
         };
 
         // 
-        
         inline decltype(auto) push(auto const& data) {
             using S = std::decay_t<decltype(data)>;
             auto last = memory.size();
