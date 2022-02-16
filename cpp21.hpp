@@ -191,15 +191,7 @@ namespace stm {
         operator bool() const { return false; };
     };
 
-    // 
-//#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
-//    using optional_ref = ts::optional_ref;
-//    using opt_ref = ts::opt_ref;
-//    using opt_cref = ts::opt_cref;
-//#else 
-    // own implementation of optional ref
-
-   /* 
+    /* 
         // What is wrap_ptr? This is wrapper for C pointers, for avoid some conflicts and problems.
         // There is no specifical features, only pointers compatibility...
         // Size of is 8...
@@ -389,13 +381,19 @@ namespace stm {
         // because it's reference, pointer must got directly...
         inline decltype(auto) operator&() { return this->ptr; };
         inline decltype(auto) operator&() const { return this->ptr; };
+
+        // proxy...
+        inline decltype(auto) operator[](uintptr_t const& index) { return (*this->ptr)[index]; };
+        inline decltype(auto) operator[](uintptr_t const& index) const { return (*this->ptr)[index]; };
     };
 
+    // 
     template<class T = void_t>
     inline decltype(auto) opt_ref(T& ref) {
         return optional_ref<T>(ref);
     };
 
+    // 
     template<class T = void_t>
     inline decltype(auto) opt_cref(const T& ref) {
         return optional_ref<const T>(ref);
