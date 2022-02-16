@@ -160,35 +160,35 @@ namespace stm {
         void_t(){};
 
         //
-        decltype(auto) assign(auto const* obj) { using Ts = std::decay_t<decltype(obj)>; memcpy(this, obj, sizeof(Ts)); return reinterpret_cast<Ts&>(*this); };
-        decltype(auto) assign(auto const& obj) { return this->assign(&obj); };
+        inline decltype(auto) assign(auto const* obj) { using Ts = std::decay_t<decltype(obj)>; memcpy(this, obj, sizeof(Ts)); return reinterpret_cast<Ts&>(*this); };
+        inline decltype(auto) assign(auto const& obj) { return this->assign(&obj); };
 
         //
-        decltype(auto) operator=(auto const& obj) { return this->assign(obj); };
-        decltype(auto) operator=(auto const* obj) { return this->assign(obj); };
+        inline decltype(auto) operator=(auto const& obj) { return this->assign(obj); };
+        inline decltype(auto) operator=(auto const* obj) { return this->assign(obj); };
 
         // 
-        template<class Ts = void_t> decltype(auto) operator->() { return this->get<Ts>(); };
-        template<class Ts = void_t> decltype(auto) operator->() const { return this->get<Ts>(); };
+        template<class Ts = void_t> inline decltype(auto) operator->() { return this->get<Ts>(); };
+        template<class Ts = void_t> inline decltype(auto) operator->() const { return this->get<Ts>(); };
 
         // 
-        template<class Ts = void_t> decltype(auto) operator *() { return *this->get<Ts>(); };
-        template<class Ts = void_t> decltype(auto) operator *() const { return *this->get<Ts>(); };
+        template<class Ts = void_t> inline decltype(auto) operator *() { return *this->get<Ts>(); };
+        template<class Ts = void_t> inline decltype(auto) operator *() const { return *this->get<Ts>(); };
 
         // 
-        template<class Ts = void_t> operator Ts&() { return *this->get<Ts>(); };
-        template<class Ts = void_t> operator Ts const&() const { return *this->get<Ts>(); };
+        template<class Ts = void_t> inline operator Ts&() { return *this->get<Ts>(); };
+        template<class Ts = void_t> inline operator Ts const&() const { return *this->get<Ts>(); };
 
         // 
-        template<class Ts = void_t> operator Ts*&() { return this->get<Ts>(); };
-        template<class Ts = void_t> operator Ts* const&() const { return this->get<Ts>(); };
+        template<class Ts = void_t> inline operator Ts*&() { return this->get<Ts>(); };
+        template<class Ts = void_t> inline operator Ts* const&() const { return this->get<Ts>(); };
 
         // 
-        template<class Ts = void_t> decltype(auto) get() { return reinterpret_cast<Ts*&>(this); };
-        template<class Ts = void_t> decltype(auto) get() const { return reinterpret_cast<Ts* const&>(this); };
+        template<class Ts = void_t> inline decltype(auto) get() { return reinterpret_cast<Ts*&>(this); };
+        template<class Ts = void_t> inline decltype(auto) get() const { return reinterpret_cast<Ts* const&>(this); };
 
         // 
-        operator bool() const { return false; };
+        inline operator bool() const { return false; };
     };
 
     /* 
@@ -238,15 +238,15 @@ namespace stm {
         inline decltype(auto) operator =(W const& ptr) { this->ptr = ptr.get(); return *this; };
 
         // 
-        operator T& () { return *this->get(); };
-        operator const T& () const { return *this->get(); };
+        inline operator T& () { return *this->get(); };
+        inline operator const T& () const { return *this->get(); };
 
         // 
-        operator T*& () { return this->get(); };
-        operator T* const& () const { return this->get(); };
+        inline operator T*& () { return this->get(); };
+        inline operator T* const& () const { return this->get(); };
 
         // 
-        operator bool() const { return !!ptr; };
+        inline operator bool() const { return !!ptr; };
     };
 
 
@@ -342,11 +342,11 @@ namespace stm {
         inline optional_ref() {};
 
         // check operator
-        operator bool() const { return !!this->ptr; };
+        inline operator bool() const { return !!this->ptr; };
 
         // type conversion
-        operator T&() { return *this->ptr; };
-        operator T const&() const { return *this->ptr; };
+        inline operator T&() { return *this->ptr; };
+        inline operator T const&() const { return *this->ptr; };
 
         //
 #ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
@@ -475,28 +475,28 @@ namespace stm {
 
     public: 
         //
-        template<class T = void_t> decltype(auto) get() { return reinterpret_cast<T*>(ptr); };
-        template<class T = void_t> decltype(auto) get() const { return reinterpret_cast<T const*>(ptr); };
+        template<class T = void_t> inline decltype(auto) get() { return reinterpret_cast<T*>(ptr); };
+        template<class T = void_t> inline decltype(auto) get() const { return reinterpret_cast<T const*>(ptr); };
 
         //
-        template<class T = void_t> decltype(auto) ref() { return *this->get<T>(); };
-        template<class T = void_t> decltype(auto) ref() const { return *this->get<T>(); };
+        template<class T = void_t> inline decltype(auto) ref() { return *this->get<T>(); };
+        template<class T = void_t> inline decltype(auto) ref() const { return *this->get<T>(); };
 
         //
-        template<class T = void_t> decltype(auto) value() { return this->ref(); };
-        template<class T = void_t> decltype(auto) value() const { return this->ref(); };
+        template<class T = void_t> inline decltype(auto) value() { return this->ref(); };
+        template<class T = void_t> inline decltype(auto) value() const { return this->ref(); };
 
         // 
-        decltype(auto) assign(auto const& ref) { if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = ref; return *this; };
-        decltype(auto) assign(auto const* ptr = nullptr) { if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = *ptr; return *this; };
+        inline decltype(auto) assign(auto const& ref) { if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = ref; return *this; };
+        inline decltype(auto) assign(auto const* ptr = nullptr) { if (!this->ptr) { this->ptr = new T; }; (*this->ptr) = *ptr; return *this; };
 
         // 
-        decltype(auto) operator=(auto& ref) { return this->assign(ref); };
-        decltype(auto) operator=(auto* ptr) { return this->assign(ptr); };
+        inline decltype(auto) operator=(auto& ref) { return this->assign(ref); };
+        inline decltype(auto) operator=(auto* ptr) { return this->assign(ptr); };
 
         // 
-        decltype(auto) assign(I const& intrusive) { if (!this->ptr) { this->ptr = (void_t*)this->malloc(this->size = intrusive.size); }; this->memcpy(this->ptr, intrusive.ptr, intrusive.size); return *this; };
-        decltype(auto) operator=(I const& intrusive) { return this->assign(intrusive); };
+        inline decltype(auto) assign(I const& intrusive) { if (!this->ptr) { this->ptr = (void_t*)this->malloc(this->size = intrusive.size); }; this->memcpy(this->ptr, intrusive.ptr, intrusive.size); return *this; };
+        inline decltype(auto) operator=(I const& intrusive) { return this->assign(intrusive); };
     };
 
 
@@ -529,36 +529,36 @@ namespace stm {
         };
 
         //
-        decltype(auto) get() { return this->get<T>(); };
-        decltype(auto) get() const { return this->get<T>(); };
+        inline decltype(auto) get() { return this->get<T>(); };
+        inline decltype(auto) get() const { return this->get<T>(); };
 
         //
-        decltype(auto) ref() { return *this->get(); };
-        decltype(auto) ref() const { return *this->get(); };
+        inline decltype(auto) ref() { return *this->get(); };
+        inline decltype(auto) ref() const { return *this->get(); };
 
         //
-        decltype(auto) value() { return this->ref(); };
-        decltype(auto) value() const { return this->ref(); };
+        inline decltype(auto) value() { return this->ref(); };
+        inline decltype(auto) value() const { return this->ref(); };
 
         //
-        decltype(auto) assign(T const& ref) { I::assign(ref); return *this; };
-        decltype(auto) assign(T const* ptr = nullptr) { I::assign(ptr); return *this; };
+        inline decltype(auto) assign(T const& ref) { I::assign(ref); return *this; };
+        inline decltype(auto) assign(T const* ptr = nullptr) { I::assign(ptr); return *this; };
 
         // 
-        decltype(auto) operator=(T const& ref) { return this->assign(ref); };
-        decltype(auto) operator=(T const* ptr) { return this->assign(ptr); };
+        inline decltype(auto) operator=(T const& ref) { return this->assign(ref); };
+        inline decltype(auto) operator=(T const* ptr) { return this->assign(ptr); };
 
         //
-        operator T&() { return this->ref(); };
-        operator T const&() const { return this->ref(); };
+        inline operator T&() { return this->ref(); };
+        inline operator T const&() const { return this->ref(); };
 
         //
-        operator T*() { return this->get(); };
-        operator T const*() const { return this->get(); };
+        inline operator T*() { return this->get(); };
+        inline operator T const*() const { return this->get(); };
 
         //
-        operator I&() { return dynamic_cast<I&>(*this); };
-        operator I const&() const { return dynamic_cast<I const&>(*this); };
+        inline operator I&() { return dynamic_cast<I&>(*this); };
+        inline operator I const&() const { return dynamic_cast<I const&>(*this); };
     };
 
 
@@ -589,40 +589,40 @@ namespace stm {
         ~self_copy_ptr() { delete this->intrusive; }
 
         //
-        decltype(auto) get() { this->intrusive->get<T>(); };
-        decltype(auto) get() const { this->intrusive->get<T>(); };
+        inline decltype(auto) get() { this->intrusive->get<T>(); };
+        inline decltype(auto) get() const { this->intrusive->get<T>(); };
 
         //
-        decltype(auto) ref() { this->intrusive->ref<T>(); };
-        decltype(auto) ref() const { this->intrusive->ref<T>(); };
+        inline decltype(auto) ref() { this->intrusive->ref<T>(); };
+        inline decltype(auto) ref() const { this->intrusive->ref<T>(); };
 
         //
-        decltype(auto) value() { this->intrusive->value<T>(); };
-        decltype(auto) value() const { this->intrusive->value<T>(); };
+        inline decltype(auto) value() { this->intrusive->value<T>(); };
+        inline decltype(auto) value() const { this->intrusive->value<T>(); };
 
         //
-        decltype(auto) assign(T const& ref) { this->intrusive->assign(ref); return *this; };
-        decltype(auto) assign(T const* ptr = nullptr) { this->intrusive->assign(ptr); return *this; };
+        inline decltype(auto) assign(T const& ref) { this->intrusive->assign(ref); return *this; };
+        inline decltype(auto) assign(T const* ptr = nullptr) { this->intrusive->assign(ptr); return *this; };
 
         // 
-        decltype(auto) operator=(T const& ref) { return this->assign(ref); };
-        decltype(auto) operator=(T const* ptr) { return this->assign(ptr); };
+        inline decltype(auto) operator=(T const& ref) { return this->assign(ref); };
+        inline decltype(auto) operator=(T const* ptr) { return this->assign(ptr); };
 
         //
-        operator T&() { return this->ref(); };
-        operator T const&() const { return this->ref(); };
+        inline operator T&() { return this->ref(); };
+        inline operator T const&() const { return this->ref(); };
 
         //
-        operator T*() { return this->get(); };
-        operator T const*() const { return this->get(); };
+        inline operator T*() { return this->get(); };
+        inline operator T const*() const { return this->get(); };
 
         //
-        decltype(auto) operator*() { return this->ref(); };
-        decltype(auto) operator*() const { return this->ref(); };
+        inline decltype(auto) operator*() { return this->ref(); };
+        inline decltype(auto) operator*() const { return this->ref(); };
 
         //
-        decltype(auto) operator->() { return this->get(); };
-        decltype(auto) operator->() const { return this->get(); };
+        inline decltype(auto) operator->() { return this->get(); };
+        inline decltype(auto) operator->() const { return this->get(); };
     };
 
     // 
@@ -634,13 +634,13 @@ namespace stm {
         enable_self_copy_from_this() : I(reinterpret_cast<T*>(this), sizeof(T)) {};
 
         // 
-        decltype(auto) self_copy_from_this() {
+        inline decltype(auto) self_copy_from_this() {
             reinterpret_cast<T*>(this->ptr) = reinterpret_cast<T*>(this); // for any case
             return self_copy_ptr<T, Ie>(*this);
         };
 
         // 
-        decltype(auto) self_copy_from_this() const {
+        inline decltype(auto) self_copy_from_this() const {
             const_cast<T*>(reinterpret_cast<T const*>(this->ptr)) = const_cast<T*>(reinterpret_cast<T const*>(this)); // for any case
             return self_copy_ptr<const T, Ie>(*this);
         };
@@ -668,9 +668,9 @@ namespace stm {
 
     public: 
         // 
-        decltype(auto) assign(void_t const* obj, size_t const& size) { if (!this->ptr) { this->ptr = (void_t*)malloc(size); }; memcpy(this->ptr, obj, size); return *this; };
-        decltype(auto) assign(void_t const* obj) { std::cerr << "sorry, but we doesn't know assign size" << std::endl; return *this; };
-        decltype(auto) operator=(void_t const* obj) { return this->assign(obj); };
+        inline decltype(auto) assign(void_t const* obj, size_t const& size) { if (!this->ptr) { this->ptr = (void_t*)malloc(size); }; memcpy(this->ptr, obj, size); return *this; };
+        inline decltype(auto) assign(void_t const* obj) { std::cerr << "sorry, but we doesn't know assign size" << std::endl; return *this; };
+        inline decltype(auto) operator=(void_t const* obj) { return this->assign(obj); };
 
         // 
         link_void() {};
@@ -687,35 +687,35 @@ namespace stm {
         };
 
         // type aliasing
-        decltype(auto) assign(auto const& obj) { return this->assign(&obj); };
+        inline decltype(auto) assign(auto const& obj) { return this->assign(&obj); };
 
         //
-        decltype(auto) operator=(auto const& obj) { return this->assign(obj); };
-        decltype(auto) operator=(auto const* obj) { return this->assign(obj); };
+        inline decltype(auto) operator=(auto const& obj) { return this->assign(obj); };
+        inline decltype(auto) operator=(auto const* obj) { return this->assign(obj); };
 
         // to avoid ambiguous
         template<class Ts = void_t, class Ls = link<Ts>>
-        decltype(auto) operator=(Ls const& obj) { return this->assign(obj.get<Ts>()); };
+        inline decltype(auto) operator=(Ls const& obj) { return this->assign(obj.get<Ts>()); };
 
         // 
-        template<class Ts = void_t> decltype(auto) operator->() { return this->get(); };
-        template<class Ts = void_t> decltype(auto) operator->() const { return this->get(); };
+        template<class Ts = void_t> inline decltype(auto) operator->() { return this->get(); };
+        template<class Ts = void_t> inline decltype(auto) operator->() const { return this->get(); };
 
         // 
-        template<class Ts = void_t> decltype(auto) operator *() { return *this->get(); };
-        template<class Ts = void_t> decltype(auto) operator *() const { return *this->get(); };
+        template<class Ts = void_t> inline decltype(auto) operator *() { return *this->get(); };
+        template<class Ts = void_t> inline decltype(auto) operator *() const { return *this->get(); };
 
         // 
-        template<class Ts = void_t> operator Ts&() { return *this->get(); };
-        template<class Ts = void_t> operator Ts const&() const { return *this->get(); };
+        template<class Ts = void_t> inline operator Ts&() { return *this->get(); };
+        template<class Ts = void_t> inline operator Ts const&() const { return *this->get(); };
 
         // 
-        template<class Ts = void_t> operator Ts*&() { return this->get(); };
-        template<class Ts = void_t> operator Ts* const&() const { return this->get(); };
+        template<class Ts = void_t> inline operator Ts*&() { return this->get(); };
+        template<class Ts = void_t> inline operator Ts* const&() const { return this->get(); };
 
         // 
-        template<class Ts = void_t> decltype(auto) get() { return reinterpret_cast<Ts*&>(this->ptr); };
-        template<class Ts = void_t> decltype(auto) get() const { return reinterpret_cast<Ts* const&>(this->ptr); };
+        template<class Ts = void_t> inline decltype(auto) get() { return reinterpret_cast<Ts*&>(this->ptr); };
+        template<class Ts = void_t> inline decltype(auto) get() const { return reinterpret_cast<Ts* const&>(this->ptr); };
     };
 
     // 
@@ -729,36 +729,36 @@ namespace stm {
         link(const link<T>& obj) { this->assign(obj.get()); };
 
         // 
-        decltype(auto) operator->() { return this->get(); };
-        decltype(auto) operator->() const { return this->get(); };
+        inline decltype(auto) operator->() { return this->get(); };
+        inline decltype(auto) operator->() const { return this->get(); };
 
         // 
-        decltype(auto) operator *() { return *this->get(); };
-        decltype(auto) operator *() const { return *this->get(); };
+        inline decltype(auto) operator *() { return *this->get(); };
+        inline decltype(auto) operator *() const { return *this->get(); };
 
         // 
-        operator T&() { return *this->get(); };
-        operator T const&() const { return *this->get(); };
+        inline operator T&() { return *this->get(); };
+        inline operator T const&() const { return *this->get(); };
 
         // 
-        operator T*&() { return this->get(); };
-        operator T* const&() const { return this->get(); };
+        inline operator T*&() { return this->get(); };
+        inline operator T* const&() const { return this->get(); };
 
         // 
-        decltype(auto) get() { return reinterpret_cast<T*&>(this->ptr); };
-        decltype(auto) get() const { return reinterpret_cast<T* const&>(this->ptr); };
+        inline decltype(auto) get() { return reinterpret_cast<T*&>(this->ptr); };
+        inline decltype(auto) get() const { return reinterpret_cast<T* const&>(this->ptr); };
 
         //
-        decltype(auto) assign(auto const* obj) { return reinterpret_cast<link<std::decay_t<decltype(obj)>>>(link_void::assign(obj)); };
-        decltype(auto) assign(auto const& obj) { return reinterpret_cast<link<std::decay_t<decltype(obj)>>>(link_void::assign(obj)); };
+        inline decltype(auto) assign(auto const* obj) { return reinterpret_cast<link<std::decay_t<decltype(obj)>>>(link_void::assign(obj)); };
+        inline decltype(auto) assign(auto const& obj) { return reinterpret_cast<link<std::decay_t<decltype(obj)>>>(link_void::assign(obj)); };
 
         //
-        decltype(auto) operator=(auto const* obj) { return this->assign(obj); };
-        decltype(auto) operator=(auto const& obj) { return this->assign(obj); };
+        inline decltype(auto) operator=(auto const* obj) { return this->assign(obj); };
+        inline decltype(auto) operator=(auto const& obj) { return this->assign(obj); };
 
         // to avoid ambiguous
         template<class Ts = T, class Ls = link<Ts>>
-        decltype(auto) operator=(Ls const& obj) { return this->assign(obj.get()); };
+        inline decltype(auto) operator=(Ls const& obj) { return this->assign(obj.get()); };
     };
 
     //
@@ -1069,16 +1069,15 @@ namespace stm {
     class limited_list { public: 
         std::list<T> queue = {};
 
-        limited_list* push_back( T const& e) {
+        inline decltype(auto) push_back( T const& e) {
             if (queue.size() >= count) { queue.pop_front(); };
             queue.push_back(e);
             return this;
         };
 
-        T& back() { return queue.back(); };
-        T const& back() const { return queue.back(); };
-
-        size_t size() const { return queue.size(); };
+        inline decltype(auto) back() { return queue.back(); };
+        inline decltype(auto) back() const { return queue.back(); };
+        inline decltype(auto) size() const { return queue.size(); };
     };
 
 
@@ -1097,7 +1096,7 @@ namespace stm {
 
         // 
         
-        decltype(auto) push(auto const& data) {
+        inline decltype(auto) push(auto const& data) {
             using S = std::decay_t<decltype(data)>;
             auto last = memory.size();
             memory.resize(last + sizeof(S));
@@ -1108,13 +1107,13 @@ namespace stm {
 
         // 
         template<class S = U>
-        decltype(auto) get(localptr_t const& address) {
+        inline decltype(auto) get(localptr_t const& address) {
             return uni_ptr(reinterpret_cast<S*>(memory.data() + address));
         };
 
         // 
         template<class S = U>
-        decltype(auto) get(localptr_t const& address) const {
+        inline decltype(auto) get(localptr_t const& address) const {
             return uni_ptr(reinterpret_cast<const S*>(memory.data() + address));
         };
     };
@@ -1132,7 +1131,7 @@ namespace stm {
         vector_of_shared(Vc<std::shared_ptr<V>> const& chain) : chain(chain) {};
 
         // 
-        decltype(auto) push(auto const& data = {}) {
+        inline decltype(auto) push(auto const& data = {}) {
             using T = std::decay_t<decltype(data)>;
             auto last = chain.size();
             chain->push_back(std::reinterpret_pointer_cast<T>(copy_as_shared(data)));
@@ -1141,7 +1140,7 @@ namespace stm {
 
         // 
         template<class T = V>
-        decltype(auto) push(std::shared_ptr<T> const& data = {}) {
+        inline decltype(auto) push(std::shared_ptr<T> const& data = {}) {
             auto last = chain.size();
             chain->push_back(std::reinterpret_pointer_cast<V>(data));
             return last;
@@ -1149,19 +1148,19 @@ namespace stm {
 
         // 
         template<class T = V>
-        decltype(auto) get(uintptr_t const& index = 0u) {
+        inline decltype(auto) get(uintptr_t const& index = 0u) {
             return uni_ptr(std::reinterpret_pointer_cast<T>(chain[index]));
         };
 
         // 
         template<class T = V>
-        decltype(auto) get(uintptr_t const& index = 0u) const {
+        inline decltype(auto) get(uintptr_t const& index = 0u) const {
             return uni_ptr(std::reinterpret_pointer_cast<T>(chain[index]));
         };
 
         //
         template<class T = V>
-        decltype(auto) push_get(auto const& data = {}) {
+        inline decltype(auto) push_get(auto const& data = {}) {
             return this->get<T>(this->push(data));
         };
     };
@@ -1178,7 +1177,7 @@ namespace stm {
         map_of_shared(std::unordered_map<K, std::shared_ptr<V>> const& map = {}) : map(map) {};
 
         // 
-        decltype(auto) set(K const& key, auto const& data = {}) {
+        inline decltype(auto) set(K const& key, auto const& data = {}) {
             using T = std::decay_t<decltype(data)>;
             return uni_ptr<T>(std::reinterpret_pointer_cast<T>(
                 map[key] = std::reinterpret_pointer_cast<T>(copy_as_shared(data))
@@ -1187,7 +1186,7 @@ namespace stm {
 
         // 
         template<class T = V>
-        decltype(auto) set(K const& key, std::shared_ptr<T> const& data = {}) {
+        inline decltype(auto) set(K const& key, std::shared_ptr<T> const& data = {}) {
             return uni_ptr<T>(std::reinterpret_pointer_cast<T>(
                 (map[key] = std::reinterpret_pointer_cast<V>(data))
             ));
@@ -1195,13 +1194,13 @@ namespace stm {
 
         // 
         template<class T = V>
-        decltype(auto) get(K const& key) {
+        inline decltype(auto) get(K const& key) {
             return uni_ptr(std::reinterpret_pointer_cast<T>(map.at(key)));
         };
 
         // 
         template<class T = V>
-        decltype(auto) get(K const& key) const {
+        inline decltype(auto) get(K const& key) const {
             return uni_ptr(std::reinterpret_pointer_cast<T>(map.at(key)));
         };
     };
@@ -1215,7 +1214,7 @@ namespace stm {
 
     public:
         // 
-        decltype(auto) insert( lib_interval_tree::interval<N, lib_interval_tree::closed> const& interval, T const& obj) {
+        inline decltype(auto) insert( lib_interval_tree::interval<N, lib_interval_tree::closed> const& interval, T const& obj) {
             auto it = intervals.overlap_find({ interval.low(), interval.low() });
             if (map.find(interval.low()) == map.end()) { map[interval.low()] = obj; };
             if (it != intervals.end()) { intervals.insert(interval); intervals.deoverlap(); };
@@ -1223,7 +1222,7 @@ namespace stm {
         };
 
         // 
-        decltype(auto) erase( N const& address = 0ull) {
+        inline decltype(auto) erase( N const& address = 0ull) {
             auto it = intervals.overlap_find({ address, address });
             if (it != intervals.end()) {
                 auto mt = map.find(it->interval().low());
@@ -1234,13 +1233,13 @@ namespace stm {
         };
 
         // 
-        decltype(auto) find( N const& address = 0ull) {
+        inline decltype(auto) find( N const& address = 0ull) {
             auto it = intervals.overlap_find({ address, address });
             return it != intervals.end() ? opt_ref<T>(map.at(it->interval().low())) : optional_ref<T>{};
         };
 
         // 
-        decltype(auto) find( N const& address = 0ull) const {
+        inline decltype(auto) find( N const& address = 0ull) const {
             auto& intervals = const_cast<lib_interval_tree::interval_tree_t<N>&>(this->intervals);
             auto it = intervals.overlap_find({ address, address });
             return it != intervals.end() ? opt_cref<T>(map.at(it->interval().low())) : optional_ref<const T>{};
