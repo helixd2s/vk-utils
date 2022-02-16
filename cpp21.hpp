@@ -353,8 +353,8 @@ namespace stm {
         operator bool() const { return !!this->ptr; };
 
         // type conversion
-        operator T&() { return *this->ptr; }
-        operator T const&() const { return *this->ptr; }
+        operator T&() { return *this->ptr; };
+        operator T const&() const { return *this->ptr; };
 
         //
 #ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
@@ -375,8 +375,8 @@ namespace stm {
         inline decltype(auto) operator=(T const& ref) { *ptr = ref; return *this; };
 
         // value alias
-        inline decltype(auto) value() { return *this->ptr; }
-        inline decltype(auto) value() const { return *this->ptr; }
+        inline decltype(auto) value() { return *this->ptr; };
+        inline decltype(auto) value() const { return *this->ptr; };
 
         // accessing operator
         inline decltype(auto) operator *() { return *this->ptr; };
