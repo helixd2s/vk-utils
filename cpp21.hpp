@@ -11,6 +11,7 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
+#include <unordered_map>
 
 // 
 #ifdef VKU_ENABLE_TYPE_SAFE
@@ -670,7 +671,18 @@ namespace stm {
         };
     };
 
+    // 
+    template<class T = void_t, class I = self_copy_intrusive_t<T>>
+    using shared_self_copy = std::shared_ptr<self_copy_intrusive_t<I>>;
 
+    //
+    template<class T = void_t, class I = std::vector<T>>
+    using shared_vector_t = std::shared_ptr<I>;
+
+    //
+    template<class T = void_t, class I = std::unordered_map<T>>
+    using shared_map_t = std::shared_ptr<I>;
+    
 
     /* 
         // What is link? This is self-copy pointer, but without known size for deep operations
