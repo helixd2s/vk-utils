@@ -209,7 +209,7 @@ namespace cpp21 {
     */
 
     // 
-    template<class T>
+    template<class T = void_t>
     class wrap_ptr {
     protected:
         T* ptr = nullptr;
@@ -399,15 +399,13 @@ namespace cpp21 {
     };
 
     // 
-    template<class T = void_t>
-    inline decltype(auto) opt_ref(T& ref) {
-        return optional_ref<T>(ref);
+    inline decltype(auto) opt_ref(auto& ref) {
+        return optional_ref<std::decay_t<decltype(auto)>()>(ref);
     };
 
     // 
-    template<class T = void_t>
-    inline decltype(auto) opt_cref(const T& ref) {
-        return optional_ref<const T>(ref);
+    inline decltype(auto) opt_cref(const auto& ref) {
+        return optional_ref<const std::decay_t<decltype(auto)>()>(ref);
     };
 
 
@@ -436,7 +434,7 @@ namespace cpp21 {
     };
 
     //
-    template<class E = void_t, class Vp = void_t*>
+    template<class E = void_t, class Vp = wrap_ptr<void_t>>
     class self_copy_intrusive;
 
     // 
@@ -448,7 +446,7 @@ namespace cpp21 {
     class self_copy_ptr;
 
     // E is extension in before pointer
-    template<class E = void_t, class Vp = void_t*> // when extension is needed
+    template<class E = void_t, class Vp = wrap_ptr<void_t>> // when extension is needed
     class self_copy_intrusive {
     public: using E = E; using Vp = Vp; using I = self_copy_intrusive<E,Vp>;
     public:
@@ -517,11 +515,15 @@ namespace cpp21 {
             return *this; 
         };
         inline decltype(auto) operator=(I const& intrusive) { return this->assign(intrusive); };
+
+        // proxy...
+        //inline decltype(auto) operator[](uintptr_t const& index) { return (*this->ptr)[index]; };
+        //inline decltype(auto) operator[](uintptr_t const& index) const { return (*this->ptr)[index]; };
     };
 
 
     //
-    template<class T = void_t, class I = self_copy_intrusive<T>>
+    template<class T = void_t, class I = self_copy_intrusive<void_t>>
     class self_copy_intrusive_t : public I {
     public: using T = T; using I = I;
 
@@ -555,12 +557,17 @@ namespace cpp21 {
         };
 
         //
-        inline decltype(auto) get() { return this->get<T>(); };
-        inline decltype(auto) get() const { return this->get<T>(); };
+        // proxy...
+        inline decltype(auto) operator[](uintptr_t const& index) { return I::get<T>()[index]; };
+        inline decltype(auto) operator[](uintptr_t const& index) const { return I::get<T>()[index]; };
 
         //
-        inline decltype(auto) ref() { return *this->get(); };
-        inline decltype(auto) ref() const { return *this->get(); };
+        inline decltype(auto) get() { return I::get<T>(); };
+        inline decltype(auto) get() const { return I::get<T>(); };
+
+        //
+        inline decltype(auto) ref() { return *I::get(); };
+        inline decltype(auto) ref() const { return *I::get(); };
 
         //
         inline decltype(auto) value() { return this->ref(); };
@@ -693,6 +700,56 @@ namespace cpp21 {
     template<class K = uintptr_t, class T = void_t, class I = std::unordered_map<K,T>>
     using shared_map_t = std::shared_ptr<I>;
     
+    //
+    template<class T = void_t, class V = std::vector<T>>
+    class shared_vector {
+    protected: 
+        using St = shared_vector<T,V>;
+        using Sv = shared_vector_t<T,V>;
+        Sv vect = {};
+
+    public: 
+        // 
+        shared_vector(shared_vector const& vect) : vect(vect) {
+            
+        };
+
+        //
+        shared_vector(V const& vect = {}) : vect(std::make_shared<V>(vect.begin(), vect.end())) {
+            
+        };
+
+        // 
+        inline operator V*() { return vect.get(); };
+        inline operator V const*() const { return vect.get(); };
+
+        // 
+        inline operator V&() { return *vect; };
+        inline operator V const&() const { return *vect; };
+
+        // 
+        inline operator Sv&() { return vect; };
+        inline operator Sv const&() const { return vect; };
+
+        //
+        inline decltype(auto) operator[](uintptr_t const& index) { return Sv->at(index); };
+        inline decltype(auto) operator[](uintptr_t const& index) const { return Sv->at(index); };
+
+        //
+        inline decltype(auto) operator*() { return *vect; };
+        inline decltype(auto) operator*() const { return *vect; };
+
+        //
+        inline decltype(auto) operator->() { return vect.get(); };
+        inline decltype(auto) operator->() const { return vect.get(); };
+
+        // 
+        inline decltype(auto) assign(St const& v) { vect = v; return *this; };
+        inline decltype(auto) assign(V const& v) { *vect = v; return *this; };
+        inline decltype(auto) operator=(St const& v) { return this->assign(v); };
+        inline decltype(auto) operator=(V const& v) { return this->assign(v); };
+    };
+
 
     /* 
         // What is link? This is self-copy pointer, but without known size for deep operations
@@ -810,44 +867,44 @@ namespace cpp21 {
     //
     template<class Ts = void_t>
     inline decltype(auto) pointer(optional_ref<Ts> ref) {
-        return ref ? (&ref.value()) : nullptr;
+        return wrap_ptr<Ts>(ref ? (&ref.value()) : nullptr);
     };
 
     //
     template<class Ts = void_t>
     inline decltype(auto) pointer(optional_ref<const Ts> ref) {
-        return ref ? (&ref.value()) : nullptr;
+        return wrap_ptr<Ts>(ref ? (&ref.value()) : nullptr);
     };
 
     //
     template<class Ts = void_t>
     inline decltype(auto) pointer(std::optional<Ts>& ref) {
-        return ref ? (&ref.value()) : nullptr;
+        return wrap_ptr<Ts>(ref ? (&ref.value()) : nullptr);
     };
 
     //
     template<class Ts = void_t>
     inline decltype(auto) pointer(std::optional<Ts> const& ref) {
-        return ref ? (&ref.value()) : nullptr;
+        return wrap_ptr<Ts>(ref ? (&ref.value()) : nullptr);
     };
 
     //
     template<class Ts = void_t>
     inline decltype(auto) pointer(std::optional<const Ts> const& ref) {
-        return ref ? (&ref.value()) : nullptr;
+        return wrap_ptr<Ts>(ref ? (&ref.value()) : nullptr);
     };
 
 #ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
     //
     template<class Ts = void_t>
     inline decltype(auto) pointer(ts::optional_ref<Ts> ref) {
-        return ref ? (&ref.value()) : nullptr;
+        return wrap_ptr<Ts>(ref ? (&ref.value()) : nullptr);
     };
 
     //
     template<class Ts = void_t>
     inline decltype(auto) pointer(ts::optional_ref<const Ts> ref) {
-        return ref ? (&ref.value()) : nullptr;
+        return wrap_ptr<Ts>(ref ? (&ref.value()) : nullptr);
     };
 #endif
     

@@ -37,13 +37,13 @@ namespace vku {
 #endif
 
 #ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
-    template<class T> using optional_ref = ts::optional_ref<T>;
-    template<class T> using opt_ref = ts::opt_ref<T>;
-    template<class T> using opt_cref = ts::opt_cref<T>;
+    template<class T = auto> using optional_ref = ts::optional_ref<T>;
+    template<class T = auto> using opt_ref = ts::opt_ref<T>;
+    template<class T = auto> using opt_cref = ts::opt_cref<T>;
 #else 
-    template<class T> using optional_ref = cpp21::optional_ref<T>;
-    template<class T> using opt_ref = cpp21::opt_ref<T>;
-    template<class T> using opt_cref = cpp21::opt_cref<T>;
+    template<class T = auto> using optional_ref = cpp21::optional_ref<T>;
+    inline constexpr decltype(auto) opt_ref = cpp21::opt_ref;
+    inline constexpr decltype(auto) opt_cref = cpp21::opt_cref;
 #endif
 
     // 
