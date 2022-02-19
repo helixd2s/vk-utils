@@ -23,10 +23,8 @@
 
 // 
 #include <vulkan/vulkan.h>
-#include <vulkan-utils/sizes.h>
-
-//
-#include "./utils.hpp"
+#include "./sizes.h"
+#include "./cpp21.hpp"
 
 // 
 namespace vku {
@@ -39,13 +37,13 @@ namespace vku {
 #endif
 
 #ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
-    using optional_ref = ts::optional_ref;
-    using opt_ref = ts::opt_ref;
-    using opt_cref = ts::opt_cref;
+    template<class T> using optional_ref = ts::optional_ref<T>;
+    template<class T> using opt_ref = ts::opt_ref<T>;
+    template<class T> using opt_cref = ts::opt_cref<T>;
 #else 
-    using optional_ref = stm::optional_ref;
-    using opt_ref = stm::opt_ref;
-    using opt_cref = stm::opt_cref;
+    template<class T> using optional_ref = cpp21::optional_ref<T>;
+    template<class T> using opt_ref = cpp21::opt_ref<T>;
+    template<class T> using opt_cref = cpp21::opt_cref<T>;
 #endif
 
     // 

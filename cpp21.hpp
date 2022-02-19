@@ -26,7 +26,7 @@
 #endif
 
 // 
-namespace stm {
+namespace cpp21 {
 
     // make short alias
 #ifdef VKU_ENABLE_TYPE_SAFE
