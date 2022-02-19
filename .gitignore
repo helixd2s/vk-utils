@@ -135,3 +135,21 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Ignore any build directory or file
+
+build
+build/
+build/*
+
+/build
+/build/
+/build/*
+
+./build
+./build/
+./build/*
+
+*/build
+*/build/
+*/build/*

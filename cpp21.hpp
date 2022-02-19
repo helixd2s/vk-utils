@@ -39,14 +39,14 @@ namespace stm {
     inline auto* cache = new unsigned char[256u*256u];
 
     // 
-    inline decltype(auto) aggregate(auto str){
+    inline decltype(auto) aggregate(auto const& str){
         using T = std::decay_t<decltype(str)>;
         memcpy(cache, &str, sizeof(T));
         return reinterpret_cast<T&>(*cache);
     };
 
     // 
-    inline decltype(auto) aggregate(auto str, auto& cache_pointer){
+    inline decltype(auto) aggregate(auto const& str, auto& cache_pointer){
         using T = std::decay_t<decltype(str)>;
         memcpy(cache, &str, sizeof(T));
         return reinterpret_cast<T&>(*cache);
@@ -58,13 +58,23 @@ namespace stm {
     };
 
     // 
-    inline decltype(auto) zero32(auto& cache) {
-        return (reinterpret_cast<uint32_t& >(cache) = 0u);
+    inline decltype(auto) unlock32(auto const& cache) {
+        return reinterpret_cast<uint32_t const&>(cache);
     };
 
     // 
-    inline decltype(auto) unlock64(auto& cache){
+    inline decltype(auto) zero32(auto& cache) {
+        return (reinterpret_cast<uint32_t&>(cache) = 0u);
+    };
+
+    // 
+    inline decltype(auto) unlock64(auto& cache) {
         return reinterpret_cast<uint64_t&>(cache);
+    };
+
+    // 
+    inline decltype(auto) unlock64(auto const& cache) {
+        return reinterpret_cast<uint64_t const&>(cache);
     };
 
     // 
@@ -680,7 +690,7 @@ namespace stm {
     using shared_vector_t = std::shared_ptr<I>;
 
     //
-    template<class T = void_t, class I = std::unordered_map<T>>
+    template<class K = uintptr_t, class T = void_t, class I = std::unordered_map<K,T>>
     using shared_map_t = std::shared_ptr<I>;
     
 
