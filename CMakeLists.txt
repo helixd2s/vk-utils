@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(vku VERSION 0.1.0)
-set(PROJECT_NAME vku)
+set(PROJECT_NAME vku-test)
 
 # 
 find_package(Vulkan REQUIRED FATAL_ERROR)
