@@ -28,6 +28,13 @@
 // 
 namespace cpp21 {
 
+    // 
+#define CPP21_FN_ALIAS(NAME, CALL) \
+    template <typename... Args>\
+    inline decltype(auto) NAME(Args&&... args) {\
+      return CALL(std::forward<Args>(args)...);\
+    };
+
     // make short alias
 #ifdef VKU_ENABLE_TYPE_SAFE
     namespace ts {
@@ -215,7 +222,18 @@ namespace cpp21 {
         T* ptr = nullptr;
 
     public:
-        wrap_ptr(T* const& ptr = nullptr) { this->ptr = ptr; };
+        wrap_ptr(std::optional<T> const& opt = nullptr) { this->ptr = opt ? &opt.value() : nullptr; };
+
+        //
+        wrap_ptr(T const* const& ptr ) : ptr(ptr) {};
+        wrap_ptr(T const& ref ) : (&ref) {};
+
+        // 
+        wrap_ptr(T* const& ptr = nullptr) : ptr(ptr) {};
+        wrap_ptr(T& ref = nullptr) : ptr(&ref) {};
+
+        //
+        wrap_ptr(wrap_ptr<T> wrap = {}) : ptr(ptr.get()) {};
 
         //
         inline decltype(auto) operator[](uintptr_t const& index) { return ptr[index]; };
@@ -239,22 +257,23 @@ namespace cpp21 {
 
         //
         inline decltype(auto) get() { return reinterpret_cast<T*&>(ptr); };
-        inline decltype(auto) get() const { return reinterpret_cast<T* const&>(ptr); };
+        inline decltype(auto) get() const { return reinterpret_cast<T const* const&>(ptr); };
+
+        //
+        inline decltype(auto) operator =(auto const* const& ptr) { this->ptr = ptr; return *this; };
+        inline decltype(auto) operator =(auto const& ref) { this->ptr = &ref; return *this; };
 
         // 
-        inline decltype(auto) operator =(T* const& ptr) { this->ptr = ptr; return *this; };
-
-        // 
-        template<class W=wrap_ptr<T>>
-        inline decltype(auto) operator =(W const& ptr) { this->ptr = ptr.get(); return *this; };
+        inline decltype(auto) operator =(auto const* const& ptr) { this->ptr = reinterprect_cast<T*>(ptr); return *this; };
+        inline decltype(auto) operator =(auto const& ref) { this->ptr = reinterprect_cast<T*>(&ref); return *this; };
 
         // 
         inline operator T& () { return *this->get(); };
-        inline operator const T& () const { return *this->get(); };
+        inline operator T const& () const { return *this->get(); };
 
         // 
         inline operator T*& () { return this->get(); };
-        inline operator T* const& () const { return this->get(); };
+        inline operator T const* const& () const { return this->get(); };
 
         // 
         inline operator bool() const { return !!ptr; };
@@ -333,10 +352,10 @@ namespace cpp21 {
     */
 
     // 
-    template<class T = void_t>
+    template<class T = void_t, class P = wrap_ptr<T>>
     class optional_ref {
     protected:
-        wrap_ptr<T> ptr = nullptr;
+        P ptr = nullptr;
 
     public: 
         // 
@@ -358,6 +377,14 @@ namespace cpp21 {
         // type conversion
         inline operator T&() { return *this->ptr; };
         inline operator T const&() const { return *this->ptr; };
+
+        // type conversion
+        inline operator T*() { return this->ptr; };
+        inline operator T const*() const { return this->ptr; };
+
+        // type conversion
+        inline operator P&() { return this->ptr; };
+        inline operator P const&() const { return this->ptr; };
 
         //
 #ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
@@ -400,12 +427,12 @@ namespace cpp21 {
 
     // 
     inline decltype(auto) opt_ref(auto& ref) {
-        return optional_ref<std::decay_t<decltype(auto)>()>(ref);
+        return optional_ref<std::decay_t<decltype(ref)>()>(ref);
     };
 
     // 
-    inline decltype(auto) opt_cref(const auto& ref) {
-        return optional_ref<const std::decay_t<decltype(auto)>()>(ref);
+    inline decltype(auto) opt_cref(auto const& ref) {
+        return optional_ref<const std::decay_t<decltype(ref)>()>(ref);
     };
 
 
