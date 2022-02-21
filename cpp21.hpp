@@ -434,14 +434,14 @@ namespace cpp21 {
     // 
     template<class T = void_t, template<class Ts = T> class P = wrap_ptr>
     inline decltype(auto) opt_ref(T& ref) {
-        //using T = std::decay_t<decltype(ref)>();
+        //using T = std::decay_t<decltype(ref)>;
         return optional_ref<T, P>(ref);
     };
 
     // 
     template<class T = void_t, template<class Ts = T> class P = wrap_ptr>
     inline decltype(auto) opt_cref(T const& ref) {
-        //using T = const std::decay_t<decltype(ref)>();
+        //using T = const std::decay_t<decltype(ref)>;
         return optional_ref<T, P>(ref);
     };
 
