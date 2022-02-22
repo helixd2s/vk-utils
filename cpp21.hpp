@@ -266,10 +266,8 @@ __declspec(align(0)) class void_t { public:
 
         //
         inline decltype(auto) operator =(wrap_ptr<T> const& wrap) { this->wrap = wrap.get(); return *this; };
-
-        // 
         inline decltype(auto) operator =(auto const* const& ptr) { this->ptr = reinterpret_cast<T const*>(ptr); return *this; };
-        inline decltype(auto) operator =(auto * const& ptr) { this->ptr = reinterpret_cast<T*>(ptr); return *this; };
+        inline decltype(auto) operator =(auto* const& ptr) { this->ptr = reinterpret_cast<T*>(ptr); return *this; };
         inline decltype(auto) operator =(auto const& ref) { this->ptr = reinterpret_cast<T*>(&ref); return *this; };
 
         // 
@@ -401,15 +399,17 @@ __declspec(align(0)) class void_t { public:
 
         //
 #ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
-        inline decltype(auto) operator=(ts::optional_ref<T> const& ref) { ptr = ref ? ref.value() : nullptr; return *this; };
-        inline decltype(auto) operator=(ts::optional_ref<T>& ref) { ptr = ref ? ref.value() : nullptr; return *this; };
+        inline decltype(auto) operator=(ts::optional_ref<T> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
+        inline decltype(auto) operator=(ts::optional_ref<T>& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
 #endif
 
         // assign ref
-        inline decltype(auto) operator=(optional_ref<T> const& ref) { ptr = ref ? ref.value() : nullptr; return *this; };
-        inline decltype(auto) operator=(optional_ref<T>& ref) { ptr = ref ? ref.value() : nullptr; return *this; };
-        //inline decltype(auto) operator=(T& ref) { ptr = &ref; return *this; };
+        inline decltype(auto) operator=(optional_ref<T> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
+        inline decltype(auto) operator=(optional_ref<T>& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
+        inline decltype(auto) operator=(wrap_ptr<T> const& ptx) { ptr = ptx; return *this; };
+        //inline decltype(auto) operator=(P<T> const& ptx) { ptr = ptx; return *this; };
         inline decltype(auto) operator=(T const& ref) { *ptr = ref; return *this; };
+        inline decltype(auto) operator=(T const* ptx) { ptr = ptx; return *this; };
 
         // value alias
         inline decltype(auto) value() { return *this->ptr; };
