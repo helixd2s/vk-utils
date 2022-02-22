@@ -171,7 +171,8 @@ namespace cpp21 {
     */
 
     //using void_t = uint8_t;
-    class void_t { public: 
+#pragma pack(0)
+__declspec(align(0)) class void_t { public: 
         //uint8_t : 0;
 
         // 
@@ -730,19 +731,19 @@ namespace cpp21 {
     //using shared_self_copy = std::shared_ptr<self_copy_intrusive_t<I<T>>>;
 
     //
-    template<class T = void_t, template<class Ts = T> class I = std::vector>
-    using shared_vector_t = std::shared_ptr<I<T>>;
+    template<class T = void_t, template<class Ts = T> class I = std::vector, template<class Ts = T> class Sh = std::shared_ptr>
+    using shared_vector_t = Sh<I<T>>;
 
     //
-    template<class K = uintptr_t, class T = void_t, template<class Ks = K, class Ts = T> class I = std::unordered_map>
-    using shared_map_t = std::shared_ptr<I<K,T>>;
+    template<class K = uintptr_t, class T = void_t, template<class Ks = K, class Ts = T> class I = std::unordered_map, template<class Ts = T> class Sh = std::shared_ptr>
+    using shared_map_t = Sh<I<K,T>>;
     
     //
-    template<class T = void_t, template<class Ts = T> class V = std::vector>
+    template<class T = void_t, template<class Ts = T> class V = std::vector, template<class Ts = T> class Sh = std::shared_ptr>
     class shared_vector {
     protected: 
-        using St = shared_vector<T,V>;
-        using Sv = shared_vector_t<T,V>;
+        using St = shared_vector<T,V,Sh>;
+        using Sv = shared_vector_t<T,V,Sh>;
         using Vt = V<T>;
         Sv vect = {};
 
