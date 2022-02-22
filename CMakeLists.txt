@@ -3,6 +3,26 @@ project(vku VERSION 0.1.0)
 set(PROJECT_NAME vku-test)
 
 # 
+IF(NOT DEFINED VCPKG_PATH OR NOT DEFINED ${VCPKG_PATH})
+  set (VCPKG_PATH "C:/vcpkg/")
+ENDIF()
+
+# trying load GLFW3 from VCPKG in Windows
+IF (WIN32)
+  IF(NOT DEFINED CMAKE_TOOLCHAIN_FILE OR NOT DEFINED ${CMAKE_TOOLCHAIN_FILE})
+    set (CMAKE_TOOLCHAIN_FILE "${VCPKG_PATH}/scripts/buildsystems/vcpkg.cmake")
+  ENDIF()
+
+  IF(NOT DEFINED CMAKE_MODULE_PATH OR NOT DEFINED ${CMAKE_MODULE_PATH})
+    set (CMAKE_MODULE_PATH "${VCPKG_PATH}/installed/x64-windows")
+  ENDIF()
+  
+  IF(NOT DEFINED glfw3_DIR OR NOT DEFINED ${glfw3_DIR})
+    set (glfw3_DIR "${CMAKE_MODULE_PATH}/share/glfw3")
+  ENDIF()
+ENDIF()
+
+# 
 find_package(Vulkan REQUIRED FATAL_ERROR)
 
 # 
@@ -21,7 +41,6 @@ file(GLOB_RECURSE _source_list
 add_executable(${PROJECT_NAME} ${_source_list})
 target_compile_definitions(${PROJECT_NAME} PUBLIC )
 target_include_directories(${PROJECT_NAME} PUBLIC 
-  ${PROJECT_SOURCE_DIR}/prebuild/include 
   ${PROJECT_SOURCE_DIR}/external/include 
   ${PROJECT_SOURCE_DIR}/submodules/*/include 
   ${PROJECT_SOURCE_DIR}/../external/include 
@@ -29,7 +48,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS} ${Vulkan_LIBRARIES})
 target_link_directories(${PROJECT_NAME} PUBLIC 
-  ${PROJECT_SOURCE_DIR}/prebuild/lib 
   ${PROJECT_SOURCE_DIR}/external/lib 
   ${PROJECT_SOURCE_DIR}/submodules/*/lib/
   ${PROJECT_SOURCE_DIR}/../external/lib
@@ -37,7 +55,8 @@ target_link_directories(${PROJECT_NAME} PUBLIC
 
 # 
 if (MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++latest /bigobj /MP /incremental /debug:fastlink /experimental")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++latest /bigobj /MP /incremental")
+    set(CMAKE_EXE_LINKER_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /MP /MAP /incremental /debug:fastlink /experimental /errorReport")
 endif()
 
 # 
