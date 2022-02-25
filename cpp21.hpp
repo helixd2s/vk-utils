@@ -1307,10 +1307,17 @@ __declspec(align(0)) class void_t { public:
 
         // 
         inline decltype(auto) push(auto const& data = St<T>{}) {
-            //using Ts = std::decay_t<decltype(data)>;
             auto last = stack.size();
-            stack->push_back(std::reinterpret_pointer_cast<T>(copy_as_shared(data)));
+            stack.push_back(std::reinterpret_pointer_cast<T>(copy_as_shared(data)));
             return last;
+        };
+
+        // 
+        template<class Ts = T>
+        inline decltype(auto) push(std::shared_ptr<Ts> const& data = St<T>{}) {
+          auto last = stack.size();
+          stack.push_back(std::reinterpret_pointer_cast<T>(data));
+          return last;
         };
 
         // 
@@ -1353,6 +1360,12 @@ __declspec(align(0)) class void_t { public:
         inline decltype(auto) size() { return stack.size(); };
         inline decltype(auto) data() { return stack.data(); };
         inline decltype(auto) data() const { return stack.data(); };
+        inline decltype(auto) back() { return stack.back(); };
+        inline decltype(auto) back() const { return stack.back(); };
+
+        //
+        inline decltype(auto) push_back(auto const& data = St<T>{}) { return this->push(data); };
+        inline decltype(auto) push_back(auto const& data = St<T>{}) const { return this->push(data); };
 
         //
         inline decltype(auto) operator->() { return &stack; };
