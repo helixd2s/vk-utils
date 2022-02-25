@@ -1323,13 +1323,13 @@ __declspec(align(0)) class void_t { public:
         // 
         template<class Ts = T>
         inline decltype(auto) get(uintptr_t const& index = 0u) {
-            return W(std::reinterpret_pointer_cast<Ts>(stack[index]));
+            return W(std::reinterpret_pointer_cast<Ts>(stack.at(index)));
         };
 
         // 
         template<class Ts = T>
         inline decltype(auto) get(uintptr_t const& index = 0u) const {
-            return W(std::reinterpret_pointer_cast<Ts>(stack[index]));
+            return W(std::reinterpret_pointer_cast<Ts>(stack.at(index)));
         };
 
         //
@@ -1360,8 +1360,10 @@ __declspec(align(0)) class void_t { public:
         inline decltype(auto) size() { return stack.size(); };
         inline decltype(auto) data() { return stack.data(); };
         inline decltype(auto) data() const { return stack.data(); };
-        inline decltype(auto) back() { return stack.back(); };
-        inline decltype(auto) back() const { return stack.back(); };
+
+        // 
+        template<class Ts = T> inline decltype(auto) back() { return W(std::reinterpret_pointer_cast<Ts>(stack.back())); };
+        template<class Ts = T> inline decltype(auto) back() const { return W(std::reinterpret_pointer_cast<Ts>(stack.back())); };
 
         //
         inline decltype(auto) push_back(auto const& data = St<T>{}) { return this->push(data); };
