@@ -1341,8 +1341,8 @@ __declspec(align(0)) class void_t { public:
         inline operator St<T> const* () const { return stack.data(); };
 
         //
-        inline decltype(auto) operator[](uintptr_t const& index) { return stack.at(index); };
-        inline decltype(auto) operator[](uintptr_t const& index) const { return stack.at(index); };
+        template<class Ts = T> inline decltype(auto) operator[](uintptr_t const& index) { return this->get<Ts>(index); };
+        template<class Ts = T> inline decltype(auto) operator[](uintptr_t const& index) const { return this->get<Ts>(index); };
 
         //
         inline decltype(auto) clear() { stack.clear(); stack.resize(0u); };
