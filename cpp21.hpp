@@ -1314,7 +1314,7 @@ __declspec(align(0)) class void_t { public:
 
         // 
         template<class Ts = T>
-        inline decltype(auto) push(std::shared_ptr<Ts> const& data = St<T>{}) {
+        inline decltype(auto) push(St<Ts> const& data = St<T>{}) {
           auto last = stack.size();
           stack.push_back(std::reinterpret_pointer_cast<T>(data));
           return last;
@@ -1369,9 +1369,11 @@ __declspec(align(0)) class void_t { public:
         template<class Ts = T> inline decltype(auto) back() { return W(std::reinterpret_pointer_cast<Ts>(stack.back())); };
         template<class Ts = T> inline decltype(auto) back() const { return W(std::reinterpret_pointer_cast<Ts>(stack.back())); };
 
+        // 
+        inline decltype(auto) push_back(auto const& data) const { return this->push(data); };
+
         //
-        inline decltype(auto) push_back(auto const& data = St<T>{}) { return this->push(data); };
-        inline decltype(auto) push_back(auto const& data = St<T>{}) const { return this->push(data); };
+        template<class Ts = T> inline decltype(auto) push_back(St<Ts> const& data = St<T>{}) { return this->push(data); };
 
         //
         inline decltype(auto) operator->() { return &stack; };
