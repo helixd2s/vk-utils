@@ -199,12 +199,12 @@ __declspec(align(0)) class void_t { public:
         template<class Ts = void_t> inline operator Ts const&() const { return *this->get<Ts>(); };
 
         // 
-        template<class Ts = void_t> inline operator Ts*&() { return this->get<Ts>(); };
-        template<class Ts = void_t> inline operator Ts* const&() const { return this->get<Ts>(); };
+        template<class Ts = void_t> inline operator Ts*() { return this->get<Ts>(); };
+        template<class Ts = void_t> inline operator Ts const*() const { return this->get<Ts>(); };
 
         // 
-        template<class Ts = void_t> inline decltype(auto) get() { return reinterpret_cast<Ts*&>(this); };
-        template<class Ts = void_t> inline decltype(auto) get() const { return reinterpret_cast<Ts* const&>(this); };
+        template<class Ts = void_t> inline decltype(auto) get() { return reinterpret_cast<Ts*>(this); };
+        template<class Ts = void_t> inline decltype(auto) get() const { return reinterpret_cast<Ts const*>(this); };
 
         // 
         inline operator bool() const { return false; };
@@ -225,7 +225,7 @@ __declspec(align(0)) class void_t { public:
 
     public:
         constexpr wrap_ptr(T* const&& pt) : ptr(pt) {  };
-        inline wrap_ptr(std::optional<T> const& opt) { this->ptr = opt ? &opt.value() : nullptr; };
+        inline wrap_ptr(std::optional<T>& opt) : ptr(opt ? &opt.value() : void_t{}) {};
         //explicit wrap_ptr(wrap_ptr<T> const& wrap) : ptr(wrap.get()) {};
         //explicit wrap_ptr(T const* const& ptr ) : ptr(ptr) {};
 
@@ -304,8 +304,12 @@ __declspec(align(0)) class void_t { public:
 #endif
 
         // 
-        explicit inline optional_ref(optional_ref<T> const& ref) : ptr(ref ? ref.value() : nullptr) {};
-        explicit inline optional_ref(optional_ref<T>& ref) : ptr(ref ? ref.value() : nullptr) {};
+        inline optional_ref(std::optional<T> const& ref) : ptr(ref ? &ref.value() : void_t{}) {};
+        inline optional_ref(std::optional<T>& ref) : ptr(ref ? &ref.value() : void_t{}) {};
+
+        // 
+        inline optional_ref(optional_ref<T> const& ref) : ptr(ref ? &ref.value() : void_t{}) {};
+        inline optional_ref(optional_ref<T>& ref) : ptr(ref ? &ref.value() : void_t{}) {};
 
         // 
         inline optional_ref(T const& ref) : ptr(&const_cast<T&>(ref)) {};
@@ -340,6 +344,8 @@ __declspec(align(0)) class void_t { public:
 #endif
 
         // assign ref
+        inline decltype(auto) operator=(std::optional<T> const& ref) { ptr = ref ? &ref.value() : std::nullopt_t; return *this; };
+        inline decltype(auto) operator=(std::optional<T>& ref) { ptr = ref ? &ref.value() : std::nullopt_t; return *this; };
         inline decltype(auto) operator=(optional_ref<T> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
         inline decltype(auto) operator=(optional_ref<T>& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
         inline decltype(auto) operator=(wrap_ptr<T> const& ptx) { ptr = ptx; return *this; };
