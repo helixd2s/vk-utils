@@ -1294,7 +1294,7 @@ __declspec(align(0)) class void_t { public:
 
 
     // for vulkan structs with shared_ptr
-    template<class T = void_t, template<class Ts = T> class W = uni_ptr, template<class Ts = T> class St = std::shared_ptr, template<class sT = St<T>> class Vc = std::vector>
+    template<class T = void_t, template<class Ts = T> class W = uni_ptr, template<class Ts = T> class St = std::shared_ptr, template<class Ts = St<T>> class Vc = std::vector>
     class vector_of_shared {
     protected:
         using Sv = Vc<St<T>>;
