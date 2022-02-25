@@ -1303,7 +1303,7 @@ __declspec(align(0)) class void_t { public:
 
     public: 
         // 
-        inline vector_of_shared(Sv const& stack) : stack(stack) {};
+        inline vector_of_shared(Sv const& stack = {}) : stack(stack) {};
 
         // 
         inline decltype(auto) push(auto const& data = St<T>{}) {
@@ -1343,6 +1343,10 @@ __declspec(align(0)) class void_t { public:
         //
         template<class Ts = T> inline decltype(auto) operator[](uintptr_t const& index) { return this->get<Ts>(index); };
         template<class Ts = T> inline decltype(auto) operator[](uintptr_t const& index) const { return this->get<Ts>(index); };
+
+        //
+        //inline decltype(auto) operator[](uintptr_t const& index) { return this->get<T>(index); };
+        //inline decltype(auto) operator[](uintptr_t const& index) const { return this->get<T>(index); };
 
         //
         inline decltype(auto) clear() { stack.clear(); stack.resize(0u); };
