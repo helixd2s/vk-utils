@@ -1333,6 +1333,10 @@ __declspec(align(0)) class void_t { public:
         };
 
         //
+        template<class Ts = T> inline decltype(auto) at(uintptr_t const& index = 0u) { return this->get<Ts>(index); };
+        template<class Ts = T> inline decltype(auto) at(uintptr_t const& index = 0u) const { return this->get<Ts>(index); };
+
+        //
         template<class Ts = T>
         //inline decltype(auto) push_get(auto const& data = {}) { // don't prefer...
         inline decltype(auto) push_get(Ts const& data = {}) {
