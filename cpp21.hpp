@@ -1211,7 +1211,7 @@ __declspec(align(0)) class void_t { public:
 
         // 
         inline operator uni_ptr<T>() { handle(has()); return *storage; };
-        inline operator uni_ptr<const T>() const { handle(has()); return *storage; };
+        inline operator const uni_ptr<T>() const { handle(has()); return *storage; };
 
         // 
         inline decltype(auto) has_value() const { return storage.has_value(); };
