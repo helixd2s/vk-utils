@@ -1122,8 +1122,8 @@ __declspec(align(0)) class void_t { public:
         inline uni_arg() {};
         inline uni_arg(T const& t) { storage = t; };
         inline uni_arg(T const* t) { if (t) { storage = *t; }; };
-        inline uni_arg(uni_ptr<T> const& p) : storage(*p) {}; // UnUsual and Vain
         inline uni_arg(uni_arg<T> const& a) : storage(*a) {};
+        explicit inline uni_arg(uni_ptr<T> const& p) : storage(*p) {}; // UnUsual and Vain
 
         //
         inline uni_arg<T>& operator= (T const& ptr) { storage = ptr; return *this; };
