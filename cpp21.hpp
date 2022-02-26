@@ -280,7 +280,7 @@ __declspec(align(0)) class void_t { public:
         inline decltype(auto) get() const { return reinterpret_cast<T const* const&>(ptr); };
 
         //
-        inline decltype(auto) operator =(wrap_ptr<T> const& wrap) { this->wrap = wrap.get(); return *this; };
+        inline decltype(auto) operator =(wrap_ptr<T> const& wrap) { this->ptr = wrap.get(); return *this; };
         inline decltype(auto) operator =(auto const* const& ptr) { this->ptr = reinterpret_cast<T const*>(ptr); return *this; };
         inline decltype(auto) operator =(auto* const& ptr) { this->ptr = reinterpret_cast<T*>(ptr); return *this; };
         inline decltype(auto) operator =(auto const& ref) { this->ptr = reinterpret_cast<T*>(&ref); return *this; };
@@ -401,6 +401,74 @@ __declspec(align(0)) class void_t { public:
     inline decltype(auto) opt_cref(T const& ref) {
         //using T = const std::decay_t<decltype(ref)>;
         return optional_ref<T, P>(ref);
+    };
+
+
+    /* 
+
+    */
+
+    // 
+    template<class T = void_t, template<class Ts = T> class P = wrap_ptr>
+    class data_view {
+    protected:
+        P<T> ptr = nullptr;
+        size_t byteSize = nullptr;
+
+    public:
+        // 
+        inline data_view(P<T> const& ptr) : ptr(ptr) {};
+        inline data_view(P<T> const& ptr, uintptr_t const& offset) : ptr(reinterpret_cast<P<T>>(reinterpret_cast<char8_t const*>(ptr) + offset)) {};
+        inline data_view() {};
+
+        // check operator
+        inline operator bool() const { return !!this->ptr; };
+
+        // type conversion
+        inline operator T&() { return *this->ptr; };
+        inline operator T const&() const { return *this->ptr; };
+
+        // type conversion
+        inline operator T*() { return this->ptr; };
+        inline operator T const*() const { return this->ptr; };
+
+        // type conversion
+        inline operator P<T>&() { return this->ptr; };
+        inline operator P<T> const&() const { return this->ptr; };
+
+        //
+        inline size_t size() const { return tiled(this->byteSize, sizeof(T)); };
+        inline decltype(auto) data() { return ptr; };
+        inline decltype(auto) data() const { return ptr; };
+
+        //
+        inline decltype(auto) operator =(data_view<T> const& wrap) { this->ptr = wrap.get(); return *this; };
+        inline decltype(auto) operator =(wrap_ptr<T> const& wrap) { this->ptr = wrap.get(); return *this; };
+        inline decltype(auto) operator =(auto const* const& ptr) { this->ptr = reinterpret_cast<P<T> const&>(ptr); return *this; };
+        inline decltype(auto) operator =(auto* const& ptr) { this->ptr = reinterpret_cast<P<T>&>(ptr); return *this; };
+        inline decltype(auto) operator =(auto const& ref) { this->ptr = reinterpret_cast<P<T>&>(&ref); return *this; };
+        //inline decltype(auto) operator =(T const& ref) { ptr = ref; return *this; };
+        //inline decltype(auto) operator =(T const* ptx) { ptr = ptx; return *this; };
+
+        // value alias
+        inline decltype(auto) value() { return *this->ptr; };
+        inline decltype(auto) value() const { return *this->ptr; };
+
+        // accessing operator
+        inline decltype(auto) operator *() { return *this->ptr; };
+        inline decltype(auto) operator *() const { return *this->ptr; };
+
+        // const accessing operator
+        inline decltype(auto) operator ->() { return this->ptr; };
+        inline decltype(auto) operator ->() const { return this->ptr; };
+
+        // because it's reference, pointer must got directly...
+        inline decltype(auto) operator&() { return this->ptr; };
+        inline decltype(auto) operator&() const { return this->ptr; };
+
+        // proxy...
+        inline decltype(auto) operator[](uintptr_t const& index) { return (*this->ptr)[index]; };
+        inline decltype(auto) operator[](uintptr_t const& index) const { return (*this->ptr)[index]; };
     };
 
 
@@ -1409,6 +1477,8 @@ __declspec(align(0)) class void_t { public:
         inline decltype(auto) operator*() { return stack; };
         inline decltype(auto) operator*() const { return stack; };
     };
+    
+    
 
     // 
     //template<class T = void_t, template<class Ts = T> class W = uni_ptr, template<class Ts = std::shared_ptr<T>> class Vc = std::vector>
