@@ -12,6 +12,8 @@
 #include <type_traits>
 #include <utility>
 #include <unordered_map>
+#include <iterator>
+#include <fstream>
 
 // 
 #ifdef VKU_ENABLE_TYPE_SAFE
@@ -143,15 +145,18 @@ namespace cpp21 {
     template <class T> static inline decltype(auto) makeVector(T const* ptr, size_t const& size = 1) { std::vector<T>v(size); memcpy(v.data(), ptr, strided<T>(size)); return v; };
 
     // 
-    template<class T, class Ts = T>
-    inline decltype(auto) vector_cast(std::vector<Ts> const& Vy) {
-        std::vector<T> V{}; for (auto& v : Vy) { V.push_back(reinterpret_cast<T const&>(v)); }; return std::move(V);
+    template<class Ts>
+    inline decltype(auto) vector_cast(auto const& Vy) {
+        std::vector<Ts> V{};
+        for (decltype(auto) v : Vy) { V.push_back(reinterpret_cast<Ts const&>(v)); };
+        return std::move(V);
     };
 
     // 
     inline decltype(auto) shift(auto* data, uintptr_t offset = 0ull) { return reinterpret_cast<decltype(data)>(reinterpret_cast<uintptr_t&>(data) + offset); };
     inline decltype(auto) shift(const auto* data, uintptr_t offset = 0ull) { return reinterpret_cast<decltype(data)>(reinterpret_cast<const uintptr_t&>(data) + offset); };
 
+    
 
 
     // boolean 32-bit capable for C++
@@ -1459,6 +1464,38 @@ __declspec(align(0)) class void_t { public:
         //
         inline decltype(auto) operator*() { return map; };
         inline decltype(auto) operator*() const { return map; };
+    };
+
+    // 
+    static inline decltype(auto) readBinaryChar(optional_ref<std::string> filePath) { // open the file:
+      std::vector<char> vec{};
+      decltype(auto) file = std::ifstream(*filePath, std::ios::in | std::ios::binary | std::ios::ate);
+      if (file.is_open()) { // Stop eating new lines in binary mode!!!
+        file.unsetf(std::ios::skipws);
+
+        // get its size:
+        std::streampos fileSize = 0ull;
+        file.seekg(0, std::ios::end);
+        fileSize = file.tellg();
+        file.seekg(0, std::ios::beg);
+
+        // reserve capacity
+        vec.reserve(fileSize);
+        vec.insert(vec.begin(), std::istream_iterator<char>(file), std::istream_iterator<char>());
+      }
+      else {
+        std::cerr << "Failure to open " + *filePath << std::endl;
+      };
+      if (vec.size() < 1u) { std::cerr << "NO DATA " + *filePath << std::endl; };
+      return vec;
+    };
+
+    // 
+    static inline decltype(auto) readBinaryU32(optional_ref<std::string> filePath) {
+      const auto vect8u = readBinaryChar(filePath);
+      auto vect32 = std::vector<uint32_t>(tiled(uint64_t(vect8u.size()), uint64_t(4ull)));
+      memcpy(vect32.data(), vect8u.data(), vect8u.size());
+      return vect32;
     };
 
 #ifdef VKU_ENABLE_INTERVAL
