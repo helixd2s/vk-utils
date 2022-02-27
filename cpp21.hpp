@@ -119,7 +119,11 @@ namespace cpp21 {
 
     // 
     inline decltype(auto) copy_as_shared(auto const& data) {
-        return copy_as_shared(&data);
+      using T = std::decay_t<decltype(data)>;
+      auto shared = std::shared_ptr<T>((T*)malloc(sizeof(T)), free);
+      //memcpy(shared.get(), data, sizeof(T));
+      *shared = data; // what if structure can self-copy?
+      return shared;
     };
 
     //
@@ -1465,7 +1469,7 @@ __declspec(align(0)) class void_t { public:
         inline decltype(auto) push(auto const& data = St<T>{}) {
             decltype(auto) last = stack.size();
             if constexpr (is_shared_ptr<std::decay_t<decltype(data)>>::value) {
-              stack.push_back(std::reinterpret_pointer_cast<std::decay_t<decltype(*data)>>(data));
+              stack.push_back(std::reinterpret_pointer_cast<T>(data));
             }
             else {
               stack.push_back(std::reinterpret_pointer_cast<T>(copy_as_shared(data)));
@@ -1582,7 +1586,7 @@ __declspec(align(0)) class void_t { public:
               return W<Tm>(std::reinterpret_pointer_cast<Tm>(map[key] = std::reinterpret_pointer_cast<T>(data) ));
               //return std::reinterpret_pointer_cast<Tm>(map[key] = std::reinterpret_pointer_cast<T>(data));
             } else {
-              return W<Ts>(std::reinterpret_pointer_cast<Ts>(map[key] = std::reinterpret_pointer_cast<T>(copy_as_shared(data)) ));
+              return W<Ts>(std::reinterpret_pointer_cast<Ts>(map[key] = std::reinterpret_pointer_cast<T>(copy_as_shared<Ts>(data)) ));
               //return std::reinterpret_pointer_cast<Ts>(map[key] = std::reinterpret_pointer_cast<T>(copy_as_shared(data)));
             };
             //return uni_ptr<Ts>{};
@@ -1603,8 +1607,8 @@ __declspec(align(0)) class void_t { public:
         };
 
         //
-        template<class Ts = T> inline decltype(auto) operator[](K const& index) { return this->get<Ts>(index); };
-        template<class Ts = T> inline decltype(auto) operator[](K const& index) const { return this->get<Ts>(index); };
+        template<class Ts = T> inline decltype(auto) operator[](K const& key) { return W<Ts>(std::reinterpret_pointer_cast<Ts>(map[key])); };
+        template<class Ts = T> inline decltype(auto) operator[](K const& key) const { return W<Ts>(std::reinterpret_pointer_cast<Ts>(map[key])); };
 
         //
         template<class Ts = T> inline decltype(auto) at(K const& index = 0u) { return this->get<Ts>(index); };
