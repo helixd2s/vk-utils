@@ -14,6 +14,7 @@
 #include <unordered_map>
 #include <iterator>
 #include <fstream>
+#include <typeindex>
 
 // 
 #ifdef VKU_ENABLE_TYPE_SAFE
@@ -1526,6 +1527,14 @@ __declspec(align(0)) class void_t { public:
         inline decltype(auto) get(K const& key) const {
             return W<Ts>(std::reinterpret_pointer_cast<Ts>(map.at(key)));
         };
+
+        //
+        template<class Ts = T> inline decltype(auto) operator[](K const& index) { return this->get<Ts>(index); };
+        template<class Ts = T> inline decltype(auto) operator[](K const& index) const { return this->get<Ts>(index); };
+
+        //
+        template<class Ts = T> inline decltype(auto) at(K const& index = 0u) { return this->get<Ts>(index); };
+        template<class Ts = T> inline decltype(auto) at(K const& index = 0u) const { return this->get<Ts>(index); };
 
         //
         inline decltype(auto) operator->() { return &map; };
