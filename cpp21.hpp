@@ -1607,8 +1607,8 @@ __declspec(align(0)) class void_t { public:
         };
 
         //
-        template<class Ts = T> inline decltype(auto) operator[](K const& key) { return W<Ts>(std::reinterpret_pointer_cast<Ts>(map[key])); };
-        template<class Ts = T> inline decltype(auto) operator[](K const& key) const { return W<Ts>(std::reinterpret_pointer_cast<Ts>(map[key])); };
+        //template<class Ts = T> inline decltype(auto) operator[](K const& key) { return W<Ts>(std::reinterpret_pointer_cast<Ts>(map[key])); };
+        //template<class Ts = T> inline decltype(auto) operator[](K const& key) const { return W<Ts>(std::reinterpret_pointer_cast<Ts>(map[key])); };
 
         //
         template<class Ts = T> inline decltype(auto) at(K const& index = 0u) { return this->get<Ts>(index); };
