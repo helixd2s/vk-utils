@@ -868,8 +868,8 @@ __declspec(align(0)) class void_t { public:
       inline decltype(auto) operator=(St const& ref) { return this->assign(ref); };
 
       //
-      inline operator St& () { return this->shared(); };
-      inline operator St const& () const { return this->shared(); };
+      inline operator St& () { return this->ptr; };
+      inline operator St const& () const { return this->ptr; };
 
       //
       inline operator T& () { return this->ref(); };
