@@ -1099,53 +1099,53 @@ __declspec(align(0)) class void_t { public:
     };
 
     //
-    template<class Ts = void_t>
+    template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr>
     inline decltype(auto) pointer(optional_ref<Ts> ref) {
       Ts* pt = ref ? (&ref.value()) : nullptr;
-      return wrap_ptr<Ts>(pt);
+      return W<Ts>(pt);
     };
 
     //
-    template<class Ts = void_t>
+    template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr>
     inline decltype(auto) pointer(optional_ref<const Ts> ref) {
       Ts* pt = ref ? (&ref.value()) : nullptr;
-      return wrap_ptr<Ts>(pt);
+      return W<Ts>(pt);
     };
 
     //
-    template<class Ts = void_t>
+    template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr>
     inline decltype(auto) pointer(std::optional<Ts>& ref) {
       Ts* pt = ref ? (&ref.value()) : nullptr;
-      return wrap_ptr<Ts>(pt);
+      return W<Ts>(pt);
     };
 
     //
-    template<class Ts = void_t>
+    template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr>
     inline decltype(auto) pointer(std::optional<Ts> const& ref) {
       Ts* pt = ref ? (&ref.value()) : nullptr;
-      return wrap_ptr<Ts>(pt);
+      return W<Ts>(pt);
     };
 
     //
-    template<class Ts = void_t>
+    template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr>
     inline decltype(auto) pointer(std::optional<const Ts> const& ref) {
       Ts* pt = ref ? (&ref.value()) : nullptr;
-      return wrap_ptr<Ts>(pt);
+      return W<Ts>(pt);
     };
 
 #ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
     //
-    template<class Ts = void_t>
+    template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr>
     inline decltype(auto) pointer(ts::optional_ref<Ts> ref) {
       Ts* pt = ref ? (&ref.value()) : nullptr;
-      return wrap_ptr<Ts>(ref ? (&ref.value()) : nullptr);
+      return W<Ts>(pt);
     };
 
     //
-    template<class Ts = void_t>
+    template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr>
     inline decltype(auto) pointer(ts::optional_ref<const Ts> ref) {
       Ts* pt = ref ? (&ref.value()) : nullptr;
-      return wrap_ptr<Ts>(ref ? (&ref.value()) : nullptr);
+      return W<Ts>(pt);
     };
 #endif
     
