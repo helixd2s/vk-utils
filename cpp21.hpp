@@ -282,9 +282,10 @@ __declspec(align(0)) class void_t { public:
 
         //
         inline decltype(auto) operator =(wrap_ptr<T> const& wrap) { this->ptr = wrap.get(); return *this; };
-        inline decltype(auto) operator =(auto const* const& ptr) { this->ptr = reinterpret_cast<T const*>(ptr); return *this; };
-        inline decltype(auto) operator =(auto* const& ptr) { this->ptr = reinterpret_cast<T*>(ptr); return *this; };
-        inline decltype(auto) operator =(auto const& ref) { this->ptr = reinterpret_cast<T*>(&ref); return *this; };
+        //inline decltype(auto) operator =(auto const* const& ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (T*)(const_cast<Tm*>(ref)); return *this; }; // impossible...
+        //inline decltype(auto) operator =(auto* const& ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (T*)(const_cast<Tm*>(ref)); return *this; };
+        inline decltype(auto) operator =(auto* ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (T*)(ref); return *this; };
+        inline decltype(auto) operator =(auto const& ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>;  this->ptr = (T*)(&ref); return *this; };
 
         // 
         inline operator T& () { return *this->get(); };
@@ -823,6 +824,71 @@ __declspec(align(0)) class void_t { public:
 
 
 
+
+
+
+    // 
+    template<class T, template<class Ts = T> class Sp = std::shared_ptr, template<class Ts = T> class W = wrap_ptr>
+    class wrap_shared_ptr {
+    public: 
+    protected:
+      using St = Sp<T>;
+      St ptr = {};
+
+    public:
+      // 
+      inline wrap_shared_ptr(St const& shp) : ptr(shp) {};
+
+      //
+      //inline ~wrap_shared_ptr() { delete this->ptr; }
+
+      //
+      inline decltype(auto) shared() { return this->ptr; };
+      inline decltype(auto) shared() const { return this->ptr; };
+
+      //
+      inline decltype(auto) get() { return this->ptr.get(); };
+      inline decltype(auto) get() const { return this->ptr.get(); };
+
+      //
+      inline decltype(auto) ref() { return *this->get(); };
+      inline decltype(auto) ref() const { return *this->get(); };
+
+      //
+      inline decltype(auto) value() { return *this->get(); };
+      inline decltype(auto) value() const { return *this->get(); };
+
+      //
+      inline decltype(auto) assign(St const& ref) { this->ptr = ref; return *this; };
+      inline decltype(auto) operator=(St const& ref) { return this->assign(ref); };
+
+      //
+      inline operator St& () { return this->shared(); };
+      inline operator St const& () const { return this->shared(); };
+
+      //
+      inline operator T& () { return this->ref(); };
+      inline operator T const& () const { return this->ref(); };
+
+      //
+      inline operator T* () { return this->get(); };
+      inline operator T const* () const { return this->get(); };
+
+      //
+      inline decltype(auto) operator*() { return this->ref(); };
+      inline decltype(auto) operator*() const { return this->ref(); };
+
+      //
+      inline decltype(auto) operator->() { return this->ptr.get(); };
+      inline decltype(auto) operator->() const { return this->ptr.get(); };
+
+      //
+      //inline decltype(auto) operator&() { return this->get(); };
+      //inline decltype(auto) operator&() const { return this->get(); };
+    };
+
+
+
     /*
         // Official version of vector from descriptors of Ramen...
         // This class reusing free cells, instead erase or delete...
@@ -1182,8 +1248,8 @@ __declspec(align(0)) class void_t { public:
         inline operator T const* () const { return ptr(); };
 
         // 
-        inline operator decltype(auto) () { return get_shared(); };
-        inline operator decltype(auto) () const { return get_shared(); };
+        inline operator std::shared_ptr<T>() { return get_shared(); };
+        inline operator const std::shared_ptr<T>() const { return get_shared(); };
 
         // 
         inline decltype(auto) operator->() { return get_ptr(); };
@@ -1384,7 +1450,7 @@ __declspec(align(0)) class void_t { public:
 
 
     // for vulkan structs with shared_ptr
-    template<class T = void_t, template<class Ts = T> class W = uni_ptr, template<class Ts = T> class St = std::shared_ptr, template<class Ts = St<T>> class Vc = std::vector>
+    template<class T = void_t, template<class Ts = T> class W = wrap_shared_ptr, template<class Ts = T> class St = std::shared_ptr, template<class Ts = St<T>> class Vc = std::vector>
     class vector_of_shared {
     protected:
         using Sv = Vc<St<T>>;
@@ -1419,12 +1485,14 @@ __declspec(align(0)) class void_t { public:
         template<class Ts = T>
         inline decltype(auto) get(uintptr_t const& index = 0u) {
             return W<Ts>(std::reinterpret_pointer_cast<Ts>(stack.at(index)));
+            //return std::reinterpret_pointer_cast<Ts>(stack.at(index));
         };
 
         // 
         template<class Ts = T>
         inline decltype(auto) get(uintptr_t const& index = 0u) const {
             return W<Ts>(std::reinterpret_pointer_cast<Ts>(stack.at(index)));
+            //return std::reinterpret_pointer_cast<Ts>(stack.at(index));
         };
 
         //
@@ -1461,6 +1529,8 @@ __declspec(align(0)) class void_t { public:
         inline decltype(auto) data() const { return wrap_ptr(stack.data()); };
 
         // 
+        //template<class Ts = T> inline decltype(auto) back() { return std::reinterpret_pointer_cast<Ts>(stack.back()); };
+        //template<class Ts = T> inline decltype(auto) back() const { return std::reinterpret_pointer_cast<Ts>(stack.back()); };
         template<class Ts = T> inline decltype(auto) back() { return W<Ts>(std::reinterpret_pointer_cast<Ts>(stack.back())); };
         template<class Ts = T> inline decltype(auto) back() const { return W<Ts>(std::reinterpret_pointer_cast<Ts>(stack.back())); };
 
@@ -1495,7 +1565,7 @@ __declspec(align(0)) class void_t { public:
 
 
     // for advanced vulkan structs with shared_ptr
-    template<class K = uintptr_t, class T = void_t, template<class Ts = T> class W = uni_ptr, template<class Ts = T> class St = std::shared_ptr, template<class Ks = K, class Ts = St<T>> class Mc = std::unordered_map>
+    template<class K = uintptr_t, class T = void_t, template<class Ts = T> class W = wrap_shared_ptr, template<class Ts = T> class St = std::shared_ptr, template<class Ks = K, class Ts = St<T>> class Mc = std::unordered_map>
     class map_of_shared {
     protected:
         // we use local pointer memory
@@ -1510,8 +1580,10 @@ __declspec(align(0)) class void_t { public:
             if constexpr (is_shared_ptr<Ts>::value) {
               using Tm = std::decay_t<decltype(*data)>;
               return W<Tm>(std::reinterpret_pointer_cast<Tm>(map[key] = std::reinterpret_pointer_cast<T>(data) ));
+              //return std::reinterpret_pointer_cast<Tm>(map[key] = std::reinterpret_pointer_cast<T>(data));
             } else {
               return W<Ts>(std::reinterpret_pointer_cast<Ts>(map[key] = std::reinterpret_pointer_cast<T>(copy_as_shared(data)) ));
+              //return std::reinterpret_pointer_cast<Ts>(map[key] = std::reinterpret_pointer_cast<T>(copy_as_shared(data)));
             };
             //return uni_ptr<Ts>{};
         };
@@ -1520,12 +1592,14 @@ __declspec(align(0)) class void_t { public:
         template<class Ts = T>
         inline decltype(auto) get(K const& key) {
             return W<Ts>(std::reinterpret_pointer_cast<Ts>(map.at(key)));
+            //return std::reinterpret_pointer_cast<Ts>(map.at(key));
         };
 
         // 
         template<class Ts = T>
         inline decltype(auto) get(K const& key) const {
             return W<Ts>(std::reinterpret_pointer_cast<Ts>(map.at(key)));
+            //return std::reinterpret_pointer_cast<Ts>(map.at(key));
         };
 
         //
