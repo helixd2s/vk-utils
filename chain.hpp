@@ -31,6 +31,220 @@
 // 
 namespace vku {
 
+    //
+    template<class A = VkAccessFlagBits2, class I = VkImageLayout>
+    inline decltype(auto) getCorrectAccessMaskByImageLayout(I const& imageLayout_) {
+        VkImageLayout imageLayout = reinterpret_cast<VkImageLayout const&>(imageLayout_);
+        VkAccessFlagBits2 accessMask = {};
+
+        // 
+        switch(imageLayout) {
+            case VK_IMAGE_LAYOUT_GENERAL:
+            accessMask |= VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
+            break;
+
+            case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+            accessMask |= VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
+            break;
+
+            case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+            accessMask |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+            break;
+
+            case VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL:
+            accessMask |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+            break;
+
+            case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+            accessMask |= VK_ACCESS_2_SHADER_READ_BIT;
+            break;
+
+            case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+            accessMask |= VK_ACCESS_2_TRANSFER_READ_BIT;
+            break;
+
+            case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+            accessMask |= VK_ACCESS_2_TRANSFER_WRITE_BIT;
+            break;
+
+            // there is no correct conversion
+            case VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL:
+            accessMask |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+            break;
+            
+            // there is no correct conversion
+            case VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL:
+            accessMask |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+            break;
+
+            // there is no correct conversion
+            case VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL:
+            accessMask |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+            break;
+
+            // there is no correct conversion
+            case VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL:
+            accessMask |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+            break;
+
+            // there is no correct conversion
+            case VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL:
+            accessMask |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+            break;
+
+            // there is no correct conversion
+            case VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL:
+            accessMask |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+            break;
+
+            //
+            case VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL: 
+            accessMask |= VK_ACCESS_2_MEMORY_READ_BIT;
+            break;
+
+            //
+            case VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL: 
+            accessMask |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
+            break;
+
+            //
+            case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR: 
+            accessMask |= VK_ACCESS_2_MEMORY_READ_BIT;
+            break;
+
+        default:;
+
+            // TODO: video decoding and encoding API
+        };
+
+        return A(accessMask);
+    };
+    
+
+    //
+    template<class P = VkPipelineStageFlagBits2, class A = VkAccessFlagBits2>
+    inline decltype(auto) getCorrectPipelineStagesByAccessMask(A const& accessMask_) {
+        VkAccessFlagBits2 accessMask = reinterpret_cast<VkAccessFlagBits2 const&>(accessMask_);
+        VkPipelineStageFlagBits2 pipelineStageMask = {};
+        
+        // 
+        for (uint32_t i=0u;i<32u;i++) {
+            const auto masked = accessMask&(1<<i);
+            switch(masked) {
+            case VK_ACCESS_2_MEMORY_READ_BIT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+              break;
+
+            case VK_ACCESS_2_MEMORY_WRITE_BIT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+              break;
+                
+            case VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT;
+              break;
+
+            case VK_ACCESS_2_INDEX_READ_BIT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT;
+              break;
+
+            case VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT;
+              break;
+
+            case VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
+              break;
+
+            case VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+              break;
+
+            case VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+              break;
+
+            case VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT;
+              break;
+
+            case VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT;
+              break;
+
+            case VK_ACCESS_2_TRANSFER_READ_BIT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_COPY_BIT | VK_PIPELINE_STAGE_2_BLIT_BIT | VK_PIPELINE_STAGE_2_RESOLVE_BIT;
+              break;
+
+            case VK_ACCESS_2_TRANSFER_WRITE_BIT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_COPY_BIT | VK_PIPELINE_STAGE_2_BLIT_BIT | VK_PIPELINE_STAGE_2_CLEAR_BIT | VK_PIPELINE_STAGE_2_RESOLVE_BIT;
+              break;
+
+            case VK_ACCESS_2_HOST_READ_BIT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_HOST_BIT;
+              break;
+
+            case VK_ACCESS_2_HOST_WRITE_BIT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_HOST_BIT;
+              break;
+
+            case VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_CONDITIONAL_RENDERING_BIT_EXT;
+              break;
+
+            case VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_TRANSFORM_FEEDBACK_BIT_EXT;
+              break;
+
+            case VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_TRANSFORM_FEEDBACK_BIT_EXT;
+              break;
+
+            case VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_WRITE_BIT_EXT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_TRANSFORM_FEEDBACK_BIT_EXT;
+              break;
+
+            case VK_ACCESS_2_COMMAND_PREPROCESS_READ_BIT_NV:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_COMMAND_PREPROCESS_BIT_NV;
+              break;
+
+            case VK_ACCESS_2_COMMAND_PREPROCESS_WRITE_BIT_NV:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_COMMAND_PREPROCESS_BIT_NV;
+              break;
+
+            case VK_ACCESS_2_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+              break;
+
+            case VK_ACCESS_2_INVOCATION_MASK_READ_BIT_HUAWEI:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_INVOCATION_MASK_BIT_HUAWEI;
+              break;
+
+            case VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR | VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR;
+              break;
+
+            case VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR;
+              break;
+
+            case VK_ACCESS_2_FRAGMENT_DENSITY_MAP_READ_BIT_EXT:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_FRAGMENT_DENSITY_PROCESS_BIT_EXT;
+              break;
+
+            case VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR:
+              pipelineStageMask |= VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR;
+              break;
+
+            default:;
+
+              // TODO: video decoding and encoding API
+            };
+        };
+
+        return P(pipelineStageMask);
+    };
+
+
     // 
 #ifdef VKU_ENABLE_TYPE_SAFE
     namespace ts {
