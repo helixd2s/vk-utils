@@ -424,11 +424,6 @@ __declspec(align(0)) class void_t { public:
 
     public:
         // 
-        template<class Ts = T> inline data_view(std::vector<Ts> const& ptr, uintptr_t const& offset = 0ull) : byteSize(ptr.size() * sizeof(Ts)), ptr(P<T>(const_cast<T*>(shift(ptr.data(), offset)))) {};
-        template<class Ts = T> inline data_view(data_view<Ts> const& ptr, uintptr_t const& offset = 0ull) : byteSize(ptr.size() * sizeof(Ts)), ptr(P<T>(const_cast<T*>(shift(ptr.data().get(), offset)))) {};
-        template<class Ts = T> inline data_view(P<Ts> const& ptr, size_t const& size, uintptr_t const& offset = 0ull) : byteSize(size), ptr(P<T>(const_cast<T*>(shift(ptr.get(), offset)))) {};
-
-        // 
         inline data_view(std::vector<T> const& ptr, uintptr_t const& offset = 0ull) : byteSize(ptr.size() * sizeof(T)), ptr(P<T>(const_cast<T*>(shift(ptr.data(), offset)))) {};
         inline data_view(data_view<T> const& ptr, uintptr_t const& offset = 0ull) : byteSize(ptr.size() * sizeof(T)), ptr(P<T>(const_cast<T*>(shift(ptr.data().get(), offset)))) {};
         inline data_view(P<T> const& ptr, size_t const& size, uintptr_t const& offset = 0ull) : byteSize(size), ptr(P<T>(const_cast<T*>(shift(ptr.get(), offset)))) {};
@@ -458,9 +453,11 @@ __declspec(align(0)) class void_t { public:
         template<class Ts = T> inline decltype(auto) operator =(std::vector<Ts> const& wrap) { this->ptr = P<T>((T*)wrap.data()); this->byteSize = wrap.size() * sizeof(Ts); return *this; };
         template<class Ts = T> inline decltype(auto) operator =(data_view<Ts> const& wrap) { this->ptr = P<T>((T*)wrap.get()); this->byteSize = wrap.size() * sizeof(Ts); return *this; };
         template<class Ts = T> inline decltype(auto) operator =(wrap_ptr<Ts> const& wrap) { this->ptr = P<T>((T*)wrap.get()); return *this; };
+        
+        // 
         inline decltype(auto) operator =(auto const* const& ptr) { this->ptr = reinterpret_cast<P<T> const&>(ptr); return *this; };
-        inline decltype(auto) operator =(auto* const& ptr) { this->ptr = reinterpret_cast<P<T>&>(ptr); return *this; };
-        inline decltype(auto) operator =(auto const& ref) { this->ptr = reinterpret_cast<P<T>&>(&ref); return *this; };
+        inline decltype(auto) operator =(auto* const& ptr) { this->ptr = reinterpret_cast<P<T> const&>(ptr); return *this; };
+        inline decltype(auto) operator =(auto const& ref) { this->ptr = reinterpret_cast<P<T> const&>(&ref); return *this; };
         //inline decltype(auto) operator =(T const& ref) { ptr = ref; return *this; };
         //inline decltype(auto) operator =(T const* ptx) { ptr = ptx; return *this; };
 
