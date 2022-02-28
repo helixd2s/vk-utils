@@ -366,7 +366,7 @@ __declspec(align(0)) class void_t { public:
 #endif
 
         // assign ref
-        inline decltype(auto) operator=(std::optional<T> const& ref) { ptr = ref ? &ref.value() : std::nullopt_t; return *this; };
+        //inline decltype(auto) operator=(std::optional<T> const& ref) { ptr = ref ? &ref.value() : std::nullopt_t; return *this; };
         inline decltype(auto) operator=(std::optional<T>& ref) { ptr = ref ? &ref.value() : std::nullopt_t; return *this; };
         inline decltype(auto) operator=(optional_ref<T> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
         inline decltype(auto) operator=(optional_ref<T>& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
@@ -424,9 +424,14 @@ __declspec(align(0)) class void_t { public:
 
     public:
         // 
-        template<class Ts = T> inline data_view(std::vector<Ts> const& ptr, uintptr_t const& offset = 0ull) : byteSize(ptr.size() * sizeof(Ts)), ptr(reinterpret_cast<P<T>>(reinterpret_cast<char8_t const*>(ptr.data()) + offset)) {};
-        template<class Ts = T> inline data_view(data_view<Ts> const& ptr, uintptr_t const& offset = 0ull) : byteSize(ptr.size() * sizeof(Ts)), ptr(reinterpret_cast<P<T>>(reinterpret_cast<char8_t const*>(ptr.data()) + offset)) {};
-        template<class Ts = T> inline data_view(P<Ts> const& ptr, size_t const& size, uintptr_t const& offset = 0ull) : byteSize(size), ptr(reinterpret_cast<P<T>>(reinterpret_cast<char8_t const*>(ptr) + offset)) {};
+        template<class Ts = T> inline data_view(std::vector<Ts> const& ptr, uintptr_t const& offset = 0ull) : byteSize(ptr.size() * sizeof(Ts)), ptr(P<T>(const_cast<T*>(shift(ptr.data(), offset)))) {};
+        template<class Ts = T> inline data_view(data_view<Ts> const& ptr, uintptr_t const& offset = 0ull) : byteSize(ptr.size() * sizeof(Ts)), ptr(P<T>(const_cast<T*>(shift(ptr.data().get(), offset)))) {};
+        template<class Ts = T> inline data_view(P<Ts> const& ptr, size_t const& size, uintptr_t const& offset = 0ull) : byteSize(size), ptr(P<T>(const_cast<T*>(shift(ptr.get(), offset)))) {};
+
+        // 
+        inline data_view(std::vector<T> const& ptr, uintptr_t const& offset = 0ull) : byteSize(ptr.size() * sizeof(T)), ptr(P<T>(const_cast<T*>(shift(ptr.data(), offset)))) {};
+        inline data_view(data_view<T> const& ptr, uintptr_t const& offset = 0ull) : byteSize(ptr.size() * sizeof(T)), ptr(P<T>(const_cast<T*>(shift(ptr.data().get(), offset)))) {};
+        inline data_view(P<T> const& ptr, size_t const& size, uintptr_t const& offset = 0ull) : byteSize(size), ptr(P<T>(const_cast<T*>(shift(ptr.get(), offset)))) {};
         inline data_view() {};
 
         // check operator
