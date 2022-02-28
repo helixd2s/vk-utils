@@ -21,7 +21,7 @@ namespace cpp21 {
   // 
   class link_void {
   protected:
-    wrap_ptr<void_t> ptr;
+    wrap_ptr<void_t> ptr = nullptr;
 
   public:
     // 
