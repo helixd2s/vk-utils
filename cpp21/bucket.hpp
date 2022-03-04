@@ -31,13 +31,13 @@ namespace cpp21 {
     // 
     inline decltype(auto) add(T const& e) {
       uintptr_t index = 0u;
-      if (free.size() > 0) {
-        used[index = free.back()] = e;
-        free.pop_back();
+      if (free->size() > 0) {
+        used[index = free->back()] = e;
+        free->pop_back();
       }
       else {
-        index = free.size();
-        used.push_back(e);
+        index = free->size();
+        used->push_back(e);
       };
       return index;
     };

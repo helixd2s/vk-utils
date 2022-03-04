@@ -52,6 +52,24 @@ target_link_directories(${PROJECT_NAME} PUBLIC
   ${PROJECT_SOURCE_DIR}/submodules/*/lib/
   ${PROJECT_SOURCE_DIR}/../external/lib
 )
+target_precompile_headers(${PROJECT_NAME}
+  PUBLIC
+  <memory>
+  <vector>
+  <map>
+  <future>
+  <iostream>
+  <optional>
+  <coroutine>
+  <tuple>
+  <type_traits>
+  <utility>
+  <unordered_map>
+  <iterator>
+  <fstream>
+  <typeindex>
+  <vulkan/vulkan.h>
+)
 
 # 
 if (MSVC)
