@@ -15,13 +15,14 @@ namespace cpp21 {
   class data_view {
   protected:
     P<T> ptr = nullptr;
-    size_t byteSize = 0ull;
+    size_t count = 0ull;
 
   public:
     // 
-    inline data_view(std::vector<T> const& ptr, uintptr_t const& offset = 0ull) : byteSize(ptr.size() * sizeof(T)), ptr(P<T>(const_cast<T*>(shift(ptr.data(), offset)))) {};
-    inline data_view(data_view<T> const& ptr, uintptr_t const& offset = 0ull) : byteSize(ptr.size() * sizeof(T)), ptr(P<T>(const_cast<T*>(shift(ptr.data().get(), offset)))) {};
-    inline data_view(P<T> const& ptr, size_t const& size, uintptr_t const& offset = 0ull) : byteSize(size), ptr(P<T>(const_cast<T*>(shift(ptr.get(), offset)))) {};
+    inline data_view(std::span<T> const& wrap) : ptr(ptr.data()), count(ptr.size()) { memcpy(this, &wrap, sizeof(std::decay_t<decltype(wrap)>)); };
+    inline data_view(std::vector<T> const& wrap, uintptr_t const& offset = 0ull) : count(wrap.size()), ptr(P<T>(const_cast<T*>(shift(wrap.data(), offset)))) {};
+    inline data_view(data_view<T> const& wrap, uintptr_t const& offset = 0ull) : count(wrap.size()), ptr(P<T>(const_cast<T*>(shift(wrap.data().get(), offset)))) {};
+    inline data_view(P<T> const& wrap, size_t const& size, uintptr_t const& offset = 0ull) : count(size), ptr(P<T>(const_cast<T*>(shift(wrap.get(), offset)))) {};
     inline data_view() {};
 
     // check operator
@@ -36,17 +37,22 @@ namespace cpp21 {
     inline operator T const* () const { return this->ptr; };
 
     // type conversion
+    inline operator std::span<T>&() { return reinterpret_cast<std::span<T>&>(*this); };
+    inline operator std::span<T> const&() const { return reinterpret_cast<std::span<T> const&>(*this); };
+
+    // type conversion
     inline operator P<T>& () { return this->ptr; };
     inline operator P<T> const& () const { return this->ptr; };
 
     //
-    inline size_t size() const { return tiled(this->byteSize, sizeof(T)); };
+    inline size_t size() const { return count; };
     inline decltype(auto) data() { return ptr; };
     inline decltype(auto) data() const { return ptr; };
 
     //
-    template<class Ts = T> inline decltype(auto) operator =(std::vector<Ts> const& wrap) { this->ptr = P<T>((T*)wrap.data()); this->byteSize = wrap.size() * sizeof(Ts); return *this; };
-    template<class Ts = T> inline decltype(auto) operator =(data_view<Ts> const& wrap) { this->ptr = P<T>((T*)wrap.get()); this->byteSize = wrap.size() * sizeof(Ts); return *this; };
+    template<class Ts = T> inline decltype(auto) operator =(std::span<Ts> const& wrap) { memcpy(this, wrap, sizeof(std::decay_t<decltype(wrap)>)); return *this; };
+    template<class Ts = T> inline decltype(auto) operator =(std::vector<Ts> const& wrap) { this->ptr = P<T>((T*)wrap.data()); this->count = wrap.size(); return *this; };
+    template<class Ts = T> inline decltype(auto) operator =(data_view<Ts> const& wrap) { this->ptr = P<T>((T*)wrap.get()); this->count = wrap.size(); return *this; };
     template<class Ts = T> inline decltype(auto) operator =(wrap_ptr<Ts> const& wrap) { this->ptr = P<T>((T*)wrap.get()); return *this; };
 
     // 
