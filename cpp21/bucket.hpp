@@ -36,7 +36,7 @@ namespace cpp21 {
         free->pop_back();
       }
       else {
-        index = free->size();
+        index = used->size();
         used->push_back(e);
       };
       return index;

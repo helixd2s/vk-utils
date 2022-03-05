@@ -30,6 +30,12 @@ namespace cpp21 {
   template<typename T> struct is_shared_ptr : std::false_type {};
   template<typename T> struct is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
 
+  template<typename T> struct is_vector : public std::false_type {};
+
+  template<typename T, typename A>
+  struct is_vector<std::vector<T, A>> : public std::true_type {};
+
+  template <typename T> using static_not = std::integral_constant<bool, !T::value>;
   //
   //template<typename T> struct shared_ptr_t {
     //using St = std::shared_ptr<T>;

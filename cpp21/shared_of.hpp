@@ -38,6 +38,12 @@ namespace cpp21 {
 
     };
 
+    //
+    template<static_not<is_vector<T>>>
+    inline shared_vector(T const& elem = {}) : vect(std::make_shared<V<T>>(&elem, &elem+1u)) {
+
+    };
+
     // 
     inline operator Vt* () { return vect.get(); };
     inline operator Vt const* () const { return vect.get(); };
