@@ -76,14 +76,14 @@ namespace cpp21 {
   //
   template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr>
   inline decltype(auto) pointer(std::optional<Ts> const& ref) {
-    Ts* pt = ref ? (&ref.value()) : nullptr;
+    Ts* pt = const_cast<Ts*>(ref ? (&ref.value()) : nullptr);
     return W<Ts>(pt);
   };
 
   //
   template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr>
   inline decltype(auto) pointer(std::optional<const Ts> const& ref) {
-    Ts* pt = ref ? (&ref.value()) : nullptr;
+    Ts* pt = const_cast<Ts*>(ref ? (&ref.value()) : nullptr);
     return W<Ts>(pt);
   };
 

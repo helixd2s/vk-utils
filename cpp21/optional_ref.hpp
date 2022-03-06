@@ -25,15 +25,16 @@ namespace cpp21 {
 #endif
 
     // 
-    inline optional_ref(std::optional<T> const& ref) : ptr(ref ? &ref.value() : void_t{}) {};
-    inline optional_ref(std::optional<T>& ref) : ptr(ref ? &ref.value() : void_t{}) {};
+    inline optional_ref(std::optional<T> const& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
+    inline optional_ref(std::optional<T>& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
 
     // 
-    inline optional_ref(optional_ref<T> const& ref) : ptr(ref ? &ref.value() : void_t{}) {};
-    inline optional_ref(optional_ref<T>& ref) : ptr(ref ? &ref.value() : void_t{}) {};
+    inline optional_ref(optional_ref<T> const& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
+    inline optional_ref(optional_ref<T>& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
 
     // 
     //inline optional_ref(T const& ref) : ptr(&const_cast<T&>(ref)) {};
+    inline optional_ref(T* ref) : ptr(ref) {};
     inline optional_ref(T& ref) : ptr(&ref) {};
     inline optional_ref() {};
 
