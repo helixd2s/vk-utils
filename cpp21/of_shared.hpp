@@ -123,46 +123,40 @@ namespace cpp21 {
 
   // for advanced vulkan structs with shared_ptr
   template<class K = uintptr_t, class T = void_t, template<class Ts = T> class W = wrap_shared_ptr, template<class Ts = T> class St = std::shared_ptr, template<class Ks = K, class Ts = St<T>> class Mc = std::unordered_map>
-  class map_of_shared {
+  class map_of_shared : public std::enable_shared_from_this<map_of_shared<K,T,W,St,Mc>> {
   protected:
     // we use local pointer memory
-    Mc<K, St<T>> map = {};
+    Mc<K, St<T>> map = Mc<K, St<T>>{};
 
   public:
     inline map_of_shared(Mc<K, St<T>> const& map = {}) : map(map) {};
 
     // 
-    inline decltype(auto) set(K const& key, auto const& data = {}) {
-      using Ts = std::decay_t<decltype(data)>;
-      if constexpr (is_shared_ptr<Ts>::value) {
-        using Tm = std::decay_t<decltype(*data)>;
-        return W<Tm>(std::reinterpret_pointer_cast<Tm>(map[key] = std::reinterpret_pointer_cast<T>(data)));
-        //return std::reinterpret_pointer_cast<Tm>(map[key] = std::reinterpret_pointer_cast<T>(data));
-      }
-      else {
-        return W<Ts>(std::reinterpret_pointer_cast<Ts>(map[key] = std::reinterpret_pointer_cast<T>(copy_as_shared<Ts>(data))));
-        //return std::reinterpret_pointer_cast<Ts>(map[key] = std::reinterpret_pointer_cast<T>(copy_as_shared(data)));
-      };
-      //return uni_ptr<Ts>{};
+    template<class Ts = T>
+    inline decltype(auto) set(K const& key, std::shared_ptr<Ts> data = {}) {
+      map[key] = std::reinterpret_pointer_cast<T>(data);
+      return W<Ts>(data);
+    };
+
+    // 
+    template<class Ts = T>
+    inline decltype(auto) set(K const& key, Ts const& data = {}) {
+      auto constructed = copy_as_shared<Ts>(data);
+      map[key] = std::reinterpret_pointer_cast<T>(constructed);
+      return W<Ts>(constructed);
     };
 
     // 
     template<class Ts = T>
     inline decltype(auto) get(K const& key) {
       return W<Ts>(std::reinterpret_pointer_cast<Ts>(map.at(key)));
-      //return std::reinterpret_pointer_cast<Ts>(map.at(key));
     };
 
     // 
     template<class Ts = T>
     inline decltype(auto) get(K const& key) const {
       return W<Ts>(std::reinterpret_pointer_cast<Ts>(map.at(key)));
-      //return std::reinterpret_pointer_cast<Ts>(map.at(key));
     };
-
-    //
-    //template<class Ts = T> inline decltype(auto) operator[](K const& key) { return W<Ts>(std::reinterpret_pointer_cast<Ts>(map[key])); };
-    //template<class Ts = T> inline decltype(auto) operator[](K const& key) const { return W<Ts>(std::reinterpret_pointer_cast<Ts>(map[key])); };
 
     //
     template<class Ts = T> inline decltype(auto) at(K const& index = 0u) { return this->get<Ts>(index); };

@@ -98,7 +98,7 @@ namespace cpp21 {
 
   public:
     // 
-    inline wrap_shared_ptr(St const& shp) : ptr(shp) {};
+    inline wrap_shared_ptr(St shp = {}) : ptr(shp) {};
 
     //
     //inline ~wrap_shared_ptr() { delete this->ptr; }
