@@ -81,7 +81,7 @@ namespace cpp21 {
 
     //
     inline decltype(auto) clear() { stack.clear(); stack.resize(0u); };
-    inline decltype(auto) size() { return stack.size(); };
+    inline decltype(auto) size() const { return stack.size(); };
     inline decltype(auto) data() { return stack.data(); };
     inline decltype(auto) data() const { return stack.data(); };
 
