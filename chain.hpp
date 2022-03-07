@@ -32,6 +32,13 @@
 namespace vku {
 
   //
+  struct EmptyChain {
+    VkStructureType sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    const void* pNext = nullptr;
+    uint8_t _dataPack[1024u] = { 0 };
+  };
+
+  //
   template<class A = VkAccessFlagBits2, class I = VkImageLayout>
   inline decltype(auto) getCorrectAccessMaskByImageLayout(I const& imageLayout_) {
     VkImageLayout imageLayout = reinterpret_cast<VkImageLayout const&>(imageLayout_);
