@@ -112,7 +112,7 @@ namespace cpp21 {
   //template<class T>
   inline decltype(auto) copy_as_shared(auto const* data) {
     using T = std::decay_t<decltype(data)>;
-    auto shared = std::shared_ptr<T>((T*)malloc(sizeof(T)), free);
+    auto shared = std::shared_ptr<T>((T*)calloc(1ull,sizeof(T)), free);
     memcpy(shared.get(), data, sizeof(T));
     //*shared = data; // what if structure can self-copy?
     return shared;
@@ -121,7 +121,7 @@ namespace cpp21 {
   // 
   inline decltype(auto) copy_as_shared(auto const& data) {
     using T = std::decay_t<decltype(data)>;
-    auto shared = std::shared_ptr<T>((T*)malloc(sizeof(T)), free);
+    auto shared = std::shared_ptr<T>((T*)calloc(1ull,sizeof(T)), free);
     //memcpy(shared.get(), data, sizeof(T));
     *shared = data; // what if structure can self-copy?
     return shared;

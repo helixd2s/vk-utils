@@ -2,6 +2,7 @@
 
 // 
 #include "./core.hpp"
+#include "./wrap_ptr.hpp"
 
 // 
 namespace cpp21 {
@@ -25,7 +26,7 @@ namespace cpp21 {
 
   public:
     // 
-    inline decltype(auto) assign(void_t const* obj, size_t const& size) { if (!this->ptr) { this->ptr = (void_t*)malloc(size); }; memcpy(this->ptr, obj, size); return *this; };
+    inline decltype(auto) assign(void_t const* obj, size_t const& size) { if (!this->ptr) { this->ptr = (void_t*)calloc(size,1ull); }; memcpy(this->ptr, obj, size); return *this; };
     inline decltype(auto) assign(void_t const* obj) { std::cerr << "sorry, but we doesn't know assign size" << std::endl; return *this; };
     inline decltype(auto) operator=(void_t const* obj) { return this->assign(obj); };
 

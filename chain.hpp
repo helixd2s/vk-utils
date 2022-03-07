@@ -424,7 +424,7 @@ namespace vku {
     //
     ChainStorage(VkBaseInStructure const& structure, uintptr_t const& size = 0u) {
       auto sized = size > 0 ? size : vkGetStructureSizeBySType((VkStructureType const&)structure.sType);
-      auto memory = std::shared_ptr<VkBaseOutStructure>((VkBaseOutStructure*)malloc(sized), free); // simpler to allocate new
+      auto memory = std::shared_ptr<VkBaseOutStructure>((VkBaseOutStructure*)calloc(sized,1ull), free); // simpler to allocate new
       memcpy(memory.get(), &structure, size); // simpler to do memcpy
       storage = std::vector<std::shared_ptr<VkBaseOutStructure>>{ memory }; // simpler reconstruct 
     };
@@ -455,7 +455,7 @@ namespace vku {
       auto sized = size > 0 ? size : vkGetStructureSizeBySType(reinterpret_cast<VkStructureType const&>(structure.sType));
       if (!exist) {
         std::shared_ptr<VkBaseOutStructure> bk = storage.size() > 0 ? storage.back() : std::shared_ptr<VkBaseOutStructure>{};
-        storage.push_back(std::shared_ptr<VkBaseOutStructure>((VkBaseOutStructure*)malloc(sized), free));
+        storage.push_back(std::shared_ptr<VkBaseOutStructure>((VkBaseOutStructure*)calloc(sized,1ull), free));
         exist = std::reinterpret_pointer_cast<T>(storage.back());
         if (bk) { bk->pNext = reinterpret_cast<VkBaseOutStructure*>(exist.get()); };
         memcpy(exist.get(), &structure, size); // size is important!

@@ -58,7 +58,7 @@ namespace cpp21 {
       this->free(this->ptr);
     };
 
-    inline self_copy_intrusive(Vp ptr = nullptr, size_t const& size = 0ull) : ptr(ptr ? ptr : this->malloc(size)), size(size)
+    inline self_copy_intrusive(Vp ptr = nullptr, size_t const& size = 0ull) : ptr(ptr ? ptr : this->calloc(size,1ull)), size(size)
     {};
 
     inline self_copy_intrusive(I const& intrusive) {
@@ -75,7 +75,7 @@ namespace cpp21 {
     };
 
     virtual void* malloc(size_t size) {
-      return ::malloc(size);
+      return ::calloc(size,1ull);
     };
 
     virtual std::type_info& type_info() const {
@@ -105,7 +105,7 @@ namespace cpp21 {
     // 
     inline decltype(auto) assign(I const& intrusive) {
       if (this->type_info() == intrusive.type_info()) { // if type are equal...
-        if (!this->ptr) { this->ptr = (void_t*)this->malloc(this->size = intrusive.size); };
+        if (!this->ptr) { this->ptr = (void_t*)this->calloc(this->size = intrusive.size, 1ull); };
         this->memcpy(this->ptr, intrusive.ptr, intrusive.size);
       };
       return *this;
