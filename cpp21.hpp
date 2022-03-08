@@ -13,5 +13,13 @@
 #include "./cpp21/shared_of.hpp"
 
 // 
+#define VKU_ENABLE_INTERVAL
+
+// 
+#ifdef VKU_ENABLE_INTERVAL
+#include "./cpp21/interval_map.hpp"
+#endif
+
+// 
 namespace cpp21 {
 };
