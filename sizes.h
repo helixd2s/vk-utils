@@ -3,8 +3,23 @@
 #pragma once 
 #endif
 
+// 
 #ifndef VULKAN_SIZES_H
 #define VULKAN_SIZES_H
+
+//
+#ifdef _WIN32
+#ifndef VK_USE_PLATFORM_WIN32_KHR
+#define VK_USE_PLATFORM_WIN32_KHR
+#include <windows.h>
+#endif
+#else
+#ifdef __linux__ 
+//FD defaultly
+#endif
+#endif
+
+//
 #include <vulkan/vulkan.h>
 
 #ifdef __cplusplus
