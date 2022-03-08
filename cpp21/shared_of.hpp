@@ -77,6 +77,14 @@ namespace cpp21 {
     inline decltype(auto) operator=(Vt const& v) { return this->assign(v); };
 
     //
+    inline decltype(auto) ref() { return *vect; };
+    inline decltype(auto) ref() const { return *vect; };
+
+    //
+    inline decltype(auto) value() { return *vect; };
+    inline decltype(auto) value() const { return *vect; };
+
+    //
     inline decltype(auto) get() { return vect.get(); };
     inline decltype(auto) get() const { return vect.get(); };
   };

@@ -165,6 +165,7 @@ namespace cpp21 {
     const_wrap_arg(T& lvalue) : ptr(&lvalue) {}; // ambigous?
     const_wrap_arg(T const& lcvalue) : ptr(&lcvalue) {};
     const_wrap_arg(T const* pcvalue) : ptr(pcvalue) {};
+    const_wrap_arg(const_wrap_arg<T> const& wvalue) : ptr(wvalue.get()) {};
     const_wrap_arg(std::optional<T> const& lcvalue) : ptr(lcvalue ? &lcvalue.value() : nullptr) {};
 
     //
@@ -180,10 +181,14 @@ namespace cpp21 {
     inline decltype(auto) operator=(T && ref) { ptr = rvalue_to_ptr(ref); return *this; };
     inline decltype(auto) operator=(T const& ref) { ptr = &ref; return *this; };
     inline decltype(auto) operator=(T const* ref) { ptr = ref; return *this; };
+    inline decltype(auto) operator=(const_wrap_arg<T> const& ref) { ptr = ref.get(); return *this; };
 
     // value alias
     //inline decltype(auto) value() { return *this->ptr; };
     inline decltype(auto) value() const { return *this->ptr; };
+
+    //inline decltype(auto) get() { return this->ptr; };
+    inline decltype(auto) get() const { return this->ptr; };
 
     // accessing operator
     //inline decltype(auto) operator *() { return *this->ptr; };
@@ -200,6 +205,7 @@ namespace cpp21 {
     // proxy...
     //inline decltype(auto) operator[](uintptr_t const& index) { return (*this->ptr)[index]; };
     inline decltype(auto) operator[](uintptr_t const& index) const { return (*this->ptr)[index]; };
+    inline decltype(auto) operator[](uint32_t const& index) const { return (*this->ptr)[index]; };
   };
 
 
