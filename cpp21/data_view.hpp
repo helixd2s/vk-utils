@@ -23,7 +23,7 @@ namespace cpp21 {
     inline data_view(std::span<T> const& wrap) : ptr(wrap) { ; };
     inline data_view(std::vector<T> const& wrap, uintptr_t const& offset = 0ull) : ptr(std::span<T>{const_cast<T*>(shift(wrap.data(), offset)), wrap.size()}) {};
     inline data_view(data_view<T> const& wrap, uintptr_t const& offset = 0ull) : ptr(std::span<T>{const_cast<T*>(shift(wrap.data(), offset)), wrap.size()}) {};
-    inline data_view(P<T> const& wrap, size_t const& size, uintptr_t const& offset = 0ull) : ptr(std::span<T>{const_cast<T*>(shift(wrap.get(), offset)), size}) {};
+    inline data_view(P<T> const& wrap, size_t const& size = 1ull, uintptr_t const& offset = 0ull) : ptr(std::span<T>{const_cast<T*>(shift(wrap.get(), offset)), size}) {};
     inline data_view() {};
 
     // check operator
