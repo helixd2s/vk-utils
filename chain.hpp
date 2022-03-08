@@ -18,15 +18,17 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 #endif
 #else
-
+#ifdef __linux__ 
+//FD defaultly
+#endif
 #endif
 
 // 
-#include <vulkan/vulkan.h>
+#include "./cpp21.hpp"
+#include "./sizes.h"
 
 // 
-#include "./sizes.h"
-#include "./cpp21.hpp"
+#include <vulkan/vulkan.h>
 
 // 
 namespace vku {
