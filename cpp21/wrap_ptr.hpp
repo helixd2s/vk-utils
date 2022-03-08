@@ -57,9 +57,14 @@ namespace cpp21 {
     inline decltype(auto) get() const { return reinterpret_cast<T const* const&>(ptr); };
 
     //
+    inline decltype(auto) operator =(wrap_ptr<T> && wrap) { this->ptr = wrap.get(); return *this; };
     inline decltype(auto) operator =(wrap_ptr<T> const& wrap) { this->ptr = wrap.get(); return *this; };
+    inline decltype(auto) operator =(wrap_ptr<T> & wrap) { this->ptr = wrap.get(); return *this; };
     inline decltype(auto) operator =(auto* const& ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (T*)(ref); return *this; };
     inline decltype(auto) operator =(auto const& ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (T*)(&ref); return *this; };
+    inline decltype(auto) operator =(auto const* ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (T*)(ref); return *this; };
+    inline decltype(auto) operator =(auto& ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (T*)(&ref); return *this; };
+    inline decltype(auto) operator =(auto* ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (T*)(ref); return *this; };
 
     // 
     inline operator T& () { return *this->get(); };
@@ -146,6 +151,70 @@ namespace cpp21 {
     //
     //inline decltype(auto) operator&() { return this->get(); };
     //inline decltype(auto) operator&() const { return this->get(); };
+  };
+
+
+  template<typename T>
+  typename inline std::remove_reference<T>::type* rvalue_to_ptr(T&& t)
+  {
+    return &t;
+  };
+
+  template<class T>
+  class const_wrap_arg {
+  protected:
+    //T const* ptr = nullptr;
+    wrap_ptr<T const> ptr = nullptr;
+
+  public:
+    const_wrap_arg() {};
+    const_wrap_arg(T&& rvalue) : ptr(rvalue_to_ptr(rvalue)) {};
+    const_wrap_arg(T& lvalue) : ptr(&lvalue) {}; // ambigous?
+    const_wrap_arg(T const& lcvalue) : ptr(&lcvalue) {};
+    const_wrap_arg(T const* pcvalue) : ptr(pcvalue) {};
+    const_wrap_arg(const_wrap_arg<T> const& wvalue) : ptr(wvalue.get()) {};
+    const_wrap_arg(wrap_ptr<T> const& wvalue) : ptr(wvalue) {};
+    const_wrap_arg(std::optional<T> const& lcvalue) : ptr(lcvalue ? &lcvalue.value() : nullptr) {};
+
+    //
+    inline operator bool() const { return !!ptr; };
+    inline operator std::optional<T>() const { return this->optional(); };
+    inline decltype(auto) optional() const { return ptr ? std::optional<T>(*ptr) : std::nullopt; };
+    inline operator T const* () const { return ptr; };
+    inline operator T const& () const { return (*ptr); };
+
+    //
+    inline decltype(auto) operator=(std::optional<T> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
+    //inline decltype(auto) operator=(T & ref) { ptr = &ref; return *this; };
+    inline decltype(auto) operator=(T&& ref) { ptr = rvalue_to_ptr(ref); return *this; };
+    inline decltype(auto) operator=(T const& ref) { ptr = &ref; return *this; };
+    inline decltype(auto) operator=(T const* ref) { ptr = ref; return *this; };
+    inline decltype(auto) operator=(const_wrap_arg<T> const& ref) { ptr = ref.get(); return *this; };
+    inline decltype(auto) operator=(wrap_ptr<T> const& ref) { ptr = ref; return *this; };
+
+    // value alias
+    //inline decltype(auto) value() { return *this->ptr; };
+    inline decltype(auto) value() const { return *this->ptr; };
+
+    //inline decltype(auto) get() { return this->ptr; };
+    inline decltype(auto) get() const { return this->ptr; };
+
+    // accessing operator
+    //inline decltype(auto) operator *() { return *this->ptr; };
+    inline decltype(auto) operator *() const { return *this->ptr; };
+
+    // const accessing operator
+    //inline decltype(auto) operator ->() { return this->ptr; };
+    inline decltype(auto) operator ->() const { return this->ptr; };
+
+    // because it's reference, pointer must got directly...
+    //inline decltype(auto) operator&() { return this->ptr; };
+    inline decltype(auto) operator&() const { return this->ptr; };
+
+    // proxy...
+    //inline decltype(auto) operator[](uintptr_t const& index) { return (*this->ptr)[index]; };
+    inline decltype(auto) operator[](uintptr_t const& index) const { return (*this->ptr)[index]; };
+    inline decltype(auto) operator[](uint32_t const& index) const { return (*this->ptr)[index]; };
   };
 
 
