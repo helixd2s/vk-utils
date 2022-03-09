@@ -112,13 +112,13 @@ namespace cpp21 {
   //template<class T>
   inline decltype(auto) copy_as_shared(auto const* data) {
     using T = std::decay_t<decltype(data)>;
-    return std::make_shared<T>(*data);
+    return std::make_shared<T>(std::move(*data));
   };
 
   // 
   inline decltype(auto) copy_as_shared(auto const& data) {
     using T = std::decay_t<decltype(data)>;
-    return std::make_shared<T>(data);
+    return std::make_shared<T>(std::move(data));
   };
 
   //
