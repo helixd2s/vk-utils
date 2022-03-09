@@ -149,13 +149,19 @@ namespace cpp21 {
     // 
     template<class Ts = T>
     inline decltype(auto) get(K const& key) {
-      return W<Ts>(std::reinterpret_pointer_cast<Ts>(map.at(key)));
+      if (map.find(key) != map.end()) {
+        return W<Ts>(std::reinterpret_pointer_cast<Ts>(map.at(key)));
+      };
+      return W<Ts>();
     };
 
     // 
     template<class Ts = T>
     inline decltype(auto) get(K const& key) const {
-      return W<Ts>(std::reinterpret_pointer_cast<Ts>(map.at(key)));
+      if (map.find(key) != map.end()) {
+        return W<Ts>(std::reinterpret_pointer_cast<Ts>(map.at(key)));
+      };
+      return W<Ts>();
     };
 
     //
