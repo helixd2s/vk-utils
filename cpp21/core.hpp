@@ -158,11 +158,11 @@ namespace cpp21 {
 
 
   //
-  template<class T = void_t>
+  template<class T = void_t, class wT = std::decay_t<T>>
   class wrap_ptr;
 
   //
-  template<class T, template<class Ts = T> class Sp = std::shared_ptr, template<class Ts = T> class W = wrap_ptr>
+  template<class T, template<class Ts = T> class Sp = std::shared_ptr, template<class Ts = T> class W = wrap_ptr, class wT = std::decay_t<T>>
   class wrap_shared_ptr;
 
   //

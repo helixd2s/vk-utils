@@ -16,17 +16,17 @@ namespace cpp21 {
 
   // if you needed just pointer, just cast `reinterpret_cast<T*&>(some_wrap_ptr)`, because contain only one pointer
   //template<class T = void_t>
-  template<class T>
+  template<class T, class wT>
   class wrap_ptr {
   protected:
-    T* ptr = nullptr;
+    wT* ptr = nullptr;
 
   public:
     // 
-    inline wrap_ptr(std::optional<T>& opt) : ptr(opt ? &opt.value() : void_t{}) {};
-    inline wrap_ptr(wrap_ptr<T> const& wrap) : ptr(const_cast<T*>(wrap.get())) {};
-    inline wrap_ptr(T* ref = nullptr) : ptr(ref) {};
-    inline wrap_ptr(T& ref) : ptr(&ref) {};
+    inline wrap_ptr(std::optional<wT> const& opt) : ptr(opt ? &opt.value() : void_t{}) {};
+    inline wrap_ptr(wrap_ptr<wT> const& wrap) : ptr(const_cast<T*>(wrap.get())) {};
+    inline wrap_ptr(wT* ref = nullptr) : ptr(ref) {};
+    inline wrap_ptr(wT& ref) : ptr(&ref) {};
 
     //
     inline decltype(auto) operator[](uintptr_t const& index) { return ptr[index]; };
@@ -57,48 +57,48 @@ namespace cpp21 {
     inline decltype(auto) get() const { return reinterpret_cast<T const* const&>(ptr); };
 
     //
-    inline decltype(auto) operator =(wrap_ptr<T> && wrap) { this->ptr = wrap.get(); return *this; };
-    inline decltype(auto) operator =(wrap_ptr<T> const& wrap) { this->ptr = wrap.get(); return *this; };
-    inline decltype(auto) operator =(wrap_ptr<T> & wrap) { this->ptr = wrap.get(); return *this; };
-    inline decltype(auto) operator =(auto* const& ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (T*)(ref); return *this; };
-    inline decltype(auto) operator =(auto const& ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (T*)(&ref); return *this; };
-    inline decltype(auto) operator =(auto const* ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (T*)(ref); return *this; };
-    inline decltype(auto) operator =(auto& ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (T*)(&ref); return *this; };
-    inline decltype(auto) operator =(auto* ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (T*)(ref); return *this; };
+    inline decltype(auto) operator =(wrap_ptr<wT> && wrap) { this->ptr = wrap.get(); return *this; };
+    inline decltype(auto) operator =(wrap_ptr<wT> const& wrap) { this->ptr = wrap.get(); return *this; };
+    inline decltype(auto) operator =(wrap_ptr<wT> & wrap) { this->ptr = wrap.get(); return *this; };
+    inline decltype(auto) operator =(auto* const& ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (wT*)(ref); return *this; };
+    inline decltype(auto) operator =(auto const& ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (wT*)(&ref); return *this; };
+    inline decltype(auto) operator =(auto const* ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (wT*)(ref); return *this; };
+    inline decltype(auto) operator =(auto& ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (wT*)(&ref); return *this; };
+    //inline decltype(auto) operator =(auto* ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (wT*)(ref); return *this; };
 
     // 
-    inline operator T& () { return *this->get(); };
-    inline operator T const& () const { return *this->get(); };
+    inline operator wT& () { return *this->get(); };
+    inline operator wT const& () const { return *this->get(); };
 
     // 
-    inline operator T*& () { return this->get(); };
-    inline operator T const* const& () const { return this->get(); };
+    inline operator wT*& () { return this->get(); };
+    inline operator wT const* const& () const { return this->get(); };
 
     // 
     inline operator bool() const { return !!ptr; };
   };
 
   //
-  template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr>
-  inline decltype(auto) pointer(std::optional<Ts> const& ref) {
-    Ts* pt = const_cast<Ts*>(ref ? (&ref.value()) : nullptr);
-    return W<Ts>(pt);
+  template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr, class wT = std::decay_t<Ts>>
+  inline decltype(auto) pointer(std::optional<wT> const& ref) {
+    wT* pt = const_cast<wT*>(ref ? (&ref.value()) : nullptr);
+    return W<wT>(pt);
   };
 
   //
-  template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr>
-  inline decltype(auto) pointer(std::optional<const Ts> const& ref) {
-    Ts* pt = const_cast<Ts*>(ref ? (&ref.value()) : nullptr);
-    return W<Ts>(pt);
+  template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr, class wT = std::decay_t<Ts>>
+  inline decltype(auto) pointer(std::optional<const wT> const& ref) {
+    wT* pt = const_cast<wT*>(ref ? (&ref.value()) : nullptr);
+    return W<wT>(pt);
   };
 
   // 
   //template<class T, template<class Ts = T> class Sp = std::shared_ptr, template<class Ts = T> class W = wrap_ptr>
-  template<class T, template<class Ts> class Sp, template<class T> class W>
+  template<class T, template<class Ts> class Sp, template<class T> class W, class wT>
   class wrap_shared_ptr {
   public:
   protected:
-    using St = Sp<T>;
+    using St = Sp<wT>;
     St ptr = {};
 
   public:
@@ -133,12 +133,12 @@ namespace cpp21 {
     inline operator St const& () const { return this->ptr; };
 
     //
-    inline operator T& () { return this->ref(); };
-    inline operator T const& () const { return this->ref(); };
+    inline operator wT& () { return this->ref(); };
+    inline operator wT const& () const { return this->ref(); };
 
     //
-    inline operator T* () { return this->get(); };
-    inline operator T const* () const { return this->get(); };
+    inline operator wT* () { return this->get(); };
+    inline operator wT const* () const { return this->get(); };
 
     //
     inline decltype(auto) operator*() { return this->ref(); };
@@ -154,43 +154,47 @@ namespace cpp21 {
   };
 
 
-  template<typename T>
+  template<typename T, class wT = std::decay_t<T>>
   typename inline std::remove_reference<T>::type* rvalue_to_ptr(T&& t)
   {
     return &t;
   };
 
-  template<class T>
+  template<class T, class wT = std::decay_t<T>>
   class const_wrap_arg {
   protected:
-    //T const* ptr = nullptr;
-    wrap_ptr<T const> ptr = nullptr;
+    wT const* ptr = nullptr;
+    std::optional<wT> temp = {};
 
   public:
     const_wrap_arg() {};
-    const_wrap_arg(T&& rvalue) : ptr(rvalue_to_ptr(rvalue)) {};
-    const_wrap_arg(T& lvalue) : ptr(&lvalue) {}; // ambigous?
-    const_wrap_arg(T const& lcvalue) : ptr(&lcvalue) {};
-    const_wrap_arg(T const* pcvalue) : ptr(pcvalue) {};
-    const_wrap_arg(const_wrap_arg<T> const& wvalue) : ptr(wvalue.get()) {};
-    const_wrap_arg(wrap_ptr<T> const& wvalue) : ptr(wvalue) {};
-    const_wrap_arg(std::optional<T> const& lcvalue) : ptr(lcvalue ? &lcvalue.value() : nullptr) {};
+
+    const_wrap_arg(T&& rvalue) { temp = std::move(rvalue), const_cast<wT*&>(ptr) = &temp.value(); };
+    const_wrap_arg(wT& lvalue) : ptr(&lvalue) {}; // ambigous?
+    const_wrap_arg(wT const& lcvalue) : ptr(&lcvalue) {};
+    const_wrap_arg(wT const* pcvalue) : ptr(pcvalue) {};
+    const_wrap_arg(const_wrap_arg<wT> const& wvalue) : ptr(wvalue.get()) { temp = wvalue.temp; const_cast<wT*&>(ptr) = temp ? &temp.value() : const_cast<wT*&>(wvalue.ptr); };
+    const_wrap_arg(wrap_ptr<wT> const& wvalue) : ptr(wvalue.get()) {};
+    const_wrap_arg(std::optional<wT> const& lcvalue) : ptr(lcvalue ? &lcvalue.value() : nullptr) {};
+
+    //
+    //const_wrap_arg(T&& rvalue) { temp = std::move(rvalue), const_cast<wT*&>(ptr) = &temp.value(); };
 
     //
     inline operator bool() const { return !!ptr; };
-    inline operator std::optional<T>() const { return this->optional(); };
-    inline decltype(auto) optional() const { return ptr ? std::optional<T>(*ptr) : std::nullopt; };
-    inline operator T const* () const { return ptr; };
-    inline operator T const& () const { return (*ptr); };
+    inline operator std::optional<wT>() const { return this->optional(); };
+    inline decltype(auto) optional() const { return ptr ? std::optional<wT>(*ptr) : std::nullopt; };
+    inline operator wT const* () const { return ptr; };
+    inline operator wT const& () const { return (*ptr); };
 
     //
-    inline decltype(auto) operator=(std::optional<T> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
-    //inline decltype(auto) operator=(T & ref) { ptr = &ref; return *this; };
-    inline decltype(auto) operator=(T&& ref) { ptr = rvalue_to_ptr(ref); return *this; };
-    inline decltype(auto) operator=(T const& ref) { ptr = &ref; return *this; };
-    inline decltype(auto) operator=(T const* ref) { ptr = ref; return *this; };
-    inline decltype(auto) operator=(const_wrap_arg<T> const& ref) { ptr = ref.get(); return *this; };
-    inline decltype(auto) operator=(wrap_ptr<T> const& ref) { ptr = ref; return *this; };
+    inline decltype(auto) operator=(std::optional<wT> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
+    //inline decltype(auto) operator=(std::decay_t<T> & ref) { ptr = &ref; return *this; };
+    inline decltype(auto) operator=(wT&& ref) { temp = std::move(ref), const_cast<wT*&>(ptr) = &temp.value(); return *this; };
+    inline decltype(auto) operator=(wT const& ref) { ptr = &ref; return *this; };
+    inline decltype(auto) operator=(wT const* ref) { ptr = ref; return *this; };
+    inline decltype(auto) operator=(const_wrap_arg<wT> const& wvalue) { temp = wvalue.temp; const_cast<wT*&>(ptr) = temp ? &temp.value() : const_cast<wT*&>(wvalue.ptr); return *this; };
+    inline decltype(auto) operator=(wrap_ptr<wT> const& ref) { ptr = ref; return *this; };
 
     // value alias
     //inline decltype(auto) value() { return *this->ptr; };
