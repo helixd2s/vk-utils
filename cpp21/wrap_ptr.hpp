@@ -160,7 +160,10 @@ namespace cpp21 {
     return &t;
   };
 
-  template<class T, class wT = std::decay_t<T>>
+  template<class T> T& unmove(T&& t) { return t; }
+
+  // 
+  template<class T, class wT = std::remove_cv_t<std::decay_t<std::remove_cv_t<T>>>>
   class const_wrap_arg {
   protected:
     wT const* ptr = nullptr;
@@ -180,12 +183,14 @@ namespace cpp21 {
     //
     //const_wrap_arg(T&& rvalue) { temp = std::move(rvalue), const_cast<wT*&>(ptr) = &temp.value(); };
 
-    //
+    //const_cast<std::remove_cv_t<std::decay_t<decltype(*ptr)>>&>()
     inline operator bool() const { return !!ptr; };
     inline operator std::optional<wT>() const { return this->optional(); };
-    inline decltype(auto) optional() const { return ptr ? std::optional<wT>(*ptr) : std::nullopt; };
+    inline decltype(auto) optional() const { return ptr ? std::optional<wT>(const_cast<wT&>(*ptr)) : std::nullopt; };
     inline operator wT const* () const { return ptr; };
     inline operator wT const& () const { return (*ptr); };
+    //inline operator wT* () { return const_cast<wT*&>(ptr); };
+    //inline operator wT& () { return (*const_cast<wT*&>(ptr)); };
 
     //
     inline decltype(auto) operator=(std::optional<wT> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
@@ -198,22 +203,27 @@ namespace cpp21 {
 
     // value alias
     //inline decltype(auto) value() { return *this->ptr; };
-    inline decltype(auto) value() const { return *this->ptr; };
+    inline decltype(auto) value() const { return unmove(*this->ptr); };
 
     //inline decltype(auto) get() { return this->ptr; };
     inline decltype(auto) get() const { return this->ptr; };
+    //inline decltype(auto) get() { return *const_cast<wT*&>(this->ptr); };
+
+    //
+    inline decltype(auto) ref() const { return unmove(*this->get()); };
+    //inline decltype(auto) ref() { return unmove(this->get()); };
 
     // accessing operator
-    //inline decltype(auto) operator *() { return *this->ptr; };
-    inline decltype(auto) operator *() const { return *this->ptr; };
+    //inline decltype(auto) operator *() { return this->ref(); };
+    inline decltype(auto) operator *() const { return this->ref(); };
 
     // const accessing operator
-    //inline decltype(auto) operator ->() { return this->ptr; };
-    inline decltype(auto) operator ->() const { return this->ptr; };
+    //inline decltype(auto) operator ->() { return this->get(); };
+    inline decltype(auto) operator ->() const { return this->get(); };
 
     // because it's reference, pointer must got directly...
-    //inline decltype(auto) operator&() { return this->ptr; };
-    inline decltype(auto) operator&() const { return this->ptr; };
+    //inline decltype(auto) operator&() { return this->ref(); };
+    inline decltype(auto) operator&() const { return this->ref(); };
 
     // proxy...
     //inline decltype(auto) operator[](uintptr_t const& index) { return (*this->ptr)[index]; };

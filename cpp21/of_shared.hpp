@@ -18,6 +18,9 @@ namespace cpp21 {
     // 
     inline vector_of_shared(Sv const& stack = {}) : stack(stack) {};
 
+    //
+    decltype(auto) operator=(Sv const& stack) { this->stack = stack; return *this; };
+
     // 
     inline decltype(auto) push(auto const& data = St<T>{}) {
       decltype(auto) last = stack.size();

@@ -19,30 +19,38 @@ namespace cpp21 {
   using shared_map_t = Sh<I<K, T>>;
 
   //
-  template<class T = void_t, template<class Ts = T> class V = std::vector, template<class Ts = T> class Sh = std::shared_ptr>
+  template<class T = void_t, template<class Ts = T> class V = std::vector, template<class Ts = T> class Sh = std::shared_ptr, class wT = std::remove_cv_t<std::decay_t<std::remove_cv_t<T>>>>
   class shared_vector {
   protected:
-    using St = shared_vector<T, V, Sh>;
-    using Sv = shared_vector_t<T, V, Sh>;
-    using Vt = V<T>;
+    using St = shared_vector<wT, V, Sh>;
+    using Sv = shared_vector_t<wT, V, Sh>;
+    using Vt = V<wT>;
     Sv vect = {};
 
   public:
     // 
-    inline shared_vector(St const& vect) : vect(vect) {
+    inline shared_vector() : vect(std::make_shared<Vt>()) {};
+
+    // 
+    //inline shared_vector(St&& vect) : vect(vect.vect) { };
+    inline shared_vector(St const& vect) : vect(vect.vect) {};
+
+    //
+    //inline shared_vector(Vt&& vect) : vect(std::make_shared<Vt>(vect)) { };
+    inline shared_vector(Vt vect) : vect(std::make_shared<Vt>(vect)) { };
+
+    //
+    template<static_not<is_vector<wT>>>
+    inline shared_vector(wT const& elem) : vect(std::make_shared<Vt>(&elem, &elem+1u)) {
 
     };
 
     //
-    inline shared_vector(V<T> const& vect = {}) : vect(std::make_shared<V<T>>(vect.begin(), vect.end())) {
-
-    };
-
-    //
-    template<static_not<is_vector<T>>>
-    inline shared_vector(T const& elem = {}) : vect(std::make_shared<V<T>>(&elem, &elem+1u)) {
-
-    };
+    template<static_not<is_vector<wT>>>
+    inline decltype(auto) operator=(wT const& elem) { this->vect = std::make_shared<Vt>(&elem, &elem + 1u); return *this; };
+    inline decltype(auto) operator=(Vt const& vect) { this->vect = std::make_shared<Vt>(vect); return *this; };
+    inline decltype(auto) operator=(St const& vect) { this->vect = vect.vect; return *this; };
+    
 
     // 
     inline operator Vt* () { return vect.get(); };
@@ -69,12 +77,12 @@ namespace cpp21 {
     inline decltype(auto) operator->() const { return vect.get(); };
 
     // 
-    inline decltype(auto) assign(St const& v) { vect = v; return *this; };
-    inline decltype(auto) assign(Vt const& v) { *vect = v; return *this; };
+    //inline decltype(auto) assign(St const& v) { vect = v; return *this; };
+    //inline decltype(auto) assign(Vt const& v) { *vect = v; return *this; };
 
     // 
-    inline decltype(auto) operator=(St const& v) { return this->assign(v); };
-    inline decltype(auto) operator=(Vt const& v) { return this->assign(v); };
+    //inline decltype(auto) operator=(St const& v) { return this->assign(v); };
+    //inline decltype(auto) operator=(Vt const& v) { return this->assign(v); };
 
     //
     inline decltype(auto) ref() { return *vect; };
