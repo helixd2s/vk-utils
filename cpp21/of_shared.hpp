@@ -172,12 +172,16 @@ namespace cpp21 {
     template<class Ts = T> inline decltype(auto) at(K const& index = 0u) const { return this->get<Ts>(index); };
 
     //
+    inline auto& ref() { return map; };
+    inline auto const& ref() const { return map; };
+
+    //
     inline decltype(auto) operator->() { return &map; };
     inline decltype(auto) operator->() const { return &map; };
 
     //
-    inline decltype(auto) operator*() { return map; };
-    inline decltype(auto) operator*() const { return map; };
+    inline auto& operator*() { return map; };
+    inline auto const& operator*() const { return map; };
   };
 
 
