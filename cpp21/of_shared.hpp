@@ -125,8 +125,8 @@ namespace cpp21 {
 
 
   // for advanced vulkan structs with shared_ptr
-  template<class K = uintptr_t, class T = void_t, template<class Ts = T> class W = wrap_shared_ptr, template<class Ts = T> class St = std::shared_ptr, template<class Ks = K, class Ts = St<T>> class Mc = std::unordered_map>
-  class map_of_shared : public std::enable_shared_from_this<map_of_shared<K,T,W,St,Mc>> {
+  template<class K = uintptr_t, class T = void_t, template<class Ts = T> class St = std::shared_ptr, template<class Ks = K, class Ts = St<T>> class Mc = std::unordered_map, template<class Ts = T> class W = wrap_shared_ptr>
+  class map_of_shared : public std::enable_shared_from_this<map_of_shared<K,T,St,Mc, W>> {
   protected:
     // we use local pointer memory
     Mc<K, St<T>> map = Mc<K, St<T>>{};
