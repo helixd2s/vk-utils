@@ -10,37 +10,6 @@ namespace cpp21 {
       // What is intrusive self-copy pointer? I tell about it later...
   */
 
-  //
-  template<class T = void_t>
-  void _free(void* ptr_) {
-    if (ptr_) { delete reinterpret_cast<T*>(ptr_); };
-  };
-
-  //
-  template<class Tt = void_t, class Tf = void_t>
-  void _memcpy(void* _to, void const* _from, size_t _size) {
-    (*reinterpret_cast<Tt*>(_to)) = (*reinterpret_cast<Tf const*>(_from));
-  };
-
-  //
-  template<class T>
-  void* _malloc(size_t _size) {
-    // TODO: correct division
-    return (new T[_size / sizeof(T)]);
-  };
-
-  //
-  template<class E = void_t, template<class Es = void_t> class Vw = wrap_ptr>
-  class self_copy_intrusive;
-
-  // 
-  template<class T = void_t, template<class Es = void_t> class Iw = self_copy_intrusive>
-  class self_copy_intrusive_t;
-
-  // 
-  template<class T = void_t, template<class Ts = T> class I = self_copy_intrusive_t>
-  class self_copy_ptr;
-
   // E is extension in before pointer
   template<class E, template<class Es> class Vw> // when extension is needed
   class self_copy_intrusive {

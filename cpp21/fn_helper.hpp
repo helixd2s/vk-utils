@@ -6,8 +6,6 @@
 // 
 namespace cpp21 {
 
-
-
   template <const size_t _UniqueId, typename _Res, typename... _ArgTypes>
   struct fun_ptr_helper
   {

@@ -178,15 +178,67 @@ namespace cpp21 {
   class wrap_ptr;
 
   //
-  template<class T, template<class Ts = T> class Sp = std::shared_ptr, template<class Ts = T> class W = wrap_ptr, class wT = std::decay_t<T>>
+  template<class T, template<class Ts = T> class Sp = std::shared_ptr, class wT = std::decay_t<T>, template<class Ts = wT> class W = wrap_ptr>
   class wrap_shared_ptr;
+
+  //
+  class link_void;
+
+  //
+  template<class T = void_t>
+  class link;
+
+
+  //
+  template<class T = void_t>
+  void _free(void* ptr_) {
+    if (ptr_) { delete reinterpret_cast<T*>(ptr_); };
+  };
+
+  //
+  template<class Tt = void_t, class Tf = void_t>
+  void _memcpy(void* _to, void const* _from, size_t _size) {
+    (*reinterpret_cast<Tt*>(_to)) = (*reinterpret_cast<Tf const*>(_from));
+  };
+
+  //
+  template<class T>
+  void* _malloc(size_t _size) {
+    // TODO: correct division
+    return (new T[_size / sizeof(T)]);
+  };
+
+  //
+  template<class E = void_t, template<class Es = void_t> class Vw = wrap_ptr>
+  class self_copy_intrusive;
+
+  // 
+  template<class T = void_t, template<class Es = void_t> class Iw = self_copy_intrusive>
+  class self_copy_intrusive_t;
+
+  // 
+  template<class T = void_t, template<class Ts = T> class I = self_copy_intrusive_t>
+  class self_copy_ptr;
+
+
+//
+  template<class T = void_t, template<class Ts = T> class I = std::vector, template<class Ts = T> class Sh = std::shared_ptr>
+  using shared_vector_t = Sh<I<T>>;
+
+  //
+  template<class K = uintptr_t, class T = void_t, template<class Ks = K, class Ts = T> class I = std::unordered_map, template<class Ts = T> class Sh = std::shared_ptr>
+  using shared_map_t = Sh<I<K, T>>;
+
+
 
   //
 #pragma pack(0)
   __declspec(align(0)) class void_t;
 
-
-
+  //
+  template<typename R>
+  inline bool is_ready(std::future<R> const& f)
+  { return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready; }
 
   //
   template<class T, uint32_t count = 16u>

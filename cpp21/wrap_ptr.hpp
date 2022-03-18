@@ -79,14 +79,14 @@ namespace cpp21 {
   };
 
   //
-  template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr, class wT = std::decay_t<Ts>>
+  template<class Ts = void_t, class wT = std::decay_t<Ts>, template<class T = wT> class W = wrap_ptr>
   inline decltype(auto) pointer(std::optional<wT> const& ref) {
     wT* pt = const_cast<wT*>(ref ? (&ref.value()) : nullptr);
     return W<wT>(pt);
   };
 
   //
-  template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr, class wT = std::decay_t<Ts>>
+  template<class Ts = void_t, class wT = std::decay_t<Ts>, template<class T = wT> class W = wrap_ptr>
   inline decltype(auto) pointer(std::optional<const wT> const& ref) {
     wT* pt = const_cast<wT*>(ref ? (&ref.value()) : nullptr);
     return W<wT>(pt);
@@ -94,7 +94,7 @@ namespace cpp21 {
 
   // 
   //template<class T, template<class Ts = T> class Sp = std::shared_ptr, template<class Ts = T> class W = wrap_ptr>
-  template<class T, template<class Ts> class Sp, template<class T> class W, class wT>
+  template<class T, template<class Ts> class Sp, class wT, template<class T> class W>
   class wrap_shared_ptr {
   public:
   protected:

@@ -12,12 +12,7 @@ namespace cpp21 {
       // Size of only 8 byte, not nested...
   */
 
-  //
-  class link_void;
 
-  //
-  template<class T = void_t>
-  class link;
 
   // 
   class link_void {
