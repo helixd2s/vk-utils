@@ -130,6 +130,130 @@ namespace vku {
     return A(accessMask);
   };
 
+  template<class A = VkAccessFlagBits2, class P = VkBufferUsageFlagBits>
+  inline decltype(auto) getAccessMaskByBufferUsage(P const& usage_) {
+    VkBufferUsageFlagBits usage = reinterpret_cast<VkBufferUsageFlagBits const&>(usage_);
+    VkAccessFlagBits2 accessMask = {};
+    for (uint32_t i = 0u; i < 32u; i++) {
+      const auto masked = usage & (1 << i);
+      switch (masked) {
+        case VK_BUFFER_USAGE_TRANSFER_SRC_BIT:
+        accessMask |= VK_ACCESS_2_TRANSFER_READ_BIT;
+        break;
+
+        case VK_BUFFER_USAGE_TRANSFER_DST_BIT:
+        accessMask |= VK_ACCESS_2_TRANSFER_WRITE_BIT;
+        break;
+
+        case VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT:
+        accessMask |= VK_ACCESS_2_UNIFORM_READ_BIT;
+        break;
+
+        case VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT:
+        accessMask |= VK_ACCESS_2_SHADER_STORAGE_READ_BIT | VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT;
+        break;
+
+        case VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT:
+        accessMask |= VK_ACCESS_2_UNIFORM_READ_BIT;
+        break;
+
+        case VK_BUFFER_USAGE_STORAGE_BUFFER_BIT:
+        accessMask |= VK_ACCESS_2_SHADER_STORAGE_READ_BIT | VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT;
+        break;
+
+        case VK_BUFFER_USAGE_INDEX_BUFFER_BIT:
+        accessMask |= VK_ACCESS_2_INDEX_READ_BIT;
+        break;
+
+        case VK_BUFFER_USAGE_VERTEX_BUFFER_BIT:
+        accessMask |= VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT;
+        break;
+
+        case VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT:
+        accessMask |= VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT;
+        break;
+
+        case VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT:
+        // non-trivial...
+        //accessMask |= VK_ACCESS_2_SHADER_STORAGE_READ_BIT | VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT;
+        break;
+
+        case VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT:
+        accessMask |= VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT;
+        break;
+
+        case VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT:
+        accessMask |= VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT | VK_ACCESS_2_TRANSFORM_FEEDBACK_COUNTER_WRITE_BIT_EXT;
+        break;
+
+        case VK_BUFFER_USAGE_CONDITIONAL_RENDERING_BIT_EXT:
+        accessMask |= VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT;
+        break;
+
+        case VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR:
+        accessMask |= VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR;
+        break;
+
+        case VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR:
+        accessMask |= VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+        break;
+
+        case VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR:
+        accessMask |= VK_ACCESS_2_SHADER_READ_BIT;
+        break;
+
+        default:;
+        // TODO: video decoding and encoding API
+      };
+    };
+    return A(accessMask);
+  };
+
+  template<class A = VkAccessFlagBits2, class P = VkImageUsageFlagBits>
+  inline decltype(auto) getAccessMaskByImageUsage(P const& usage_) {
+    VkImageUsageFlagBits usage = reinterpret_cast<VkImageUsageFlagBits const&>(usage_);
+    VkAccessFlagBits2 accessMask = {};
+    for (uint32_t i = 0u; i < 32u; i++) {
+      const auto masked = usage & (1 << i);
+      switch (masked) {
+        case VK_IMAGE_USAGE_TRANSFER_SRC_BIT:
+        accessMask |= VK_ACCESS_2_TRANSFER_READ_BIT;
+        break;
+
+        case VK_IMAGE_USAGE_TRANSFER_DST_BIT:
+        accessMask |= VK_ACCESS_2_TRANSFER_WRITE_BIT;
+        break;
+
+        case VK_IMAGE_USAGE_SAMPLED_BIT:
+        accessMask |= VK_ACCESS_2_SHADER_SAMPLED_READ_BIT;
+        break;
+
+        case VK_IMAGE_USAGE_STORAGE_BIT:
+        accessMask |= VK_ACCESS_2_SHADER_STORAGE_READ_BIT | VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT;
+        break;
+
+        case VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT:
+        accessMask |= VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
+        break;
+
+        case VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT:
+        accessMask |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        break;
+
+        case VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT:
+        // non-trivial...
+        break;
+
+        case VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT:
+        accessMask |= VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT;
+        break;
+
+        default:;
+        // TODO: video decoding and encoding API
+      };
+    };
+    return A(accessMask);
+  };
 
   //
   template<class P = VkPipelineStageFlagBits2, class A = VkAccessFlagBits2>
