@@ -26,7 +26,7 @@ ENDIF()
 find_package(Vulkan REQUIRED FATAL_ERROR)
 
 # 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(_src_root_path "${PROJECT_SOURCE_DIR}/")
 file(GLOB_RECURSE _source_list 
   LIST_DIRECTORIES false
