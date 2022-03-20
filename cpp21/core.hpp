@@ -120,6 +120,12 @@ namespace cpp21 {
   };
 
   //
+  template<typename T>
+  inline decltype(auto) bytesize(const typename std::vector<T>& vec) {
+    return sizeof(T) * vec.size();
+  };
+
+  //
   enum default_t : uint32_t {
 
   };
