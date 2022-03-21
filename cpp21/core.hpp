@@ -17,8 +17,11 @@
 #endif
 
 // 
-#include <memory>
 #include <vector>
+#include <string>
+#include <memory>
+#include <string_view>
+#include <utility>
 #include <map>
 #include <future>
 #include <iostream>
