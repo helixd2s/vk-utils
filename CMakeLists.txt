@@ -2,6 +2,24 @@ cmake_minimum_required(VERSION 3.20)
 project(vku VERSION 0.1.0)
 set(PROJECT_NAME vku-test)
 
+#
+MACRO(ADD_MSVC_PRECOMPILED_HEADER PrecompiledHeader PrecompiledSource SourcesVar)
+  IF(MSVC)
+    GET_FILENAME_COMPONENT(PrecompiledBasename ${PrecompiledHeader} NAME_WE)
+    SET(PrecompiledBinary "${CMAKE_CURRENT_BINARY_DIR}/${PrecompiledBasename}.pch")
+    SET(Sources ${${SourcesVar}})
+
+    SET_SOURCE_FILES_PROPERTIES(${PrecompiledSource}
+                                PROPERTIES COMPILE_FLAGS "/Yc\"${PrecompiledHeader}\" /Fp\"${PrecompiledBinary}\""
+                                           OBJECT_OUTPUTS "${PrecompiledBinary}")
+    SET_SOURCE_FILES_PROPERTIES(${Sources}
+                                PROPERTIES COMPILE_FLAGS "/Yu\"${PrecompiledHeader}\" /FI\"${PrecompiledHeader}\" /Fp\"${PrecompiledBinary}\""
+                                           OBJECT_DEPENDS "${PrecompiledBinary}")  
+    # Add precompiled header to SourcesVar
+    LIST(APPEND ${SourcesVar} ${PrecompiledSource})
+  ENDIF(MSVC)
+ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
+
 # 
 IF (WIN32)
   IF(NOT DEFINED VCPKG_PATH OR NOT DEFINED ${VCPKG_PATH})
@@ -39,7 +57,7 @@ file(GLOB_RECURSE _source_list
 
 # 
 add_executable(${PROJECT_NAME} ${_source_list})
-target_compile_definitions(${PROJECT_NAME} PUBLIC )
+target_compile_definitions(${PROJECT_NAME} PUBLIC USE_CMAKE_PCH)
 target_include_directories(${PROJECT_NAME} PUBLIC 
   ${PROJECT_SOURCE_DIR}/external/include 
   ${PROJECT_SOURCE_DIR}/submodules/*/include 
@@ -52,10 +70,21 @@ target_link_directories(${PROJECT_NAME} PUBLIC
   ${PROJECT_SOURCE_DIR}/submodules/*/lib/
   ${PROJECT_SOURCE_DIR}/../external/lib
 )
+
+#
+set (HSOURCES "cpp21/core.hpp")
+
+#
+ADD_MSVC_PRECOMPILED_HEADER("cmake_pch.hxx" "cmake_pch.cxx" HSOURCES)
+
+#
 target_precompile_headers(${PROJECT_NAME}
   PUBLIC
-  <memory>
   <vector>
+  <string>
+  <memory>
+  <string_view>
+  <utility>
   <map>
   <future>
   <iostream>

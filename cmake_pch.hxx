@@ -1,0 +1,20 @@
+#pragma once
+
+#include <vector>
+#include <string>
+#include <memory>
+#include <string_view>
+#include <utility>
+#include <map>
+#include <future>
+#include <iostream>
+#include <optional>
+#include <coroutine>
+#include <tuple>
+#include <type_traits>
+#include <utility>
+#include <unordered_map>
+#include <iterator>
+#include <fstream>
+#include <typeindex>
+#include <vulkan/vulkan.h>

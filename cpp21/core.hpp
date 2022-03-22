@@ -17,6 +17,9 @@
 #endif
 
 // 
+#ifdef USE_CMAKE_PCH
+#include <cmake_pch.hxx>
+#else
 #include <vector>
 #include <string>
 #include <memory>
@@ -34,6 +37,7 @@
 #include <iterator>
 #include <fstream>
 #include <typeindex>
+#endif
 
 // 
 #ifdef VKU_ENABLE_TYPE_SAFE
