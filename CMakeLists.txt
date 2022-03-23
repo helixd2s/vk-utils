@@ -97,6 +97,8 @@ target_precompile_headers(${PROJECT_NAME}
   <iterator>
   <fstream>
   <typeindex>
+  <coroutine>
+  <experimental/generator>
   <vulkan/vulkan.h>
 )
 

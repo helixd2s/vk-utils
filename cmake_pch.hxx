@@ -18,4 +18,5 @@
 #include <fstream>
 #include <typeindex>
 #include <coroutine>
+#include <experimental/generator>
 #include <vulkan/vulkan.h>
