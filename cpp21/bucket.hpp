@@ -45,10 +45,9 @@ namespace cpp21 {
     // 
     inline decltype(auto) removeByIndex(uintptr_t const& idx) {
       decltype(auto) last = used->size() - 1;
-      if (idx <= last) {
-        used[idx] = {};
-        if (idx == last) { used.resize(last); }
-        else { free.push_back(idx); };
+      if (idx <= last && last >= 0 && last != -1 && last < 0xFFFFFFFFFFFFFFFFull) {
+        used[idx] = T{};
+        if (idx == last) { used->resize(last); } else { free->push_back(idx); };
       };
       return *this;
     };
