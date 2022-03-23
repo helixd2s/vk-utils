@@ -19,7 +19,8 @@ namespace cpp21 {
     inline vector_of_shared(Sv const& stack = {}) : stack(stack) {};
 
     //
-    decltype(auto) operator=(Sv const& stack) { this->stack = stack; return *this; };
+    inline operator bool() const { return !!stack; };
+    inline decltype(auto) operator=(Sv const& stack) { this->stack = stack; return *this; };
 
     // 
     inline decltype(auto) push(auto const& data = St<T>{}) {
@@ -133,6 +134,7 @@ namespace cpp21 {
 
   public:
     inline map_of_shared(Mc<K, St<T>> const& map = {}) : map(map) {};
+    //inline operator bool() const { return !!map; };
 
     // 
     template<class Ts = T>
