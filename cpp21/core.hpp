@@ -37,6 +37,7 @@
 #include <iterator>
 #include <fstream>
 #include <typeindex>
+#include <coroutine>
 #endif
 
 // 
@@ -301,5 +302,6 @@ namespace cpp21 {
     memcpy(vect32.data(), vect8u.data(), vect8u.size());
     return vect32;
   };
+
 
 };

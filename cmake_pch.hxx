@@ -17,4 +17,5 @@
 #include <iterator>
 #include <fstream>
 #include <typeindex>
+#include <coroutine>
 #include <vulkan/vulkan.h>
