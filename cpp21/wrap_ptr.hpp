@@ -109,6 +109,9 @@ namespace cpp21 {
     //inline ~wrap_shared_ptr() { delete this->ptr; }
 
     //
+    inline operator bool() const { return !!this->ptr; };
+
+    //
     inline decltype(auto) shared() { return this->ptr; };
     inline decltype(auto) shared() const { return this->ptr; };
 
