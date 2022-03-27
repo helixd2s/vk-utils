@@ -12,7 +12,7 @@ namespace cpp21 {
   */
 
   // 
-  template<class T = void_t, template<class Ts = T> class P = wrap_ptr, class wT = std::decay_t<T>>
+  template<class T = void_t, template<class Ts = T, class wT = std::decay_t<T>> class P = wrap_ptr, class wT = std::decay_t<T>>
   class optional_ref {
   protected:
     P<wT> ptr = nullptr;
@@ -67,7 +67,7 @@ namespace cpp21 {
 
     // assign ref
     //inline decltype(auto) operator=(std::optional<T> const& ref) { ptr = ref ? &ref.value() : std::nullopt_t; return *this; };
-    inline decltype(auto) operator=(std::optional<wT>& ref) { ptr = ref ? &ref.value() : std::nullopt_t; return *this; };
+    inline decltype(auto) operator=(std::optional<wT>& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
     inline decltype(auto) operator=(optional_ref<wT> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
     inline decltype(auto) operator=(optional_ref<wT>& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
     inline decltype(auto) operator=(wrap_ptr<wT> const& ptx) { ptr = ptx; return *this; };
@@ -97,35 +97,35 @@ namespace cpp21 {
   };
 
   // 
-  template<class T = void_t, template<class Ts = T> class P = wrap_ptr>
+  template<class T = void_t, template<class Ts = T, class wT = std::decay_t<T>> class P = wrap_ptr>
   inline decltype(auto) opt_ref(T& ref) {
     //using T = std::decay_t<decltype(ref)>;
     return optional_ref<T, P>(ref);
   };
 
   // 
-  template<class T = void_t, template<class Ts = T> class P = wrap_ptr>
+  template<class T = void_t, template<class Ts = T, class wT = std::decay_t<T>> class P = wrap_ptr>
   inline decltype(auto) opt_cref(const T& ref) {
     using T = const std::decay_t<decltype(ref)>;
     return optional_ref<T, P>(ref);
   };
 
   //
-  template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr>
+  template<class Ts = void_t, template<class T = Ts, class wT = std::decay_t<T>> class W = wrap_ptr>
   inline decltype(auto) pointer(optional_ref<Ts> ref) {
     Ts* pt = ref ? (&ref.value()) : nullptr;
     return W<Ts>(pt);
   };
 
   //
-  template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr>
+  template<class Ts = void_t, template<class T = Ts, class wT = std::decay_t<T>> class W = wrap_ptr>
   inline decltype(auto) pointer(optional_ref<const Ts> ref) {
     Ts* pt = ref ? (&ref.value()) : nullptr;
     return W<Ts>(pt);
   };
 
   //
-  template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr>
+  template<class Ts = void_t, template<class T = Ts, class wT = std::decay_t<T>> class W = wrap_ptr>
   inline decltype(auto) pointer(std::optional<Ts>& ref) {
     Ts* pt = ref ? (&ref.value()) : nullptr;
     return W<Ts>(pt);
@@ -133,14 +133,14 @@ namespace cpp21 {
 
 #ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
   //
-  template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr>
+  template<class Ts = void_t, template<class T = Ts, class wT = std::decay_t<T>> class W = wrap_ptr>
   inline decltype(auto) pointer(ts::optional_ref<Ts> ref) {
     Ts* pt = ref ? (&ref.value()) : nullptr;
     return W<Ts>(pt);
   };
 
   //
-  template<class Ts = void_t, template<class T = Ts> class W = wrap_ptr>
+  template<class Ts = void_t, template<class T = Ts, class wT = std::decay_t<T>> class W = wrap_ptr>
   inline decltype(auto) pointer(ts::optional_ref<const Ts> ref) {
     Ts* pt = ref ? (&ref.value()) : nullptr;
     return W<Ts>(pt);

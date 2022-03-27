@@ -11,7 +11,7 @@ namespace cpp21 {
   */
 
   // 
-  template<class T = void_t, template<class Ts = T> class P = wrap_ptr>
+  template<class T = void_t, template<class Ts = T, class wT = std::decay_t<T>> class P = wrap_ptr>
   class data_view {
   protected:
     //P<T> ptr = nullptr;

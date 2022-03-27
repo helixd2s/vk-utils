@@ -12,8 +12,8 @@ namespace cpp21 {
   */
 
   //using void_t = uint8_t;
-#pragma pack(0)
-  __declspec(align(0)) class void_t {
+#pragma pack(1)
+  __declspec(align(1)) class void_t {
   public:
     //uint8_t : 0;
 

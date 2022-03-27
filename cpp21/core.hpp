@@ -38,7 +38,6 @@
 #include <fstream>
 #include <typeindex>
 #include <coroutine>
-#include <experimental/generator>
 #endif
 
 // 
@@ -193,7 +192,7 @@ namespace cpp21 {
   class wrap_ptr;
 
   //
-  template<class T, template<class Ts = T> class Sp = std::shared_ptr, class wT = std::decay_t<T>, template<class Ts = wT> class W = wrap_ptr>
+  template<class T, template<class Ts = T> class Sp = std::shared_ptr, class wT = std::decay_t<T>, template<class Ts = wT, class wT = std::decay_t<T>> class W = wrap_ptr>
   class wrap_shared_ptr;
 
   //
@@ -247,8 +246,8 @@ namespace cpp21 {
 
 
   //
-#pragma pack(0)
-  __declspec(align(0)) class void_t;
+#pragma pack(1)
+  __declspec(align(1)) class void_t;
 
   //
   template<typename R>

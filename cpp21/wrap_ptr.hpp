@@ -41,8 +41,8 @@ namespace cpp21 {
     inline decltype(auto) operator *() const { return *this->get(); };
 
     // 
-    inline decltype(auto) operator&() { return wrap_ptr(this); };
-    inline decltype(auto) operator&() const { return wrap_ptr(this); };
+    inline decltype(auto) operator&() { return &ptr; };
+    inline decltype(auto) operator&() const { return &ptr; };
 
     // 
     inline decltype(auto) ref() { return *this->get(); };
@@ -58,7 +58,7 @@ namespace cpp21 {
 
     //
     inline decltype(auto) operator =(wrap_ptr<wT> && wrap) { this->ptr = wrap.get(); return *this; };
-    inline decltype(auto) operator =(wrap_ptr<wT> const& wrap) { this->ptr = wrap.get(); return *this; };
+    inline decltype(auto) operator =(wrap_ptr<wT> const& wrap) { this->ptr = const_cast<wT*>(wrap.get()); return *this; };
     inline decltype(auto) operator =(wrap_ptr<wT> & wrap) { this->ptr = wrap.get(); return *this; };
     inline decltype(auto) operator =(auto* const& ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (wT*)(ref); return *this; };
     inline decltype(auto) operator =(auto const& ref) { using Tm = std::remove_cv_t<std::decay_t<decltype(ref)>>; this->ptr = (wT*)(&ref); return *this; };
@@ -94,7 +94,7 @@ namespace cpp21 {
 
   // 
   //template<class T, template<class Ts = T> class Sp = std::shared_ptr, template<class Ts = T> class W = wrap_ptr>
-  template<class T, template<class Ts> class Sp, class wT, template<class T> class W>
+  template<class T, template<class Ts> class Sp, class wT, template<class T, class wT> class W>
   class wrap_shared_ptr {
   public:
   protected:
@@ -157,8 +157,8 @@ namespace cpp21 {
   };
 
 
-  template<typename T, class wT = std::decay_t<T>>
-  typename inline std::remove_reference<T>::type* rvalue_to_ptr(T&& t)
+  template<class T, class wT = std::decay_t<T>>
+  inline typename std::remove_reference<T>::type* rvalue_to_ptr(T&& t)
   {
     return &t;
   };
