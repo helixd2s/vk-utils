@@ -12,19 +12,19 @@ namespace cpp21 {
     // This class reusing free cells, instead erase or delete...
   */
 
-  template<class T = void_t, template<class Ts = T> class Vm = std::vector, template<class Ts = T, template<class Ty = Ts> class Va = Vm> class Vs = cpp21::shared_vector> class bucket {
+  template<class T = void_t> class bucket {
   protected:
-    Vs<T, Vm> used = {};
-    Vs<uintptr_t, Vm> free = {};
+    cpp21::shared_vector<T> used = {};
+    cpp21::shared_vector<uintptr_t> free = {};
 
   public:
     // 
-    inline bucket(std::vector<T> used = {}, Vm<uintptr_t> free = {}) : used(used), free(free) {
+    inline bucket(std::vector<T> used = {}, std::vector<uintptr_t> free = {}) : used(used), free(free) {
 
     };
 
     // 
-    inline bucket(Vs<T> used = {}, Vs<uintptr_t> free = {}) : used(used), free(free) {
+    inline bucket(cpp21::shared_vector<T> used = {}, cpp21::shared_vector<uintptr_t> free = {}) : used(used), free(free) {
 
     };
 
@@ -65,19 +65,19 @@ namespace cpp21 {
     };
 
     //
-    inline operator Vs<T>& () { return used; };
-    inline operator Vs<T> const& () const { return used; };
+    inline operator cpp21::shared_vector<T>& () { return used; };
+    inline operator cpp21::shared_vector<T> const& () const { return used; };
 
     //
-    inline operator Vm<T>& () { return *used; };
-    inline operator Vm<T> const& () const { return *used; };
+    inline operator std::vector<T>& () { return *used; };
+    inline operator std::vector<T> const& () const { return *used; };
 
     //
     inline decltype(auto) operator[](uintptr_t const& index) { return used->at(index); };
     inline decltype(auto) operator[](uintptr_t const& index) const { return used->at(index); };
 
     //
-    inline decltype(auto) clear() { used->clear(); free.clear(); used.resize(0u); free.resize(0u); };
+    inline decltype(auto) clear() { used->clear(); free->clear(); used.resize(0u); free->resize(0u); };
     inline decltype(auto) size() { return used->size(); };
     inline decltype(auto) data() { return used->data(); };
     inline decltype(auto) data() const { return used->data(); };

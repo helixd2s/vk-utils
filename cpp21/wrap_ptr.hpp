@@ -79,26 +79,26 @@ namespace cpp21 {
   };
 
   //
-  template<class Ts = void_t, class wT = std::decay_t<Ts>, template<class T = wT> class W = wrap_ptr>
+  template<class Ts = void_t, class wT = std::decay_t<Ts>>
   inline decltype(auto) pointer(std::optional<wT> const& ref) {
     wT* pt = const_cast<wT*>(ref ? (&ref.value()) : nullptr);
-    return W<wT>(pt);
+    return wrap_ptr<wT>(pt);
   };
 
   //
-  template<class Ts = void_t, class wT = std::decay_t<Ts>, template<class T = wT> class W = wrap_ptr>
+  template<class Ts = void_t, class wT = std::decay_t<Ts>>
   inline decltype(auto) pointer(std::optional<const wT> const& ref) {
     wT* pt = const_cast<wT*>(ref ? (&ref.value()) : nullptr);
-    return W<wT>(pt);
+    return wrap_ptr<wT>(pt);
   };
 
   // 
-  //template<class T, template<class Ts = T> class Sp = std::shared_ptr, template<class Ts = T> class W = wrap_ptr>
-  template<class T, template<class Ts> class Sp, class wT, template<class T, class wT> class W>
+  template<class T>
   class wrap_shared_ptr {
   public:
   protected:
-    using St = Sp<wT>;
+    using wT = std::remove_cv_t<std::decay_t<std::remove_cv_t<T>>>;
+    using St = std::shared_ptr<wT>;
     St ptr = {};
 
   public:
@@ -166,9 +166,10 @@ namespace cpp21 {
   template<class T> T& unmove(T&& t) { return t; }
 
   // 
-  template<class T, class wT = std::remove_cv_t<std::decay_t<std::remove_cv_t<T>>>>
+  template<class T>
   class const_wrap_arg {
   protected:
+    using wT = std::remove_cv_t<std::decay_t<std::remove_cv_t<T>>>;
     wT const* ptr = nullptr;
     std::optional<wT> temp = {};
 

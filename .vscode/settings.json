@@ -70,7 +70,9 @@
     "xmemory": "cpp",
     "xstddef": "cpp",
     "xtr1common": "cpp",
-    "xtree": "cpp"
+    "xtree": "cpp",
+    "fstream": "cpp",
+    "typeindex": "cpp"
   },
   "C_Cpp.default.cppStandard": "c++20",
   "C_Cpp.default.cStandard": "c17"

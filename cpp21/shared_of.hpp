@@ -11,12 +11,13 @@ namespace cpp21 {
 //using shared_self_copy = std::shared_ptr<self_copy_intrusive_t<I<T>>>;
 
   //
-  template<class T = void_t, template<class Ts = T> class V = std::vector, template<class Ts = T> class Sh = std::shared_ptr, class wT = std::remove_cv_t<std::decay_t<std::remove_cv_t<T>>>>
+  template<class T = void_t, template<class Ts = T> class Sh = std::shared_ptr>
   class shared_vector {
   protected:
-    using St = shared_vector<wT, V, Sh>;
-    using Sv = shared_vector_t<wT, V, Sh>;
-    using Vt = V<wT>;
+    using wT = std::remove_cv_t<std::decay_t<std::remove_cv_t<T>>>;
+    using St = shared_vector<wT, Sh>;
+    using Sv = shared_vector_t<wT, Sh>;
+    using Vt = std::vector<wT>;
     Sv vect = {};
 
   public:
@@ -65,8 +66,8 @@ namespace cpp21 {
     inline decltype(auto) operator*() const { return *vect; };
 
     //
-    inline decltype(auto) operator->() { return vect.get(); };
-    inline decltype(auto) operator->() const { return vect.get(); };
+    inline std::vector<wT>* operator->() { return vect.get(); };
+    inline std::vector<wT> const* operator->() const { return vect.get(); };
 
     // 
     //inline decltype(auto) assign(St const& v) { vect = v; return *this; };

@@ -7,10 +7,10 @@
 namespace cpp21 {
 
   // for vulkan structs with shared_ptr
-  template<class T = void_t, template<class Ts = T> class W = wrap_shared_ptr, template<class Ts = T> class St = std::shared_ptr, template<class Ts = St<T>> class Vc = std::vector>
+  template<class T = void_t, template<class Ts = T> class W = wrap_shared_ptr, template<class Ts = T> class St = std::shared_ptr>
   class vector_of_shared {
   protected:
-    using Sv = Vc<St<T>>;
+    using Sv = std::vector<St<T>>;
     // we use local pointer memory
     Sv stack = {};
 
@@ -126,21 +126,21 @@ namespace cpp21 {
 
 
   // for advanced vulkan structs with shared_ptr
-  template<class K = uintptr_t, class T = void_t, template<class Ts = T> class St = std::shared_ptr, template<class Ks = K, class Ts = St<T>> class Mc = std::unordered_map, template<class Ts = T> class W = wrap_shared_ptr>
-  class map_of_shared : public std::enable_shared_from_this<map_of_shared<K,T,St,Mc, W>> {
+  template<class K = uintptr_t, class T = void_t, template<class Ts = T> class St = std::shared_ptr>
+  class map_of_shared : public std::enable_shared_from_this<map_of_shared<K,T,St>> {
   protected:
     // we use local pointer memory
-    Mc<K, St<T>> map = Mc<K, St<T>>{};
+    std::unordered_map<K, St<T>> map = std::unordered_map<K, St<T>>{};
 
   public:
-    inline map_of_shared(Mc<K, St<T>> const& map = {}) : map(map) {};
+    inline map_of_shared(std::unordered_map<K, St<T>> const& map = {}) : map(map) {};
     //inline operator bool() const { return !!map; };
 
     // 
     template<class Ts = T>
     inline decltype(auto) set(K const& key, std::shared_ptr<Ts> data = {}) {
       map[key] = std::reinterpret_pointer_cast<T>(data);
-      return W<Ts>(data);
+      return wrap_shared_ptr<Ts>(data);
     };
 
     // 
@@ -148,25 +148,25 @@ namespace cpp21 {
     inline decltype(auto) set(K const& key, Ts const& data = {}) {
       auto constructed = copy_as_shared<Ts>(data);
       map[key] = std::reinterpret_pointer_cast<T>(constructed);
-      return W<Ts>(constructed);
+      return wrap_shared_ptr<Ts>(constructed);
     };
 
     // 
     template<class Ts = T>
     inline decltype(auto) get(K const& key) {
       if (map.find(key) != map.end()) {
-        return W<Ts>(std::reinterpret_pointer_cast<Ts>(map.at(key)));
+        return wrap_shared_ptr<Ts>(std::reinterpret_pointer_cast<Ts>(map.at(key)));
       };
-      return W<Ts>();
+      return wrap_shared_ptr<Ts>();
     };
 
     // 
     template<class Ts = T>
     inline decltype(auto) get(K const& key) const {
       if (map.find(key) != map.end()) {
-        return W<Ts>(std::reinterpret_pointer_cast<Ts>(map.at(key)));
+        return wrap_ptr<Ts>(std::reinterpret_pointer_cast<Ts>(map.at(key)));
       };
-      return W<Ts>();
+      return wrap_ptr<Ts>();
     };
 
     //

@@ -11,9 +11,9 @@ namespace cpp21 {
   */
 
   // E is extension in before pointer
-  template<class E, template<class Es> class Vw> // when extension is needed
+  template<class E> // when extension is needed
   class self_copy_intrusive {
-  public: using Vp = Vw<E>; using I = self_copy_intrusive<E, Vw>;
+  public: using Vp = wrap_ptr<E>; using I = self_copy_intrusive<E, Vw>;
   public:
     E sType = {};
     union {
@@ -88,10 +88,10 @@ namespace cpp21 {
 
 
   //
-  template<class T, template<class Es> class Iw>
-  class self_copy_intrusive_t : public Iw<void_t> {
+  template<class T>
+  class self_copy_intrusive_t : public self_copy_intrusive<void_t> {
   public:
-    using I = Iw<void_t>;
+    using I = self_copy_intrusive<void_t>;
 
     // if changable
     inline self_copy_intrusive_t(T& ref, size_t const& size = sizeof(T)) : self_copy_intrusive(reinterpret_cast<I::Vp>(&ref), size ? size : sizeof(T)) {  };
@@ -168,9 +168,9 @@ namespace cpp21 {
   */
 
   // 
-  template<class T, template<class Ts> class Iw>
+  template<class T>
   class self_copy_ptr {
-  public: using I = Iw<T>;
+  public: using I = self_copy_intrusive_t<T>;
   protected:
     wrap_ptr<I> intrusive = {};
 
@@ -233,24 +233,26 @@ namespace cpp21 {
   };
 
   // 
-  template<class T = void_t, template<class Ts = T> class Iw = self_copy_intrusive_t>
+  template<class T = void_t>
   class enable_self_copy_from_this : public Iw<T> {
-  public: using I = Iw<T>; using Ie = enable_self_copy_from_this<T, Iw>;
+  public: 
+    using I = self_copy_intrusive_t<T>;
+    using Ie = enable_self_copy_from_this<T>;
 
-        // 
-        inline enable_self_copy_from_this() : I(reinterpret_cast<T*>(this), sizeof(T)) {};
+    // 
+    inline enable_self_copy_from_this() : I(reinterpret_cast<T*>(this), sizeof(T)) {};
 
-        // 
-        inline decltype(auto) self_copy_from_this() {
-          reinterpret_cast<T*>(this->ptr) = reinterpret_cast<T*>(this); // for any case
-          return self_copy_ptr<T, Iw>(*this);
-        };
+    // 
+    inline decltype(auto) self_copy_from_this() {
+      reinterpret_cast<T*>(this->ptr) = reinterpret_cast<T*>(this); // for any case
+      return self_copy_ptr<T>(*this);
+    };
 
-        // 
-        inline decltype(auto) self_copy_from_this() const {
-          const_cast<T*>(reinterpret_cast<T const*>(this->ptr)) = const_cast<T*>(reinterpret_cast<T const*>(this)); // for any case
-          return self_copy_ptr<const T, Iw>(*this);
-        };
+    // 
+    inline decltype(auto) self_copy_from_this() const {
+      const_cast<T*>(reinterpret_cast<T const*>(this->ptr)) = const_cast<T*>(reinterpret_cast<T const*>(this)); // for any case
+      return self_copy_ptr<const T>(*this);
+    };
   };
 
 };

@@ -192,7 +192,7 @@ namespace cpp21 {
   class wrap_ptr;
 
   //
-  template<class T, template<class Ts = T> class Sp = std::shared_ptr, class wT = std::decay_t<T>, template<class Ts = wT, class wT = std::decay_t<T>> class W = wrap_ptr>
+  template<class T>
   class wrap_shared_ptr;
 
   //
@@ -223,7 +223,7 @@ namespace cpp21 {
   };
 
   //
-  template<class E = void_t, template<class Es = void_t> class Vw = wrap_ptr>
+  template<class E = void_t>
   class self_copy_intrusive;
 
   // 

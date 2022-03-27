@@ -13,10 +13,10 @@ namespace cpp21 {
 
 #ifdef VKU_ENABLE_INTERVAL
   // 
-  template<class N, class T, template<class Ns = N, class Ts = T> class Mc = std::unordered_map>
+  template<class N, class T>
   class interval_map {
   public:
-    Mc<N, T> map = {};
+    std::unordered_map<N, T> map = {};
     lib_interval_tree::interval_tree_t<N> intervals = {};
 
   public:
