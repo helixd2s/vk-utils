@@ -16,67 +16,62 @@ namespace cpp21 {
   template<class T = void_t>
   class optional_ref {
   protected:
-    using wT = std::decay_t<T>;
-
-    wrap_ptr<wT> ptr = nullptr;
+    wrap_ptr<T> ptr = nullptr;
 
   public:
     // 
 #ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
-    inline optional_ref(ts::optional_ref<wT> const& ref) : ptr(ref ? ref.value() : nullptr) {};
-    inline optional_ref(ts::optional_ref<wT>& ref) : ptr(ref ? ref.value() : nullptr) {};
+    inline optional_ref(ts::optional_ref<T> const& ref) : ptr(ref ? ref.value() : nullptr) {};
+    inline optional_ref(ts::optional_ref<T>& ref) : ptr(ref ? ref.value() : nullptr) {};
 #endif
 
     // 
-    inline optional_ref(std::optional<wT> const& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
-    inline optional_ref(std::optional<wT>& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
+    inline optional_ref(std::optional<T> const& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
+    inline optional_ref(std::optional<T>& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
 
     // 
-    inline optional_ref(optional_ref<wT> const& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
-    inline optional_ref(optional_ref<wT>& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
+    inline optional_ref(optional_ref<T> const& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
+    inline optional_ref(optional_ref<T>& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
 
     // 
-    //inline optional_ref(T const& ref) : ptr(&const_cast<T&>(ref)) {};
-    inline optional_ref(wT* ref) : ptr(ref) {};
-    inline optional_ref(wT& ref) : ptr(&ref) {};
+    inline optional_ref(T* ref) : ptr(ref) {};
+    inline optional_ref(T& ref) : ptr(&ref) {};
     inline optional_ref() {};
 
     // check operator
     inline operator bool() const { return !!this->ptr; };
 
     // type conversion
-    inline operator wT& () { return *this->ptr; };
-    inline operator wT const& () const { return *this->ptr; };
+    inline operator T& () { return *this->ptr; };
+    inline operator T const& () const { return *this->ptr; };
 
     // type conversion
-    inline operator wT* () { return this->ptr; };
-    inline operator wT const* () const { return this->ptr; };
+    inline operator T* () { return this->ptr; };
+    inline operator T const* () const { return this->ptr; };
 
     // type conversion
-    inline operator wrap_ptr<wT>& () { return this->ptr; };
-    inline operator wrap_ptr<wT> const& () const { return this->ptr; };
+    inline operator wrap_ptr<T>& () { return this->ptr; };
+    inline operator wrap_ptr<T> const& () const { return this->ptr; };
 
     //
 #ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
-    inline ts::optional_ref<wT>() { return ts::opt_ref(*this->ptr); };
-    inline ts::optional_ref<const wT>() const { return ts::opt_cref(*this->ptr); };
+    inline ts::optional_ref<T>() { return ts::opt_ref(*this->ptr); };
+    inline ts::optional_ref<const T>() const { return ts::opt_cref(*this->ptr); };
 #endif
 
     //
 #ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
-    inline decltype(auto) operator=(ts::optional_ref<wT> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
-    inline decltype(auto) operator=(ts::optional_ref<wT>& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
+    inline decltype(auto) operator=(ts::optional_ref<T> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
+    inline decltype(auto) operator=(ts::optional_ref<T>& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
 #endif
 
     // assign ref
-    //inline decltype(auto) operator=(std::optional<T> const& ref) { ptr = ref ? &ref.value() : std::nullopt_t; return *this; };
-    inline decltype(auto) operator=(std::optional<wT>& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
-    inline decltype(auto) operator=(optional_ref<wT> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
-    inline decltype(auto) operator=(optional_ref<wT>& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
-    inline decltype(auto) operator=(wrap_ptr<wT> const& ptx) { ptr = ptx; return *this; };
-    //inline decltype(auto) operator=(P<T> const& ptx) { ptr = ptx; return *this; };
-    inline decltype(auto) operator=(wT const& ref) { *ptr = ref; return *this; };
-    inline decltype(auto) operator=(wT const* ptx) { ptr = ptx; return *this; };
+    inline decltype(auto) operator=(std::optional<T>& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
+    inline decltype(auto) operator=(optional_ref<T> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
+    inline decltype(auto) operator=(optional_ref<T>& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
+    inline decltype(auto) operator=(wrap_ptr<T> const& ptx) { ptr = ptx; return *this; };
+    inline decltype(auto) operator=(T const& ref) { *ptr = ref; return *this; };
+    inline decltype(auto) operator=(T const* ptx) { ptr = ptx; return *this; };
 
     // value alias
     inline decltype(auto) value() { return *this->ptr; };
