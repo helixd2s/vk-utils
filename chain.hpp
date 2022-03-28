@@ -832,6 +832,7 @@ namespace vku {
 
     // for Vulkan Hpp only!
     //template<class T, class O = VkBaseInStructure>
+    /*
     template<class T = VkBaseInStructure, class St = VkStructureType>
     inline decltype(auto) fromChain(St const& sType, auto const& base = VkBaseOutStructure{ .pNext = nullptr }) {
       auto& ptr = reinterpret_cast<const cpp21::wrap_ptr<const VkBaseInStructure>&>(reinterpret_cast<const VkBaseInStructure&>(base).pNext);
@@ -848,7 +849,7 @@ namespace vku {
 
       //
       return found;
-    };
+    };*/
 
     /* // NOT POSSIBLE!
     //

@@ -16,26 +16,23 @@ namespace cpp21 {
   template<class T = void_t>
   class optional_ref {
   protected:
-    wrap_ptr<T> ptr = nullptr;
+    //wrap_ptr<T> ptr = nullptr;
+    T* ptr = nullptr;
 
   public:
-    // 
-#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
-    inline optional_ref(ts::optional_ref<T> const& ref) : ptr(ref ? ref.value() : nullptr) {};
-    inline optional_ref(ts::optional_ref<T>& ref) : ptr(ref ? ref.value() : nullptr) {};
-#endif
 
     // 
     inline optional_ref(std::optional<T> const& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
-    inline optional_ref(std::optional<T>& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
+    //inline optional_ref(std::optional<T>& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
 
     // 
     inline optional_ref(optional_ref<T> const& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
-    inline optional_ref(optional_ref<T>& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
+    //inline optional_ref(optional_ref<T>& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
 
     // 
-    inline optional_ref(T* ref) : ptr(ref) {};
-    inline optional_ref(T& ref) : ptr(&ref) {};
+    inline optional_ref(T* ref) : ptr(reinterpret_cast<T*>(ref)) {};
+    inline optional_ref(T& ref) : ptr(reinterpret_cast<T*>(&ref)) {};
+    inline optional_ref(wrap_ptr<T> ref) : ptr(ref.get()) {};
     inline optional_ref() {};
 
     // check operator
@@ -50,8 +47,8 @@ namespace cpp21 {
     inline operator T const* () const { return this->ptr; };
 
     // type conversion
-    inline operator wrap_ptr<T>& () { return this->ptr; };
-    inline operator wrap_ptr<T> const& () const { return this->ptr; };
+    //inline operator wrap_ptr<T>& () { return this->ptr; };
+    //inline operator wrap_ptr<T> const& () const { return this->ptr; };
 
     //
 #ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
@@ -67,8 +64,8 @@ namespace cpp21 {
 
     // assign ref
     inline decltype(auto) operator=(std::optional<T>& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
-    inline decltype(auto) operator=(optional_ref<T> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
-    inline decltype(auto) operator=(optional_ref<T>& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
+    inline decltype(auto) operator=(optional_ref<T> const& ref) { ptr = ref ? reinterpret_cast<T*>(&ref.value()) : nullptr; return *this; };
+    inline decltype(auto) operator=(optional_ref<T>& ref) { ptr = ref ? reinterpret_cast<T*>(&ref.value()) : nullptr; return *this; };
     inline decltype(auto) operator=(wrap_ptr<T> const& ptx) { ptr = ptx; return *this; };
     inline decltype(auto) operator=(T const& ref) { *ptr = ref; return *this; };
     inline decltype(auto) operator=(T const* ptx) { ptr = ptx; return *this; };
@@ -82,12 +79,12 @@ namespace cpp21 {
     inline decltype(auto) operator *() const { return *this->ptr; };
 
     // const accessing operator
-    inline decltype(auto) operator ->() { return this->ptr; };
-    inline decltype(auto) operator ->() const { return this->ptr; };
+    inline decltype(auto) operator ->() { return this->ptr.get(); };
+    inline decltype(auto) operator ->() const { return this->ptr.get(); };
 
     // because it's reference, pointer must got directly...
-    inline decltype(auto) operator&() { return this->ptr; };
-    inline decltype(auto) operator&() const { return this->ptr; };
+    inline decltype(auto) operator&() { return this->ptr.get(); };
+    inline decltype(auto) operator&() const { return this->ptr.get(); };
 
     // proxy...
     inline decltype(auto) operator[](uintptr_t const& index) { return (*this->ptr)[index]; };

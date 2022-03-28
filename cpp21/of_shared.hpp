@@ -17,11 +17,13 @@ namespace cpp21 {
 
   public:
     // 
-    inline vector_of_shared(Sv const& stack = {}) : stack(stack) {};
+    inline vector_of_shared(Sv const& stack = Sv{}) : stack(stack) {};
+    inline vector_of_shared(vector_of_shared const& stack) : stack(stack) {};
 
     //
     inline operator bool() const { return !!stack; };
     inline decltype(auto) operator=(Sv const& stack) { this->stack = stack; return *this; };
+    inline decltype(auto) operator=(vector_of_shared const& stack) { this->stack = stack; return *this; };
 
     // 
     inline decltype(auto) push(auto const& data = std::shared_ptr<T>{}) {
