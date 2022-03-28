@@ -188,7 +188,7 @@ namespace cpp21 {
 
 
   //
-  template<class T = void_t, class wT = std::decay_t<T>>
+  template<class T = void_t>
   class wrap_ptr;
 
   //
