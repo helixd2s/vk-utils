@@ -11,10 +11,9 @@ namespace cpp21 {
   template<class T = void_t>
   class shared_vector {
   protected:
-    using wT = std::remove_cv_t<std::decay_t<std::remove_cv_t<T>>>;
-    using St = shared_vector<wT>;
-    using Sv = shared_vector_t<wT>;
-    using Vt = std::vector<wT>;
+    using St = shared_vector<T>;
+    using Sv = shared_vector_t<T>;
+    using Vt = std::vector<T>;
     Sv vect = {};
 
   public:
@@ -25,14 +24,14 @@ namespace cpp21 {
     inline shared_vector(Vt const& vect) : vect(std::make_shared<Vt>(vect)) { };
 
     //
-    template<static_not<is_vector<wT>>>
-    inline shared_vector(wT const& elem) : vect(std::make_shared<Vt>(&elem, &elem+1u)) {
+    template<static_not<is_vector<T>>>
+    inline shared_vector(T const& elem) : vect(std::make_shared<Vt>(&elem, &elem+1u)) {
 
     };
 
     //
-    template<static_not<is_vector<wT>>>
-    inline decltype(auto) operator=(wT const& elem) { this->vect = std::make_shared<Vt>(&elem, &elem + 1u); return *this; };
+    template<static_not<is_vector<T>>>
+    inline decltype(auto) operator=(T const& elem) { this->vect = std::make_shared<Vt>(&elem, &elem + 1u); return *this; };
     inline decltype(auto) operator=(Vt const& vect) { this->vect = std::make_shared<Vt>(vect); return *this; };
     inline decltype(auto) operator=(St const& vect) { this->vect = vect.vect; return *this; };
 
