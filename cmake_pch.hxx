@@ -1,5 +1,6 @@
 #pragma once
 
+// 
 #ifdef __cplusplus
 #include <vector>
 #include <string>
@@ -22,7 +23,15 @@
 #include <span>
 #ifdef _MSC_VER 
 #include <experimental/generator>
+#else
+#include <tl/generator.hpp>
 #endif
 #endif
 
+// 
 #include <vulkan/vulkan.h>
+
+//
+#ifdef __cplusplus
+#include <vulkan/vulkan.hpp>
+#endif

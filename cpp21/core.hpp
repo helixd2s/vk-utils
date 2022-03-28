@@ -236,15 +236,13 @@ namespace cpp21 {
   template<class T = void_t, template<class Ts = T> class I = self_copy_intrusive_t>
   class self_copy_ptr;
 
-
-//
-  template<class T = void_t, template<class Ts = T> class I = std::vector, template<class Ts = T> class Sh = std::shared_ptr>
-  using shared_vector_t = Sh<I<T>>;
+  //
+  template<class T = void_t>
+  using shared_vector_t = std::shared_ptr<std::vector<T>>;
 
   //
-  template<class K = uintptr_t, class T = void_t, template<class Ks = K, class Ts = T> class I = std::unordered_map, template<class Ts = T> class Sh = std::shared_ptr>
-  using shared_map_t = Sh<I<K, T>>;
-
+  template<class K = uintptr_t, class T = void_t>
+  using shared_map_t = std::shared_ptr<std::unordered_map<K, T>>;
 
 
   //

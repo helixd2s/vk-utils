@@ -13,13 +13,13 @@ namespace cpp21 {
   */
 
   //using void_t = uint8_t;
-#pragma pack(1)
-  __declspec(align(1)) class void_t {
+  class void_t {
   public:
     //uint8_t : 0;
 
     // 
     inline void_t() {};
+    inline void_t(auto const& data) { this->assign(data); };
 
     //
     inline decltype(auto) assign(auto const* obj) { using Ts = std::decay_t<decltype(obj)>; memcpy(this, obj, sizeof(Ts)); return reinterpret_cast<Ts&>(*this); };

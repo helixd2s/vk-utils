@@ -49,11 +49,13 @@ set(CMAKE_C_STANDARD 23)
 set(_src_root_path "${PROJECT_SOURCE_DIR}/")
 file(GLOB_RECURSE _source_list 
   LIST_DIRECTORIES false
-  "${_src_root_path}/*.inl"
-  "${_src_root_path}/*.hpp"
-  "${_src_root_path}/*.h"
-  "${_src_root_path}/*.hxx"
-  "${_src_root_path}/*.cxx"
+  "${_src_root_path}/cmake_pch.hxx"
+  "${_src_root_path}/cmake_pch.cxx"
+  "${_src_root_path}/chain.hpp"
+  "${_src_root_path}/sizes.h"
+  "${_src_root_path}/cpp21.hpp"
+  "${_src_root_path}/cpp21/*.cpp"
+  "${_src_root_path}/cpp21/*.hpp"
   "${_src_root_path}/test/*.cpp"
 )
 
