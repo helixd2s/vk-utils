@@ -173,9 +173,8 @@ namespace cpp21 {
 
   public:
     const_wrap_arg() {};
-    const_wrap_arg(T&& rvalue) { temp = std::move(rvalue), const_cast<T*&>(ptr) = &temp.value(); };
-    const_wrap_arg(T& lvalue) : ptr(&lvalue) {}; // ambigous?
-    const_wrap_arg(T const& lcvalue) : ptr(&lcvalue) {};
+    //const_wrap_arg(T&& rvalue) { temp = std::move(rvalue), const_cast<T*&>(ptr) = &temp.value(); };
+    const_wrap_arg(T const& lvalue) : ptr(&lvalue) { temp = std::move(lvalue), const_cast<T*&>(ptr) = &temp.value(); };
     const_wrap_arg(T const* pcvalue) : ptr(pcvalue) {};
     const_wrap_arg(const_wrap_arg<T> const& wvalue) : ptr(wvalue.get()) { temp = wvalue.temp; const_cast<T*&>(ptr) = temp ? &temp.value() : const_cast<T*&>(wvalue.ptr); };
     const_wrap_arg(wrap_ptr<T> const& wvalue) : ptr(wvalue.get()) {};
