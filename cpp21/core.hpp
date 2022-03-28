@@ -1,6 +1,7 @@
 #pragma once
 
 //
+#ifdef __cplusplus
 #ifdef CPP21_DEBUG_MEMORY
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -38,6 +39,7 @@
 #include <fstream>
 #include <typeindex>
 #include <coroutine>
+#include <span>
 #endif
 
 // 
@@ -305,3 +307,5 @@ namespace cpp21 {
 
 
 };
+
+#endif

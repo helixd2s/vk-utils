@@ -1,6 +1,7 @@
 #pragma once 
 
 // 
+#ifdef __cplusplus
 #include "./core.hpp"
 #include "./wrap_ptr.hpp"
 
@@ -134,3 +135,4 @@ namespace cpp21 {
   };
 
 };
+#endif

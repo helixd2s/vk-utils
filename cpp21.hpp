@@ -1,6 +1,7 @@
 #pragma once
 
 //
+#ifdef __cplusplus
 #include "./cpp21/core.hpp"
 #include "./cpp21/void.hpp"
 #include "./cpp21/bool32.hpp"
@@ -23,3 +24,4 @@
 // 
 namespace cpp21 {
 };
+#endif

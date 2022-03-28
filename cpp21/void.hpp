@@ -1,6 +1,7 @@
 #pragma once 
 
 // 
+#ifdef __cplusplus
 #include "./core.hpp"
 
 // 
@@ -53,3 +54,4 @@ namespace cpp21 {
   };
 
 };
+#endif

@@ -45,30 +45,33 @@ find_package(Vulkan REQUIRED FATAL_ERROR)
 
 # 
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_C_STANDARD 23)
 set(_src_root_path "${PROJECT_SOURCE_DIR}/")
 file(GLOB_RECURSE _source_list 
   LIST_DIRECTORIES false
   "${_src_root_path}/*.inl"
   "${_src_root_path}/*.hpp"
   "${_src_root_path}/*.h"
-  "${_src_root_path}/*.cpp"
-  "${_src_root_path}/*.c"
+  "${_src_root_path}/*.hxx"
+  "${_src_root_path}/*.cxx"
+  "${_src_root_path}/test/*.cpp"
 )
 
 # 
 add_executable(${PROJECT_NAME} ${_source_list})
 target_compile_definitions(${PROJECT_NAME} PUBLIC USE_CMAKE_PCH)
 target_include_directories(${PROJECT_NAME} PUBLIC 
-  ${PROJECT_SOURCE_DIR}/external/include 
-  ${PROJECT_SOURCE_DIR}/submodules/*/include 
-  ${PROJECT_SOURCE_DIR}/../external/include 
+  ${PROJECT_SOURCE_DIR}/
+  ${PROJECT_SOURCE_DIR}/*/include 
+  ${PROJECT_SOURCE_DIR}/interval-tree/include 
+  ${PROJECT_SOURCE_DIR}/generator/include 
+  ${PROJECT_SOURCE_DIR}/glm/glm
+  ${PROJECT_SOURCE_DIR}/glm
+  ${PROJECT_SOURCE_DIR}/submodules/include 
   ${Vulkan_INCLUDE_DIRS}
 )
 target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS} ${Vulkan_LIBRARIES})
 target_link_directories(${PROJECT_NAME} PUBLIC 
-  ${PROJECT_SOURCE_DIR}/external/lib 
-  ${PROJECT_SOURCE_DIR}/submodules/*/lib/
-  ${PROJECT_SOURCE_DIR}/../external/lib
 )
 
 #
@@ -77,34 +80,9 @@ set (HSOURCES "cpp21/core.hpp")
 #
 ADD_MSVC_PRECOMPILED_HEADER("cmake_pch.hxx" "cmake_pch.cxx" HSOURCES)
 
-#
-target_precompile_headers(${PROJECT_NAME}
-  PUBLIC
-  <vector>
-  <string>
-  <memory>
-  <string_view>
-  <utility>
-  <map>
-  <future>
-  <iostream>
-  <optional>
-  <coroutine>
-  <tuple>
-  <type_traits>
-  <utility>
-  <unordered_map>
-  <iterator>
-  <fstream>
-  <typeindex>
-  <coroutine>
-  <experimental/generator>
-  <vulkan/vulkan.h>
-)
-
 # 
 if (MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++latest /bigobj /MP /EHa /fsanitize=address /Ot /Od /Oy /Ob0 /GT /GL /GR")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c17 /std:c++latest /bigobj /MP /EHa /fsanitize=address /Ot /Od /Oy /Ob0 /GT /GL /GR")
     set(CMAKE_EXE_LINKER_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /MP /MAP /incremental /debug:fastlink /experimental /errorReport")
 endif()
 

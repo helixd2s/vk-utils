@@ -1,6 +1,7 @@
 #pragma once 
 
 // 
+#ifdef __cplusplus
 #include "./core.hpp"
 #include "./wrap_ptr.hpp"
 
@@ -84,3 +85,5 @@ namespace cpp21 {
     inline decltype(auto) operator[](uintptr_t const& index) const { return (*this->ptr)[index]; };
   };
 };
+
+#endif

@@ -1,0 +1,9 @@
+[submodule "interval-tree"]
+	path = interval-tree
+	url = https://github.com/5cript/interval-tree.git
+[submodule "generator"]
+	path = generator
+	url = https://github.com/TartanLlama/generator.git
+[submodule "glm"]
+	path = glm
+	url = https://github.com/g-truc/glm.git

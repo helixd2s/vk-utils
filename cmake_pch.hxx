@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef __cplusplus
 #include <vector>
 #include <string>
 #include <memory>
@@ -18,5 +19,10 @@
 #include <fstream>
 #include <typeindex>
 #include <coroutine>
+#include <span>
+#ifdef _MSC_VER 
 #include <experimental/generator>
+#endif
+#endif
+
 #include <vulkan/vulkan.h>
