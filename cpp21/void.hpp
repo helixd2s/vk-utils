@@ -13,6 +13,7 @@ namespace cpp21 {
   */
 
   //using void_t = uint8_t;
+#pragma pack(push, 0)
   class void_t {
   public:
     //uint8_t : 0;
@@ -52,6 +53,7 @@ namespace cpp21 {
     // 
     inline operator bool() const { return false; };
   };
+#pragma pack(pop)
 
 };
 #endif

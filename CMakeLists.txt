@@ -84,7 +84,7 @@ ADD_MSVC_PRECOMPILED_HEADER("cmake_pch.hxx" "cmake_pch.cxx" HSOURCES)
 
 # 
 if (MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w dupbuild=warn -std=c++2b /std:c17 /std:c++latest /bigobj /MP /EHa /fsanitize=address /Ot /Od /Oy /Ob0 /GT /GL /GR")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w dupbuild=warn -std=c++2b /d1FastFail /std:c17 /std:c++latest /bigobj /MP /EHa /fsanitize=address /Ot /Od /Oy /Ob0 /GT /GL /GR")
     set(CMAKE_EXE_LINKER_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /MP /MAP /incremental /debug:fastlink /experimental /errorReport")
 endif()
 
