@@ -7,16 +7,21 @@
 // 
 namespace cpp21 {
 
+  // 
+  template<class U = uint8_t> class memory_stack_;
+  template<class U = uint8_t> using memory_stack = memory_stack_<decay_t<U>>;
+
   // for vulkan structs or descriptor set data bucket
-  template<class U = uint8_t, class Vc = std::vector<U>>
-  class memory_stack {
+  template<class U>
+  class memory_stack_ {
   protected:
     // we use local pointer memory
+    using Vc = std::vector<U>;
     Vc memory = {};
 
   public:
     // 
-    inline memory_stack(Vc const& memory = {}) : memory(memory) {
+    inline memory_stack_(Vc const& memory = {}) : memory(memory) {
 
     };
 

@@ -13,7 +13,9 @@ namespace cpp21 {
       // Size of only 8 byte, not nested...
   */
 
-
+  // 
+  //template<class N, class T> class link_void_;
+  //template<class N, class T> using link_void = link_void_<decay_t<T>>;
 
   // 
   class link_void {
@@ -71,6 +73,10 @@ namespace cpp21 {
     template<class Ts = void_t> inline decltype(auto) get() { return reinterpret_cast<Ts*&>(this->ptr); };
     template<class Ts = void_t> inline decltype(auto) get() const { return reinterpret_cast<Ts* const&>(this->ptr); };
   };
+
+  //
+  //template<class T> class link_;
+  //template<class T> using link = link_<decay_t<T>>;
 
   // 
   template<class T>

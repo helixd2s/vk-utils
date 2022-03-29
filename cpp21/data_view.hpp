@@ -12,8 +12,12 @@ namespace cpp21 {
   */
 
   // 
-  template<class T = void_t>
-  class data_view {
+  template<class T = void_t> class data_view_;
+  template<class T = void_t> using data_view = data_view_<decay_t<T>>;
+
+  // 
+  template<class T>
+  class data_view_ {
   protected:
     //P<T> ptr = nullptr;
     //size_t count = 0ull;
@@ -21,11 +25,11 @@ namespace cpp21 {
 
   public:
     // 
-    inline data_view(std::span<T> const& wrap) : ptr(wrap) { ; };
-    inline data_view(std::vector<T> const& wrap, uintptr_t const& offset = 0ull) : ptr(std::span<T>{const_cast<T*>(shift(wrap.data(), offset)), wrap.size()}) {};
-    inline data_view(data_view<T> const& wrap, uintptr_t const& offset = 0ull) : ptr(std::span<T>{const_cast<T*>(shift(wrap.data(), offset)), wrap.size()}) {};
-    inline data_view(wrap_ptr<T> const& wrap, uintptr_t const& offset = 0ull, size_t const& size = sizeof(T)) : ptr(std::span<T>{const_cast<T*>(shift(wrap.get(), offset)), size}) {};
-    inline data_view() {};
+    inline data_view_(std::span<T> const& wrap) : ptr(wrap) { ; };
+    inline data_view_(std::vector<T> const& wrap, uintptr_t const& offset = 0ull) : ptr(std::span<T>{const_cast<T*>(shift(wrap.data(), offset)), wrap.size()}) {};
+    inline data_view_(data_view<T> const& wrap, uintptr_t const& offset = 0ull) : ptr(std::span<T>{const_cast<T*>(shift(wrap.data(), offset)), wrap.size()}) {};
+    inline data_view_(wrap_ptr<T> const& wrap, uintptr_t const& offset = 0ull, size_t const& size = sizeof(T)) : ptr(std::span<T>{const_cast<T*>(shift(wrap.get(), offset)), size}) {};
+    inline data_view_() {};
 
     // check operator
     inline operator bool() const { return !!this->ptr; };

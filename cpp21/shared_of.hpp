@@ -8,8 +8,12 @@
 namespace cpp21 {
 
   //
-  template<class T = void_t>
-  class shared_vector {
+  template<class T = void_t> class shared_vector_;
+  template<class T = void_t> using shared_vector = shared_vector_<decay_t<T>>;
+
+  //
+  template<class T>
+  class shared_vector_ {
   protected:
     using St = shared_vector<T>;
     using Sv = shared_vector_t<T>;
@@ -18,14 +22,14 @@ namespace cpp21 {
 
   public:
     // 
-    inline shared_vector() : vect(std::make_shared<Vt>()) {};
-    inline shared_vector(St const& vect) : vect(vect.vect) {};
-    inline shared_vector(Sv const& vect) : vect(vect) {};
-    inline shared_vector(Vt const& vect) : vect(std::make_shared<Vt>(vect)) { };
+    inline shared_vector_() : vect(std::make_shared<Vt>()) {};
+    inline shared_vector_(St const& vect) : vect(vect.vect) {};
+    inline shared_vector_(Sv const& vect) : vect(vect) {};
+    inline shared_vector_(Vt const& vect) : vect(std::make_shared<Vt>(vect)) { };
 
     //
     template<static_not<is_vector<T>>>
-    inline shared_vector(T const& elem) : vect(std::make_shared<Vt>(&elem, &elem+1u)) {
+    inline shared_vector_(T const& elem) : vect(std::make_shared<Vt>(&elem, &elem+1u)) {
 
     };
 

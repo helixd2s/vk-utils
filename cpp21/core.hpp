@@ -188,23 +188,53 @@ namespace cpp21 {
   inline decltype(auto) shift(auto* data, uintptr_t offset = 0ull) { return reinterpret_cast<decltype(data)>(reinterpret_cast<uintptr_t&>(data) + offset); };
   inline decltype(auto) shift(const auto* data, uintptr_t offset = 0ull) { return reinterpret_cast<decltype(data)>(reinterpret_cast<const uintptr_t&>(data) + offset); };
 
+  //using void_t = uint8_t;
+#pragma pack(push, 0)
+  class void_t {
+  public:
+    //uint8_t : 0;
+
+    // 
+    inline void_t() {};
+    inline void_t(auto const& data) { this->assign(data); };
+
+    //
+    inline decltype(auto) assign(auto const* obj) { using Ts = std::decay_t<decltype(obj)>; memcpy(this, obj, sizeof(Ts)); return reinterpret_cast<Ts&>(*this); };
+    inline decltype(auto) assign(auto const& obj) { return this->assign(&obj); };
+
+    //
+    inline decltype(auto) operator=(auto const& obj) { return this->assign(obj); };
+    inline decltype(auto) operator=(auto const* obj) { return this->assign(obj); };
+
+    // 
+    template<class Ts = void_t> inline decltype(auto) operator->() { return this->get<Ts>(); };
+    template<class Ts = void_t> inline decltype(auto) operator->() const { return this->get<Ts>(); };
+
+    // 
+    template<class Ts = void_t> inline decltype(auto) operator *() { return *this->get<Ts>(); };
+    template<class Ts = void_t> inline decltype(auto) operator *() const { return *this->get<Ts>(); };
+
+    // 
+    template<class Ts = void_t> inline operator Ts& () { return *this->get<Ts>(); };
+    template<class Ts = void_t> inline operator Ts const& () const { return *this->get<Ts>(); };
+
+    // 
+    template<class Ts = void_t> inline operator Ts* () { return this->get<Ts>(); };
+    template<class Ts = void_t> inline operator Ts const* () const { return this->get<Ts>(); };
+
+    // 
+    template<class Ts = void_t> inline decltype(auto) get() { return reinterpret_cast<Ts*>(this); };
+    template<class Ts = void_t> inline decltype(auto) get() const { return reinterpret_cast<Ts const*>(this); };
+
+    // 
+    inline operator bool() const { return false; };
+  };
+#pragma pack(pop)
 
   //
-  template<class T = void_t>
-  class wrap_ptr;
-
-  //
-  template<class T>
-  class wrap_shared_ptr;
-
-  //
-  class link_void;
-
-  //
-  template<class T = void_t>
-  class link;
-
-
+  template<class T = void_t> using decay_t = std::remove_cv_t<std::decay_t<std::remove_cv_t<T>>>;
+  
+  
   //
   template<class T = void_t>
   void _free(void* ptr_) {
@@ -246,8 +276,8 @@ namespace cpp21 {
 
 
   //
-#pragma pack(1)
-  __declspec(align(1)) class void_t;
+//#pragma pack(1)
+  //__declspec(align(1)) class void_t;
 
   //
   template<typename R>

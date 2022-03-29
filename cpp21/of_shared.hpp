@@ -7,9 +7,13 @@
 // 
 namespace cpp21 {
 
+  // 
+  template<class T = void_t> class vector_of_shared_;
+  template<class T = void_t> using vector_of_shared = vector_of_shared_<decay_t<T>>;
+
   // for vulkan structs with shared_ptr
-  template<class T = void_t>
-  class vector_of_shared {
+  template<class T>
+  class vector_of_shared_ {
   protected:
     using Sv = std::vector<std::shared_ptr<T>>;
     // we use local pointer memory
@@ -17,13 +21,13 @@ namespace cpp21 {
 
   public:
     // 
-    inline vector_of_shared(Sv const& stack = Sv{}) : stack(stack) {};
-    inline vector_of_shared(vector_of_shared const& stack) : stack(stack) {};
+    inline vector_of_shared_(Sv const& stack = Sv{}) : stack(stack) {};
+    inline vector_of_shared_(vector_of_shared<T> const& stack) : stack(stack) {};
 
     //
     inline operator bool() const { return !!stack; };
     inline decltype(auto) operator=(Sv const& stack) { this->stack = stack; return *this; };
-    inline decltype(auto) operator=(vector_of_shared const& stack) { this->stack = stack; return *this; };
+    inline decltype(auto) operator=(vector_of_shared<T> const& stack) { this->stack = stack; return *this; };
 
     // 
     inline decltype(auto) push(auto const& data = std::shared_ptr<T>{}) {

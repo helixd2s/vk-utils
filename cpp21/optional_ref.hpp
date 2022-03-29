@@ -13,8 +13,12 @@ namespace cpp21 {
   */
 
   // 
-  template<class T = void_t>
-  class optional_ref {
+  template<class T = void_t> class optional_ref_;
+  template<class T = void_t> using optional_ref = optional_ref_<decay_t<T>>;
+
+  // 
+  template<class T>
+  class optional_ref_ {
   protected:
     //wrap_ptr<T> ptr = nullptr;
     T* ptr = nullptr;
@@ -22,18 +26,12 @@ namespace cpp21 {
   public:
 
     // 
-    inline optional_ref(std::optional<T> const& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
-    //inline optional_ref(std::optional<T>& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
-
-    // 
-    inline optional_ref(optional_ref<T> const& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
-    //inline optional_ref(optional_ref<T>& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
-
-    // 
-    inline optional_ref(T* ref) : ptr(reinterpret_cast<T*>(ref)) {};
-    inline optional_ref(T& ref) : ptr(reinterpret_cast<T*>(&ref)) {};
-    inline optional_ref(wrap_ptr<T> ref) : ptr(ref.get()) {};
-    inline optional_ref() {};
+    inline optional_ref_(std::optional<T> const& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
+    inline optional_ref_(optional_ref<T> const& ref) : ptr(ref ? &(ref.value()) : nullptr) {};
+    inline optional_ref_(T* ref) : ptr(reinterpret_cast<T*>(ref)) {};
+    inline optional_ref_(T& ref) : ptr(reinterpret_cast<T*>(&ref)) {};
+    inline optional_ref_(wrap_ptr<T> ref) : ptr(ref.get()) {};
+    inline optional_ref_() {};
 
     // check operator
     inline operator bool() const { return !!this->ptr; };

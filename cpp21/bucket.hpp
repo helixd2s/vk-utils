@@ -13,19 +13,24 @@ namespace cpp21 {
     // This class reusing free cells, instead erase or delete...
   */
 
-  template<class T = void_t> class bucket {
+  // 
+  template<class T = void_t> class bucket_;
+  template<class T = void_t> using bucket = bucket_<decay_t<T>>;
+
+  // 
+  template<class T> class bucket_ {
   protected:
     cpp21::shared_vector<T> used = {};
     cpp21::shared_vector<uintptr_t> free = {};
 
   public:
     // 
-    inline bucket(std::vector<T> used = {}, std::vector<uintptr_t> free = {}) : used(used), free(free) {
+    inline bucket_(std::vector<T> used = {}, std::vector<uintptr_t> free = {}) : used(used), free(free) {
 
     };
 
     // 
-    inline bucket(cpp21::shared_vector<T> used = {}, cpp21::shared_vector<uintptr_t> free = {}) : used(used), free(free) {
+    inline bucket_(cpp21::shared_vector<T> used = {}, cpp21::shared_vector<uintptr_t> free = {}) : used(used), free(free) {
 
     };
 

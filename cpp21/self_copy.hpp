@@ -11,9 +11,13 @@ namespace cpp21 {
       // What is intrusive self-copy pointer? I tell about it later...
   */
 
+  //
+  template<class E = void_t> class self_copy_intrusive_;
+  template<class E = void_t> using self_copy_intrusive = self_copy_intrusive_<decay_t<T>>;
+
   // E is extension in before pointer
   template<class E> // when extension is needed
-  class self_copy_intrusive {
+  class self_copy_intrusive_ {
   public: using Vp = wrap_ptr<E>; using I = self_copy_intrusive<E, Vw>;
   public:
     E sType = {};
@@ -87,10 +91,13 @@ namespace cpp21 {
     //inline decltype(auto) operator[](uintptr_t const& index) const { return (*this->ptr)[index]; };
   };
 
+  //
+  template<class T = void_t> class self_copy_intrusive_t_;
+  template<class T = void_t> using self_copy_intrusive_t = self_copy_intrusive_t_<decay_t<T>>;
 
   //
   template<class T>
-  class self_copy_intrusive_t : public self_copy_intrusive<void_t> {
+  class self_copy_intrusive_t_ : public self_copy_intrusive<void_t> {
   public:
     using I = self_copy_intrusive<void_t>;
 
@@ -168,9 +175,13 @@ namespace cpp21 {
       // Size of is 8...
   */
 
+  //
+  template<class T> class self_copy_ptr_;
+  template<class T> using self_copy_ptr = self_copy_ptr_<decay_t<T>>;
+
   // 
   template<class T>
-  class self_copy_ptr {
+  class self_copy_ptr_ {
   public: using I = self_copy_intrusive_t<T>;
   protected:
     wrap_ptr<I> intrusive = {};
@@ -233,8 +244,12 @@ namespace cpp21 {
     inline decltype(auto) operator&() const { return this->get(); };
   };
 
+  //
+  template<class T = void_t> class enable_self_copy_from_this_;
+  template<class T = void_t> using enable_self_copy_from_this = enable_self_copy_from_this_<decay_t<T>>;
+
   // 
-  template<class T = void_t>
+  template<class T>
   class enable_self_copy_from_this : public Iw<T> {
   public: 
     using I = self_copy_intrusive_t<T>;

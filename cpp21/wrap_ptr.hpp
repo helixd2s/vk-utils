@@ -15,19 +15,23 @@ namespace cpp21 {
       // WARNING! Doesn't support "nullptr"! Needs workaround...
   */
 
+  //
+  template<class T = void_t> class wrap_ptr_;
+  template<class T = void_t> using wrap_ptr = wrap_ptr_<decay_t<T>>;
+
   // if you needed just pointer, just cast `reinterpret_cast<T*&>(some_wrap_ptr)`, because contain only one pointer
   //template<class T = void_t>
   template<class T>
-  class wrap_ptr {
+  class wrap_ptr_ {
   protected:
     T* ptr = nullptr;
 
   public:
     // 
-    inline wrap_ptr(std::optional<T> const& opt) : ptr(opt ? &opt.value() : void_t{}) {};
-    inline wrap_ptr(wrap_ptr<T> const& wrap) : ptr(const_cast<T*>(wrap.get())) {};
-    inline wrap_ptr(T* ref = nullptr) : ptr(ref) {};
-    inline wrap_ptr(T& ref) : ptr(&ref) {};
+    inline wrap_ptr_(std::optional<T> const& opt) : ptr(opt ? &opt.value() : void_t{}) {};
+    inline wrap_ptr_(wrap_ptr<T> const& wrap) : ptr(const_cast<T*>(wrap.get())) {};
+    inline wrap_ptr_(T* ref = nullptr) : ptr(ref) {};
+    inline wrap_ptr_(T& ref) : ptr(&ref) {};
 
     //
     inline decltype(auto) operator[](uintptr_t const& index) { return ptr[index]; };
@@ -93,9 +97,13 @@ namespace cpp21 {
     return wrap_ptr<T>(pt);
   };
 
+  //
+  template<class T = void_t> class wrap_shared_ptr_;
+  template<class T = void_t> using wrap_shared_ptr = wrap_shared_ptr_<decay_t<T>>;
+
   // 
   template<class T>
-  class wrap_shared_ptr {
+  class wrap_shared_ptr_ {
   public:
   protected:
     using St = std::shared_ptr<T>;
@@ -103,7 +111,7 @@ namespace cpp21 {
 
   public:
     // 
-    inline wrap_shared_ptr(St shp = {}) : ptr(shp) {};
+    inline wrap_shared_ptr_(St shp = {}) : ptr(shp) {};
 
     //
     inline operator bool() const { return !!this->ptr; };
@@ -163,22 +171,26 @@ namespace cpp21 {
   // 
   template<class T> T& unmove(T&& t) { return t; }
 
+  //
+  template<class T = void_t> class const_wrap_arg_;
+  template<class T = void_t> using const_wrap_arg = const_wrap_arg_<decay_t<T>>;
+
   // 
   template<class T>
-  class const_wrap_arg {
+  class const_wrap_arg_ {
   protected:
     //using T = std::remove_cv_t<std::decay_t<std::remove_cv_t<T>>>;
     T const* ptr = nullptr;
     std::optional<T> temp = {};
 
   public:
-    const_wrap_arg() {};
-    //const_wrap_arg(T&& rvalue) { temp = std::move(rvalue), const_cast<T*&>(ptr) = &temp.value(); };
-    const_wrap_arg(T const& lvalue) : ptr(&lvalue) { temp = std::move(lvalue), const_cast<T*&>(ptr) = &temp.value(); };
-    const_wrap_arg(T const* pcvalue) : ptr(pcvalue) {};
-    const_wrap_arg(const_wrap_arg<T> const& wvalue) : ptr(wvalue.get()) { temp = wvalue.temp; const_cast<T*&>(ptr) = temp ? &temp.value() : const_cast<T*&>(wvalue.ptr); };
-    const_wrap_arg(wrap_ptr<T> const& wvalue) : ptr(wvalue.get()) {};
-    const_wrap_arg(std::optional<T> const& lcvalue) : ptr(lcvalue ? &lcvalue.value() : nullptr) {};
+    const_wrap_arg_() {};
+    //const_wrap_arg_(T&& rvalue) { temp = std::move(rvalue), const_cast<T*&>(ptr) = &temp.value(); };
+    const_wrap_arg_(T const& lvalue) : ptr(&lvalue) { temp = std::move(lvalue), const_cast<T*&>(ptr) = &temp.value(); };
+    const_wrap_arg_(T const* pcvalue) : ptr(pcvalue) {};
+    const_wrap_arg_(const_wrap_arg<T> const& wvalue) : ptr(wvalue.get()) { temp = wvalue.temp; const_cast<T*&>(ptr) = temp ? &temp.value() : const_cast<T*&>(wvalue.ptr); };
+    const_wrap_arg_(wrap_ptr<T> const& wvalue) : ptr(wvalue.get()) {};
+    const_wrap_arg_(std::optional<T> const& lcvalue) : ptr(lcvalue ? &lcvalue.value() : nullptr) {};
 
     //
     inline operator bool() const { return !!ptr; };
