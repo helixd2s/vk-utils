@@ -14,14 +14,26 @@ namespace cpp21 {
 
 #ifdef VKU_ENABLE_INTERVAL
   // 
-  template<class N, class T> class interval_map_;
-  template<class N, class T> using interval_map = interval_map_<decay_t<N>, decay_t<T>>;
+  template<
+    class N, 
+    class T, 
+    template<class Ns = N, class Ts = T> class Um = std::unordered_map
+  > class interval_map_;
+  template<
+    class N, 
+    class T, 
+    template<class Ns = N, class Ts = T> class Um = std::unordered_map
+  > using interval_map = interval_map_<decay_t<N>, decay_t<T>, Um>;
 
   // 
-  template<class N, class T>
+  template<
+    class N, 
+    class T, 
+    template<class Ns, class Ts> class Um
+  >
   class interval_map_ {
   public:
-    std::unordered_map<N, T> map = {};
+    Um<N, T> map = {};
     lib_interval_tree::interval_tree_t<N> intervals = {};
 
   public:

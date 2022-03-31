@@ -8,29 +8,40 @@
 namespace cpp21 {
 
   // 
-  template<class T = void_t> class vector_of_shared_;
-  template<class T = void_t> using vector_of_shared = vector_of_shared_<decay_t<T>>;
+  template<
+    class T = void_t,
+    template<class Ts = T> class Sh = std::shared_ptr,
+    template<class Ss = Sh<T>> class Sv = std::vector
+  > class vector_of_shared_;
+  template<
+    class T = void_t,
+    template<class Ts = T> class Sh = std::shared_ptr,
+    template<class Ss = Sh<T>> class Sv = std::vector
+  > using vector_of_shared = vector_of_shared_<decay_t<T>, Sh, Sv>;
 
   // for vulkan structs with shared_ptr
-  template<class T>
+  template<
+    class T,
+    template<class Ts> class Sh,
+    template<class Ss> class Sv
+  >
   class vector_of_shared_ {
   protected:
-    using Sv = std::vector<std::shared_ptr<T>>;
     // we use local pointer memory
-    Sv stack = {};
+    Sv<Sh<T>> stack = {};
 
   public:
     // 
-    inline vector_of_shared_(Sv const& stack = Sv{}) : stack(stack) {};
+    inline vector_of_shared_(Sv<Sh<T>> const& stack = Sv<Sh<T>>{}) : stack(stack) {};
     inline vector_of_shared_(vector_of_shared<T> const& stack) : stack(stack) {};
 
     //
     inline operator bool() const { return !!stack; };
-    inline decltype(auto) operator=(Sv const& stack) { this->stack = stack; return *this; };
+    inline decltype(auto) operator=(Sv<Sh<T>> const& stack) { this->stack = stack; return *this; };
     inline decltype(auto) operator=(vector_of_shared<T> const& stack) { this->stack = stack; return *this; };
 
     // 
-    inline decltype(auto) push(auto const& data = std::shared_ptr<T>{}) {
+    inline decltype(auto) push(auto const& data = Sh<T>{}) {
       decltype(auto) last = stack.size();
       if constexpr (is_shared_ptr<std::decay_t<decltype(data)>>::value) {
         stack.push_back(std::reinterpret_pointer_cast<T>(data));
@@ -64,8 +75,8 @@ namespace cpp21 {
     };
 
     //
-    inline operator Sv& () { return stack; };
-    inline operator Sv const& () const { return stack; };
+    inline operator Sv<Sh<T>>& () { return stack; };
+    inline operator Sv<Sh<T>> const& () const { return stack; };
 
     //
     inline operator decltype(auto) (){ return this->data(); };
@@ -89,7 +100,7 @@ namespace cpp21 {
     inline decltype(auto) push_back(auto const& data) const { return this->push(data); };
 
     //
-    template<class Ts = T> inline decltype(auto) push_back(std::shared_ptr<Ts> const& data = std::shared_ptr<T>{}) { return this->push(data); };
+    template<class Ts = T> inline decltype(auto) push_back(Sh<Ts> const& data = Sh<T>{}) { return this->push(data); };
 
     //
     inline decltype(auto) operator->() { return &stack; };
@@ -100,20 +111,42 @@ namespace cpp21 {
     inline decltype(auto) operator*() const { return stack; };
   };
 
+  // 
+  template<
+    class K = uintptr_t, 
+    class T = void_t,
+    template<class Ts = T> class Sh = std::shared_ptr,
+    template<class Ks = K, class Ss = Sh<T>> class Um = std::unordered_map
+  > class map_of_shared_;
+
+  // 
+  template<
+    class K = uintptr_t, 
+    class T = void_t,
+    template<class Ts = T> class Sh = std::shared_ptr,
+    template<class Ks = K, class Ss = Sh<T>> class Um = std::unordered_map
+  > using map_of_shared = map_of_shared_<decay_t<K>, decay_t<T>, Sh, Um>;
+
   // for advanced vulkan structs with shared_ptr
-  template<class K = uintptr_t, class T = void_t>
-  class map_of_shared : public std::enable_shared_from_this<map_of_shared<K,T>> {
+  template<
+    class K, 
+    class T,
+    template<class Ts> class Sh,
+    template<class Ks, class Ss> class Um
+  >
+  class map_of_shared_ : public std::enable_shared_from_this<map_of_shared<K,T,Sh,Um>> {
   protected:
     // we use local pointer memory
-    std::unordered_map<K, std::shared_ptr<T>> map = std::unordered_map<K, std::shared_ptr<T>>{};
+    using Umt = Um<K, Sh<T>>;
+    Umt map = Umt{};
 
   public:
-    inline map_of_shared(std::unordered_map<K, std::shared_ptr<T>> const& map = {}) : map(map) {};
+    inline map_of_shared_(Umt const& map = {}) : map(map) {};
     //inline operator bool() const { return !!map; };
 
     // 
     template<class Ts = T>
-    inline decltype(auto) set(K const& key, std::shared_ptr<Ts> data = {}) {
+    inline decltype(auto) set(K const& key, Sh<T> data = {}) {
       map[key] = std::reinterpret_pointer_cast<T>(data);
       return wrap_shared_ptr<Ts>(data);
     };

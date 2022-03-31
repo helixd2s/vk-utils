@@ -12,23 +12,31 @@ namespace cpp21 {
   */
 
   // 
-  template<class T = void_t> class data_view_;
-  template<class T = void_t> using data_view = data_view_<decay_t<T>>;
+  template<
+    class T = void_t, 
+    template<class Ts = T> class Sp = std::span
+  > class data_view_;
 
   // 
-  template<class T>
+  template<
+    class T = void_t, 
+    template<class Ts = T> class Sp = std::span
+  > using data_view = data_view_<decay_t<T>, Sp>;
+
+  // 
+  template<class T, template<class Ts> class Sp>
   class data_view_ {
   protected:
     //P<T> ptr = nullptr;
     //size_t count = 0ull;
-    std::span<T> ptr = {};
+    Sp<T> ptr = {};
 
   public:
     // 
-    inline data_view_(std::span<T> const& wrap) : ptr(wrap) { ; };
-    inline data_view_(std::vector<T> const& wrap, uintptr_t const& offset = 0ull) : ptr(std::span<T>{const_cast<T*>(shift(wrap.data(), offset)), wrap.size()}) {};
-    inline data_view_(data_view<T> const& wrap, uintptr_t const& offset = 0ull) : ptr(std::span<T>{const_cast<T*>(shift(wrap.data(), offset)), wrap.size()}) {};
-    inline data_view_(wrap_ptr<T> const& wrap, uintptr_t const& offset = 0ull, size_t const& size = sizeof(T)) : ptr(std::span<T>{const_cast<T*>(shift(wrap.get(), offset)), size}) {};
+    inline data_view_(Sp<T> const& wrap) : ptr(wrap) { ; };
+    inline data_view_(std::vector<T> const& wrap, uintptr_t const& offset = 0ull) : ptr(Sp<T>{const_cast<T*>(shift(wrap.data(), offset)), wrap.size()}) {};
+    inline data_view_(data_view<T> const& wrap, uintptr_t const& offset = 0ull) : ptr(Sp<T>{const_cast<T*>(shift(wrap.data(), offset)), wrap.size()}) {};
+    inline data_view_(wrap_ptr<T> const& wrap, uintptr_t const& offset = 0ull, size_t const& size = sizeof(T)) : ptr(Sp<T>{const_cast<T*>(shift(wrap.get(), offset)), size}) {};
     inline data_view_() {};
 
     // check operator
@@ -43,8 +51,8 @@ namespace cpp21 {
     inline operator T const* () const { return this->ptr; };
 
     // type conversion
-    inline operator std::span<T>&() { return reinterpret_cast<std::span<T>&>(*this); };
-    inline operator std::span<T> const&() const { return reinterpret_cast<std::span<T> const&>(*this); };
+    inline operator Sp<T>&() { return reinterpret_cast<Sp<T>&>(*this); };
+    inline operator Sp<T> const&() const { return reinterpret_cast<Sp<T> const&>(*this); };
 
     // type conversion
     inline operator wrap_ptr<T>& () { return this->ptr; };
@@ -56,15 +64,15 @@ namespace cpp21 {
     inline decltype(auto) data() const { return ptr.data(); };
 
     //
-    template<class Ts = T> inline decltype(auto) operator =(std::span<Ts> const& wrap) { this->ptr = wrap; return *this; };
-    template<class Ts = T> inline decltype(auto) operator =(std::vector<Ts> const& wrap) { this->ptr = std::span<T>{ (T*)wrap.data(), wrap.size() }; return *this; };
-    template<class Ts = T> inline decltype(auto) operator =(data_view<Ts> const& wrap) { this->ptr = std::span<T>{ (T*)wrap.get(), wrap.size() }; return *this; };
-    template<class Ts = T> inline decltype(auto) operator =(wrap_ptr<Ts> const& wrap) { this->ptr = std::span<T>{ (T*)wrap.get(), 1ull }; return *this; };
+    template<class Ts = T> inline decltype(auto) operator =(Sp<Ts> const& wrap) { this->ptr = wrap; return *this; };
+    template<class Ts = T> inline decltype(auto) operator =(std::vector<Ts> const& wrap) { this->ptr = Sp{ (T*)wrap.data(), wrap.size() }; return *this; };
+    template<class Ts = T> inline decltype(auto) operator =(data_view<Ts> const& wrap) { this->ptr = Sp{ (T*)wrap.get(), wrap.size() }; return *this; };
+    template<class Ts = T> inline decltype(auto) operator =(wrap_ptr<Ts> const& wrap) { this->ptr = Sp{ (T*)wrap.get(), 1ull }; return *this; };
 
     // 
-    inline decltype(auto) operator =(auto const* const& ptr) { this->ptr = std::span<T>{ reinterpret_cast<wrap_ptr<T> const&>(ptr), 1ull }; return *this; };
-    inline decltype(auto) operator =(auto* const& ptr) { this->ptr = std::span<T>{ reinterpret_cast<wrap_ptr<T> const&>(ptr), 1ull }; return *this; };
-    inline decltype(auto) operator =(auto const& ref) { this->ptr = std::span<T>{ reinterpret_cast<wrap_ptr<T> const&>(&ref), 1ull }; return *this; };
+    inline decltype(auto) operator =(auto const* const& ptr) { this->ptr = Sp{ reinterpret_cast<wrap_ptr<T> const&>(ptr), 1ull }; return *this; };
+    inline decltype(auto) operator =(auto* const& ptr) { this->ptr = Sp{ reinterpret_cast<wrap_ptr<T> const&>(ptr), 1ull }; return *this; };
+    inline decltype(auto) operator =(auto const& ref) { this->ptr = Sp{ reinterpret_cast<wrap_ptr<T> const&>(&ref), 1ull }; return *this; };
     //inline decltype(auto) operator =(T const& ref) { ptr = ref; return *this; };
     //inline decltype(auto) operator =(T const* ptx) { ptr = ptx; return *this; };
 

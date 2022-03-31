@@ -13,7 +13,7 @@ namespace cpp21 {
 
   //
   template<class E = void_t> class self_copy_intrusive_;
-  template<class E = void_t> using self_copy_intrusive = self_copy_intrusive_<decay_t<T>>;
+  template<class E = void_t> using self_copy_intrusive = self_copy_intrusive_<decay_t<E>>;
 
   // E is extension in before pointer
   template<class E> // when extension is needed

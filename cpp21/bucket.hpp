@@ -14,23 +14,35 @@ namespace cpp21 {
   */
 
   // 
-  template<class T = void_t> class bucket_;
-  template<class T = void_t> using bucket = bucket_<decay_t<T>>;
+  template<
+    class T = void_t, 
+    template<class Ts = T> class Vt = std::vector, 
+    template<class Ts = T, class Vs = Vt<Ts>> class SVt = shared_vector
+  > class bucket_;
+  template<
+    class T, 
+    template<class Ts = T> class Vt = std::vector, 
+    template<class Ts = T, class Vs = Vt<Ts>> class SVt = shared_vector
+  > using bucket = bucket_<decay_t<T>, Vt, SVt>;
 
   // 
-  template<class T> class bucket_ {
+  template<
+    class T, 
+    template<class Ts> class Vt, 
+    template<class Ts, class Vs> class SVt
+  > class bucket_ {
   protected:
-    cpp21::shared_vector<T> used = {};
-    cpp21::shared_vector<uintptr_t> free = {};
+    SVt<T, Vt> used = {};
+    SVt<uintptr_t, Vt> free = {};
 
   public:
     // 
-    inline bucket_(std::vector<T> used = {}, std::vector<uintptr_t> free = {}) : used(used), free(free) {
+    inline bucket_(Vt<T> used = {}, Vt<uintptr_t> free = {}) : used(used), free(free) {
 
     };
 
     // 
-    inline bucket_(cpp21::shared_vector<T> used = {}, cpp21::shared_vector<uintptr_t> free = {}) : used(used), free(free) {
+    inline bucket_(SVt<T, Vt> used = {}, SVt<uintptr_t, Vt> free = {}) : used(used), free(free) {
 
     };
 
@@ -71,12 +83,12 @@ namespace cpp21 {
     };
 
     //
-    inline operator cpp21::shared_vector<T>& () { return used; };
-    inline operator cpp21::shared_vector<T> const& () const { return used; };
+    inline operator SVt<T, Vt>& () { return used; };
+    inline operator SVt<T, Vt> const& () const { return used; };
 
     //
-    inline operator std::vector<T>& () { return *used; };
-    inline operator std::vector<T> const& () const { return *used; };
+    inline operator Vt<T>& () { return *used; };
+    inline operator Vt<T> const& () const { return *used; };
 
     //
     inline decltype(auto) operator[](uintptr_t const& index) { return used->at(index); };

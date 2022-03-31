@@ -8,24 +8,35 @@
 namespace cpp21 {
 
   //
-  template<class T = void_t> class shared_vector_;
-  template<class T = void_t> using shared_vector = shared_vector_<decay_t<T>>;
+  template<
+    class T = void_t, 
+    template<class Ts = T> class Vt = std::vector,
+    template<class Vs = Vt<T>> class Sh = std::shared_ptr
+  > class shared_vector_;
+  template<
+    class T = void_t, 
+    template<class Ts = T> class Vt = std::vector,
+    template<class Vs = Vt<T>> class Sh = std::shared_ptr
+  > using shared_vector = shared_vector_<decay_t<T>, Vt, Sh>;
 
   //
-  template<class T>
+  template<
+    class T, 
+    template<class Ts> class Vt,
+    template<class Vs> class Sh
+  >
   class shared_vector_ {
   protected:
     using St = shared_vector<T>;
-    using Sv = shared_vector_t<T>;
-    using Vt = std::vector<T>;
+    using Sv = Sh<Vt<T>>;
     Sv vect = {};
 
   public:
     // 
-    inline shared_vector_() : vect(std::make_shared<Vt>()) {};
+    inline shared_vector_() : vect(std::make_shared<Vt<T>>()) {};
     inline shared_vector_(St const& vect) : vect(vect.vect) {};
     inline shared_vector_(Sv const& vect) : vect(vect) {};
-    inline shared_vector_(Vt const& vect) : vect(std::make_shared<Vt>(vect)) { };
+    inline shared_vector_(Vt<T> const& vect) : vect(std::make_shared<Vt<T>>(vect)) { };
 
     //
     template<static_not<is_vector<T>>>
@@ -35,18 +46,18 @@ namespace cpp21 {
 
     //
     template<static_not<is_vector<T>>>
-    inline decltype(auto) operator=(T const& elem) { this->vect = std::make_shared<Vt>(&elem, &elem + 1u); return *this; };
-    inline decltype(auto) operator=(Vt const& vect) { this->vect = std::make_shared<Vt>(vect); return *this; };
+    inline decltype(auto) operator=(T const& elem) { this->vect = std::make_shared<Vt<T>>(&elem, &elem + 1u); return *this; };
+    inline decltype(auto) operator=(Vt<T> const& vect) { this->vect = std::make_shared<Vt<T>>(vect); return *this; };
     inline decltype(auto) operator=(St const& vect) { this->vect = vect.vect; return *this; };
 
 
     // 
-    inline operator Vt* () { return vect.get(); };
-    inline operator Vt const* () const { return vect.get(); };
+    inline operator Vt<T>* () { return vect.get(); };
+    inline operator Vt<T> const* () const { return vect.get(); };
 
     // 
-    inline operator Vt& () { return *vect; };
-    inline operator Vt const& () const { return *vect; };
+    inline operator Vt<T>& () { return *vect; };
+    inline operator Vt<T> const& () const { return *vect; };
 
     // 
     inline operator Sv() { return vect; };
