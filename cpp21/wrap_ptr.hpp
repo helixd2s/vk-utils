@@ -42,20 +42,20 @@ namespace cpp21 {
     inline decltype(auto) operator->() const { return this->ptr; };
 
     // 
-    inline decltype(auto) operator *() { return *this->ptr; };
-    inline decltype(auto) operator *() const { return *this->ptr; };
+    inline auto& operator *() { return *this->ptr; };
+    inline auto& operator *() const { return *this->ptr; };
 
     // 
     inline decltype(auto) operator&() { return &this->ptr; };
     inline decltype(auto) operator&() const { return &this->ptr; };
 
     // 
-    inline decltype(auto) ref() { return *this->ptr; };
-    inline decltype(auto) ref() const { return *this->ptr; };
+    inline auto& ref() { return *this->ptr; };
+    inline auto& ref() const { return *this->ptr; };
 
     // 
-    inline decltype(auto) value() { return *this->ptr; };
-    inline decltype(auto) value() const { return *this->ptr; };
+    inline auto& value() { return *this->ptr; };
+    inline auto& value() const { return *this->ptr; };
 
     //
     inline decltype(auto) get() { return this->ptr; };
@@ -125,12 +125,12 @@ namespace cpp21 {
     inline decltype(auto) get() const { return this->ptr.get(); };
 
     //
-    inline decltype(auto) ref() { return *this->ptr; };
-    inline decltype(auto) ref() const { return *this->ptr; };
+    inline auto& ref() { return *this->ptr; };
+    inline auto& ref() const { return *this->ptr; };
 
     //
-    inline decltype(auto) value() { return *this->ptr; };
-    inline decltype(auto) value() const { return *this->ptr; };
+    inline auto& value() { return *this->ptr; };
+    inline auto& value() const { return *this->ptr; };
 
     //
     inline decltype(auto) assign(St const& ref) { this->ptr = ref; return *this; };
@@ -149,8 +149,8 @@ namespace cpp21 {
     inline operator T const* () const { return this->get(); };
 
     //
-    inline decltype(auto) operator*() { return this->ref(); };
-    inline decltype(auto) operator*() const { return this->ref(); };
+    inline auto& operator*() { return this->ref(); };
+    inline auto& operator*() const { return this->ref(); };
 
     //
     inline decltype(auto) operator->() { return this->ptr.get(); };
@@ -186,7 +186,8 @@ namespace cpp21 {
   public:
     const_wrap_arg_() {};
     const_wrap_arg_(T&& rvalue) { temp = std::move(rvalue), const_cast<T*&>(ptr) = &temp.value(); };
-    const_wrap_arg_(T const& lvalue) : ptr(&lvalue) { temp = std::move(lvalue), const_cast<T*&>(ptr) = &temp.value(); };
+    //const_wrap_arg_(T const& lvalue) : ptr(&lvalue) { temp = std::move(lvalue), const_cast<T*&>(ptr) = &temp.value(); }; // losing context
+    const_wrap_arg_(T const& lvalue) : ptr(&lvalue) {}; 
     const_wrap_arg_(T const* pcvalue) : ptr(pcvalue) {};
     const_wrap_arg_(const_wrap_arg<T> const& wvalue) : ptr(wvalue.get()) { temp = wvalue.temp; const_cast<T*&>(ptr) = temp ? &temp.value() : const_cast<T*&>(wvalue.ptr); };
     const_wrap_arg_(wrap_ptr<T> const& wvalue) : ptr(wvalue.get()) {};
@@ -216,28 +217,28 @@ namespace cpp21 {
     inline decltype(auto) operator=(wrap_ptr<T> const& ref) { ptr = ref; return *this; };
 
     // value alias
-    //inline decltype(auto) value() { return *this->get(); };
-    inline decltype(auto) value() const { return *this->get(); };
+    //inline auto& value() { return *this->get(); };
+    inline auto& value() const { return *this->get(); };
 
     // 
     inline decltype(auto) get() const { return this->ptr; };
     //inline decltype(auto) get() { return const_cast<T*&>(this->ptr); };
 
     //
-    inline decltype(auto) ref() const { return *this->get(); };
-    //inline decltype(auto) ref() { return *this->get(); };
+    inline auto& ref() const { return *this->get(); };
+    //inline auto& ref() { return *this->get(); };
 
     // accessing operator
-    //inline decltype(auto) operator *() { return this->ref(); };
-    inline decltype(auto) operator *() const { return this->ref(); };
+    //inline auto& operator *() { return this->ref(); };
+    inline auto& operator *() const { return this->ref(); };
 
     // const accessing operator
     //inline decltype(auto) operator ->() { return this->get(); };
     inline decltype(auto) operator ->() const { return this->get(); };
 
     // because it's reference, pointer must got directly...
-    //inline decltype(auto) operator&() { return this->ref(); };
-    inline decltype(auto) operator&() const { return this->ref(); };
+    //inline auto& operator&() { return this->ref(); };
+    inline auto& operator&() const { return this->ref(); };
 
     // proxy...
     inline decltype(auto) operator[](uintptr_t const& index) const { return (*this->ptr)[index]; };
