@@ -194,16 +194,18 @@ namespace cpp21 {
 
     //
     inline operator bool() const { return !!ptr; };
+
+    // # isn't helping to avoid internal compiler error
     inline operator std::optional<T>() const { return this->optional(); };
-    inline decltype(auto) optional() const { return ptr ? std::optional<T>(const_cast<T&>(*ptr)) : std::nullopt; };
+    inline std::optional<T> optional() const { return ptr ? std::optional<T>(*ptr) : std::optional<T>{}; };
 
     //
     inline operator T const* () const { return this->get(); };
     inline operator T const& () const { return this->ref(); };
 
     //
-    inline operator T* () { return this->get(); };
-    inline operator T& () { return this->ref(); };
+    //inline operator T* () { return this->get(); };
+    //inline operator T& () { return this->ref(); };
 
     //
     inline decltype(auto) operator=(std::optional<T> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
@@ -214,27 +216,27 @@ namespace cpp21 {
     inline decltype(auto) operator=(wrap_ptr<T> const& ref) { ptr = ref; return *this; };
 
     // value alias
-    inline decltype(auto) value() { return *this->get(); };
+    //inline decltype(auto) value() { return *this->get(); };
     inline decltype(auto) value() const { return *this->get(); };
 
     // 
     inline decltype(auto) get() const { return this->ptr; };
-    inline decltype(auto) get() { return const_cast<T*&>(this->ptr); };
+    //inline decltype(auto) get() { return const_cast<T*&>(this->ptr); };
 
     //
     inline decltype(auto) ref() const { return *this->get(); };
-    inline decltype(auto) ref() { return *this->get(); };
+    //inline decltype(auto) ref() { return *this->get(); };
 
     // accessing operator
-    inline decltype(auto) operator *() { return this->ref(); };
+    //inline decltype(auto) operator *() { return this->ref(); };
     inline decltype(auto) operator *() const { return this->ref(); };
 
     // const accessing operator
-    inline decltype(auto) operator ->() { return this->get(); };
+    //inline decltype(auto) operator ->() { return this->get(); };
     inline decltype(auto) operator ->() const { return this->get(); };
 
     // because it's reference, pointer must got directly...
-    inline decltype(auto) operator&() { return this->ref(); };
+    //inline decltype(auto) operator&() { return this->ref(); };
     inline decltype(auto) operator&() const { return this->ref(); };
 
     // proxy...
