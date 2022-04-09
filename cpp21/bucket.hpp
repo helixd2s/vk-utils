@@ -109,8 +109,8 @@ namespace cpp21 {
     inline decltype(auto) operator->() const { return used.get(); };
 
     //
-    inline decltype(auto) operator*() { return used.get(); };
-    inline decltype(auto) operator*() const { return used.get(); };
+    inline decltype(auto) operator*() { return *used; };
+    inline decltype(auto) operator*() const { return *used; };
   };
 
 };
