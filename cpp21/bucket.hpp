@@ -92,6 +92,7 @@ namespace cpp21 {
     inline decltype(auto) operator=(T const& elem) { this->used = std::make_shared<Vt<T>>(&elem, &elem + 1u); this->free = Vt<uintptr_t>{}; return *this; };
     inline decltype(auto) operator=(Vt<T> const& vect) { this->used = std::make_shared<Vt<T>>(vect); this->free = Vt<uintptr_t>{}; return *this; };
     inline decltype(auto) operator=(SVt<T, Vt> const& vect) { this->used = vect; this->free = Vt<uintptr_t>{}; return *this; };
+    inline decltype(auto) operator=(bucket_<T, Vt, SVt> const& vect) { this->used = vect.used; this->free = vect.free; return *this; };
 
     //
     inline operator SVt<T, Vt>& () { return used; };
