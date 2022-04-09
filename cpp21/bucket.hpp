@@ -37,12 +37,17 @@ namespace cpp21 {
 
   public:
     // 
-    inline bucket_(Vt<T> used = {}, Vt<uintptr_t> free = {}) : used(used), free(free) {
+    inline bucket_(bucket_<T, Vt, SVt> const& buck = {}) : used(buck.used), free(buck.free) {
 
     };
 
     // 
-    inline bucket_(SVt<T, Vt> used = {}, SVt<uintptr_t, Vt> free = {}) : used(used), free(free) {
+    inline bucket_(Vt<T> const& used = {}, Vt<uintptr_t> const& free = {}) : used(used), free(free) {
+
+    };
+
+    // 
+    inline bucket_(SVt<T, Vt> const& used = {}, SVt<uintptr_t, Vt> const& free = {}) : used(used), free(free) {
 
     };
 
@@ -81,6 +86,12 @@ namespace cpp21 {
     inline decltype(auto) remove(uintptr_t const& idx) {
       return this->removeByIndex(idx);
     };
+
+    //
+    template<static_not<is_vector<T>>>
+    inline decltype(auto) operator=(T const& elem) { this->used = std::make_shared<Vt<T>>(&elem, &elem + 1u); this->free = Vt<uintptr_t>{}; return *this; };
+    inline decltype(auto) operator=(Vt<T> const& vect) { this->used = std::make_shared<Vt<T>>(vect); this->free = Vt<uintptr_t>{}; return *this; };
+    inline decltype(auto) operator=(SVt<T, Vt> const& vect) { this->used = vect; this->free = Vt<uintptr_t>{}; return *this; };
 
     //
     inline operator SVt<T, Vt>& () { return used; };
