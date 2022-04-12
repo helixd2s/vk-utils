@@ -334,6 +334,20 @@ namespace cpp21 {
   };
 
 
+  template<class T>
+  bool orEqual(T const& initial, std::vector<T> const& equals = {}) {
+    bool equally = false;
+    for (decltype(auto) value : equals) { equally |= (initial == value); };
+    return equally;
+  };
+
+  template<class T>
+  bool andEqual(T const& initial, std::vector<T> const& equals = {}) {
+    bool equally = true;
+    for (decltype(auto) value : equals) { equally &= (initial == value); };
+    return equally;
+  };
+
 };
 
 #endif
