@@ -8,6 +8,13 @@
 #define VULKAN_SIZES_H
 
 //
+#ifdef _UNICODE
+#ifndef UNICODE
+#define UNICODE
+#endif
+#endif
+
+//
 #ifdef _WIN32
 #ifndef VK_USE_PLATFORM_WIN32_KHR
 #define VK_USE_PLATFORM_WIN32_KHR
@@ -1153,6 +1160,9 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_KHR_acceleration_structure
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR: return sizeof(VkAccelerationStructureBuildSizesInfoKHR); break;
 #endif
+#ifdef VK_EXT_image_2d_view_of_3d
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT: return sizeof(VkPhysicalDeviceImage2DViewOf3DFeaturesEXT); break;
+#endif
 #ifdef VK_VALVE_mutable_descriptor_type
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_VALVE: return sizeof(VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE); break;
 #endif
@@ -1197,6 +1207,9 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
         case VK_STRUCTURE_TYPE_CHECKPOINT_DATA_2_NV: return sizeof(VkCheckpointData2NV); break;
 #endif
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES: return sizeof(VkPhysicalDeviceSynchronization2Features); break;
+#ifdef VK_EXT_primitives_generated_query
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVES_GENERATED_QUERY_FEATURES_EXT: return sizeof(VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT); break;
+#endif
 #ifdef VK_KHR_video_queue
         case VK_STRUCTURE_TYPE_VIDEO_QUEUE_FAMILY_PROPERTIES_2_KHR: return sizeof(VkVideoQueueFamilyProperties2KHR); break;
 #endif
@@ -1231,6 +1244,9 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
         case VK_STRUCTURE_TYPE_VIDEO_REFERENCE_SLOT_KHR: return sizeof(VkVideoReferenceSlotKHR); break;
 #endif
 #ifdef VK_KHR_video_decode_queue
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_CAPABILITIES_KHR: return sizeof(VkVideoDecodeCapabilitiesKHR); break;
+#endif
+#ifdef VK_KHR_video_decode_queue
         case VK_STRUCTURE_TYPE_VIDEO_DECODE_INFO_KHR: return sizeof(VkVideoDecodeInfoKHR); break;
 #endif
 #ifdef VK_EXT_video_decode_h264
@@ -1238,9 +1254,6 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #endif
 #ifdef VK_EXT_video_decode_h264
         case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_CAPABILITIES_EXT: return sizeof(VkVideoDecodeH264CapabilitiesEXT); break;
-#endif
-#ifdef VK_EXT_video_decode_h264
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_CREATE_INFO_EXT: return sizeof(VkVideoDecodeH264SessionCreateInfoEXT); break;
 #endif
 #ifdef VK_EXT_video_decode_h264
         case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_ADD_INFO_EXT: return sizeof(VkVideoDecodeH264SessionParametersAddInfoEXT); break;
@@ -1262,9 +1275,6 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #endif
 #ifdef VK_EXT_video_decode_h265
         case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_CAPABILITIES_EXT: return sizeof(VkVideoDecodeH265CapabilitiesEXT); break;
-#endif
-#ifdef VK_EXT_video_decode_h265
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_CREATE_INFO_EXT: return sizeof(VkVideoDecodeH265SessionCreateInfoEXT); break;
 #endif
 #ifdef VK_EXT_video_decode_h265
         case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_ADD_INFO_EXT: return sizeof(VkVideoDecodeH265SessionParametersAddInfoEXT); break;
@@ -1305,11 +1315,11 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #ifdef VK_KHR_video_encode_queue
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_LAYER_INFO_KHR: return sizeof(VkVideoEncodeRateControlLayerInfoKHR); break;
 #endif
-#ifdef VK_EXT_video_encode_h264
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_CAPABILITIES_EXT: return sizeof(VkVideoEncodeH264CapabilitiesEXT); break;
+#ifdef VK_KHR_video_encode_queue
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_CAPABILITIES_KHR: return sizeof(VkVideoEncodeCapabilitiesKHR); break;
 #endif
 #ifdef VK_EXT_video_encode_h264
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_CREATE_INFO_EXT: return sizeof(VkVideoEncodeH264SessionCreateInfoEXT); break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_CAPABILITIES_EXT: return sizeof(VkVideoEncodeH264CapabilitiesEXT); break;
 #endif
 #ifdef VK_EXT_video_encode_h264
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_ADD_INFO_EXT: return sizeof(VkVideoEncodeH264SessionParametersAddInfoEXT); break;
@@ -1322,6 +1332,9 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #endif
 #ifdef VK_EXT_video_encode_h264
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_VCL_FRAME_INFO_EXT: return sizeof(VkVideoEncodeH264VclFrameInfoEXT); break;
+#endif
+#ifdef VK_EXT_video_encode_h264
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_REFERENCE_LISTS_EXT: return sizeof(VkVideoEncodeH264ReferenceListsEXT); break;
 #endif
 #ifdef VK_EXT_video_encode_h264
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_EMIT_PICTURE_PARAMETERS_EXT: return sizeof(VkVideoEncodeH264EmitPictureParametersEXT); break;
@@ -1342,9 +1355,6 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_CAPABILITIES_EXT: return sizeof(VkVideoEncodeH265CapabilitiesEXT); break;
 #endif
 #ifdef VK_EXT_video_encode_h265
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_CREATE_INFO_EXT: return sizeof(VkVideoEncodeH265SessionCreateInfoEXT); break;
-#endif
-#ifdef VK_EXT_video_encode_h265
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_ADD_INFO_EXT: return sizeof(VkVideoEncodeH265SessionParametersAddInfoEXT); break;
 #endif
 #ifdef VK_EXT_video_encode_h265
@@ -1357,7 +1367,7 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_EMIT_PICTURE_PARAMETERS_EXT: return sizeof(VkVideoEncodeH265EmitPictureParametersEXT); break;
 #endif
 #ifdef VK_EXT_video_encode_h265
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_NALU_SLICE_EXT: return sizeof(VkVideoEncodeH265NaluSliceEXT); break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_NALU_SLICE_SEGMENT_EXT: return sizeof(VkVideoEncodeH265NaluSliceSegmentEXT); break;
 #endif
 #ifdef VK_EXT_video_encode_h265
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_INFO_EXT: return sizeof(VkVideoEncodeH265RateControlInfoEXT); break;
@@ -1486,6 +1496,24 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
 #endif
 #ifdef VK_NV_linear_color_attachment
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINEAR_COLOR_ATTACHMENT_FEATURES_NV: return sizeof(VkPhysicalDeviceLinearColorAttachmentFeaturesNV); break;
+#endif
+#ifdef VK_EXT_graphics_pipeline_library
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT: return sizeof(VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT); break;
+#endif
+#ifdef VK_EXT_graphics_pipeline_library
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_PROPERTIES_EXT: return sizeof(VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT); break;
+#endif
+#ifdef VK_EXT_graphics_pipeline_library
+        case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_LIBRARY_CREATE_INFO_EXT: return sizeof(VkGraphicsPipelineLibraryCreateInfoEXT); break;
+#endif
+#ifdef VK_VALVE_descriptor_set_host_mapping
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_SET_HOST_MAPPING_FEATURES_VALVE: return sizeof(VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE); break;
+#endif
+#ifdef VK_VALVE_descriptor_set_host_mapping
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_BINDING_REFERENCE_VALVE: return sizeof(VkDescriptorSetBindingReferenceVALVE); break;
+#endif
+#ifdef VK_VALVE_descriptor_set_host_mapping
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_HOST_MAPPING_INFO_VALVE: return sizeof(VkDescriptorSetLayoutHostMappingInfoVALVE); break;
 #endif
         //default: 
     };
