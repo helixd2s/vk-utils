@@ -107,7 +107,7 @@ namespace cpp21 {
     inline decltype(auto) operator[](uintptr_t const& index) const { return used->at(index); };
 
     //
-    inline decltype(auto) clear() { used->clear(); free->clear(); used.resize(0u); free->resize(0u); };
+    inline decltype(auto) clear() { used->clear(); free->clear(); used->resize(0u); free->resize(0u); };
     inline decltype(auto) size() { return used->size(); };
     inline decltype(auto) data() { return used->data(); };
     inline decltype(auto) data() const { return used->data(); };
