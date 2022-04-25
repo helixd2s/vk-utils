@@ -188,6 +188,10 @@ namespace cpp21 {
   inline decltype(auto) shift(auto* data, uintptr_t offset = 0ull) { return reinterpret_cast<decltype(data)>(reinterpret_cast<uintptr_t&>(data) + offset); };
   inline decltype(auto) shift(const auto* data, uintptr_t offset = 0ull) { return reinterpret_cast<decltype(data)>(reinterpret_cast<const uintptr_t&>(data) + offset); };
 
+  //
+  template<class T>
+  inline decltype(auto) exchange(T& ref, T const& value) { auto old = ref; ref = value; return old; };
+
   //using void_t = uint8_t;
 #pragma pack(push, 0)
   class void_t {
