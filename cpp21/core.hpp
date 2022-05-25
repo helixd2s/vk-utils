@@ -40,6 +40,7 @@
 #include <typeindex>
 #include <coroutine>
 #include <span>
+#include <numeric>
 #endif
 
 // 
@@ -67,6 +68,14 @@ namespace cpp21 {
     //using St = std::shared_ptr<T>;
     //static constexpr decltype(auto) type(St _s) { return *_s; };
   //};
+
+  template<typename T>
+  void apply_permutation(std::vector<T>& v, std::vector<uintptr_t> const& order) {
+    for (int s = 1, d; s < order.size(); ++s) {
+      for (d = order[s]; d < s; d = order[d]);
+      if (d == s) while (d = order[d], d != s) std::swap(v[s], v[d]);
+    };
+  };
 
   // 
 #define CPP21_FN_ALIAS(NAME, CALL) \

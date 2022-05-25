@@ -21,6 +21,7 @@
 #include <typeindex>
 #include <coroutine>
 #include <span>
+#include <numeric>
 #ifdef _MSC_VER 
 #include <experimental/generator>
 #else
