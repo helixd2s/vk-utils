@@ -40,6 +40,7 @@
 #include <typeindex>
 #include <coroutine>
 #include <span>
+#include <numeric>
 #endif
 
 // 
@@ -51,6 +52,16 @@
 
 // 
 namespace cpp21 {
+
+  //
+  template<typename T>
+  void apply_permutation(std::vector<T>& v, std::vector<uintptr_t> const& order) {
+    for (int s = 1, d; s < order.size(); ++s) {
+      for (d = order[s]; d < s; d = order[d]);
+      if (d == s) while (d = order[d], d != s) std::swap(v[s], v[d]);
+    };
+  };
+
 
   //
   template<typename T> struct is_shared_ptr : std::false_type {};
