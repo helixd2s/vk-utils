@@ -97,6 +97,100 @@ namespace cpp21 {
     return wrap_ptr<T>(pt);
   };
 
+
+
+  //
+  template<class T = void_t> class wrap_weak_ptr_;
+  template<class T = void_t> using wrap_weak_ptr = wrap_weak_ptr_<decay_t<T>>;
+
+  // 
+  template<class T>
+  class wrap_weak_ptr_ {
+  public:
+  protected:
+    using St = std::weak_ptr<T>;
+    St ptr = {};
+
+  public:
+    // 
+    inline wrap_weak_ptr_(std::shared_ptr<T> shp = {}) : ptr(shp) {};
+    inline wrap_weak_ptr_(std::weak_ptr<T> shp = {}) : ptr(shp) {};
+
+    //
+    inline operator bool() const { return !(this->ptr.expired()); };
+
+    //
+    inline decltype(auto) shared() { return this->ptr.lock(); };
+    inline decltype(auto) shared() const { return this->ptr.lock(); };
+
+    //
+    inline decltype(auto) lock() { return this->ptr.lock(); };
+    inline decltype(auto) lock() const { return this->ptr.lock(); };
+
+    //
+    inline std::weak_ptr<T> weak() { return this->ptr; };
+    inline std::weak_ptr<T> weak() const { return this->ptr; };
+
+    //
+    inline decltype(auto) get() { return this->ptr.lock().get(); };
+    inline decltype(auto) get() const { return this->ptr.lock().get(); };
+
+    //
+    inline auto& ref() { return *this->ptr.lock(); };
+    inline auto& ref() const { return *this->ptr.lock(); };
+
+    //
+    inline auto& value() { return *this->ptr.lock(); };
+    inline auto& value() const { return *this->ptr.lock(); };
+
+    //
+    inline decltype(auto) assign(std::weak_ptr<T> const& ref) { this->ptr = ref; return *this; };
+    inline decltype(auto) assign(std::shared_ptr<T> const& ref) { this->ptr = ref; return *this; };
+    inline decltype(auto) assign(T const& ref) { if (this->ptr.expired()) { this->ptr = std::make_shared<T>(ref); } else { (*this->ptr) = ref; }; return *this; };
+    inline decltype(auto) assign(T && ref) { if (this->ptr.expired()) { this->ptr = std::make_shared<T>(ref); } else { (*this->ptr) = ref; }; return *this; };
+    inline decltype(auto) assign(T & ref) { if (this->ptr.expired()) { this->ptr = std::shared_ptr<T>(&ref); } else { (*this->ptr) = ref; }; return *this; };
+
+    //
+    inline decltype(auto) operator=(std::weak_ptr<T> const& ref) { return this->assign(ref); };
+    inline decltype(auto) operator=(std::shared_ptr<T> const& ref) { return this->assign(ref); };
+    inline decltype(auto) operator=(T const& ref) { return this->assign(ref); };
+    inline decltype(auto) operator=(T && ref) { return this->assign(ref); };
+    inline decltype(auto) operator=(T & ref) { return this->assign(ref); };
+
+    //
+    inline operator St&() { return this->ptr; };
+    inline operator St const&() const { return this->ptr; };
+
+    //
+    inline operator std::shared_ptr<T>() { return this->ptr.lock(); };
+    inline operator std::shared_ptr<T>() const { return this->ptr.lock(); };
+
+    //
+    inline operator T& () { return this->ref(); };
+    inline operator T const& () const { return this->ref(); };
+
+    //
+    inline operator T* () { return this->get(); };
+    inline operator T const* () const { return this->get(); };
+
+    //
+    inline auto& operator*() { return this->ref(); };
+    inline auto& operator*() const { return this->ref(); };
+
+    //
+    inline decltype(auto) operator->() { return this->ptr.lock().get(); };
+    inline decltype(auto) operator->() const { return this->ptr.lock().get(); };
+
+    // proxy...
+    inline decltype(auto) operator[](uintptr_t const& index) const { return (*this->ptr.lock())[index]; };
+    inline decltype(auto) operator[](uint32_t const& index) const { return (*this->ptr.lock())[index]; };
+
+    //
+    //inline decltype(auto) operator&() { return this->get(); };
+    //inline decltype(auto) operator&() const { return this->get(); };
+  };
+
+
   //
   template<class T = void_t> class wrap_shared_ptr_;
   template<class T = void_t> using wrap_shared_ptr = wrap_shared_ptr_<decay_t<T>>;
@@ -124,8 +218,8 @@ namespace cpp21 {
     inline decltype(auto) shared() const { return this->ptr; };
 
     //
-    inline std::weak_ptr<T> weak() { return this->ptr; };
-    inline std::weak_ptr<T> weak() const { return this->ptr; };
+    inline decltype(auto) weak() { return wrap_weak_ptr(this->ptr); };
+    inline decltype(auto) weak() const { return wrap_weak_ptr(this->ptr); };
 
     //
     inline decltype(auto) get() { return this->ptr.get(); };
@@ -156,8 +250,12 @@ namespace cpp21 {
     inline operator St const& () const { return this->ptr; };
 
     //
-    inline operator std::weak_ptr<T>() { return this->ptr; };
-    inline operator std::weak_ptr<T>() const { return this->ptr; };
+    inline operator std::weak_ptr<T>() { return wrap_weak_ptr(this->ptr); };
+    inline operator std::weak_ptr<T>() const { return wrap_weak_ptr(this->ptr); };
+
+    //
+    inline operator wrap_weak_ptr<T>() { return wrap_weak_ptr(this->ptr); };
+    inline operator wrap_weak_ptr<T>() const { return wrap_weak_ptr(this->ptr); };
 
     //
     inline operator T& () { return this->ref(); };
@@ -183,6 +281,8 @@ namespace cpp21 {
     //inline decltype(auto) operator&() { return this->get(); };
     //inline decltype(auto) operator&() const { return this->get(); };
   };
+
+
 
   //
   template<class T>
@@ -272,6 +372,8 @@ namespace cpp21 {
   template<class T> using carg = const_wrap_arg<T>;
   template<class T> using obj = wrap_shared_ptr<T>;
   template<class T> using object = wrap_shared_ptr<T>;
+  template<class T> using wobj = wrap_weak_ptr<T>;
+  template<class T> using wobject = wrap_weak_ptr<T>;
 
 };
 
