@@ -124,6 +124,10 @@ namespace cpp21 {
     inline decltype(auto) shared() const { return this->ptr; };
 
     //
+    inline std::weak_ptr<T> weak() { return this->ptr; };
+    inline std::weak_ptr<T> weak() const { return this->ptr; };
+
+    //
     inline decltype(auto) get() { return this->ptr.get(); };
     inline decltype(auto) get() const { return this->ptr.get(); };
 
@@ -150,6 +154,10 @@ namespace cpp21 {
     //
     inline operator St& () { return this->ptr; };
     inline operator St const& () const { return this->ptr; };
+
+    //
+    inline operator std::weak_ptr<T>() { return this->ptr; };
+    inline operator std::weak_ptr<T>() const { return this->ptr; };
 
     //
     inline operator T& () { return this->ref(); };
