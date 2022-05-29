@@ -167,6 +167,10 @@ namespace cpp21 {
     inline decltype(auto) operator->() { return this->ptr.get(); };
     inline decltype(auto) operator->() const { return this->ptr.get(); };
 
+    // proxy...
+    inline decltype(auto) operator[](uintptr_t const& index) const { return (*this->ptr)[index]; };
+    inline decltype(auto) operator[](uint32_t const& index) const { return (*this->ptr)[index]; };
+
     //
     //inline decltype(auto) operator&() { return this->get(); };
     //inline decltype(auto) operator&() const { return this->get(); };
