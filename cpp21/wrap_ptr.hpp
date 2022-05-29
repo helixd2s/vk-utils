@@ -203,6 +203,7 @@ namespace cpp21 {
   class wrap_shared_ptr_ {
   public:
   protected:
+    // TODO: atomic support
     using St = std::shared_ptr<T>;
     St ptr = {};
 
@@ -261,6 +262,10 @@ namespace cpp21 {
     inline decltype(auto) assign(T const& ref) { if (!this->ptr) { this->ptr = std::make_shared<T>(ref); } else { (*this->ptr) = ref; }; return *this; };
     inline decltype(auto) assign(T && ref) { if (!this->ptr) { this->ptr = std::make_shared<T>(ref); } else { (*this->ptr) = ref; }; return *this; };
     inline decltype(auto) assign(T & ref) { if (!this->ptr) { this->ptr = std::shared_ptr<T>(&ref); } else { (*this->ptr) = ref; }; return *this; };
+
+    // TODO: support other types
+    inline decltype(auto) exchange(St const& ref) { auto old = this->ptr; this->ptr = ref; return old; };
+    inline decltype(auto) exchange(wrap_shared_ptr<T> const& ref) { auto old = this->ptr; this->ptr = ref.shared(); return old; };
 
     //
     inline decltype(auto) operator=(St const& ref) { return this->assign(ref); };
