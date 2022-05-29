@@ -112,6 +112,9 @@ namespace cpp21 {
   public:
     // 
     inline wrap_shared_ptr_(St shp = {}) : ptr(shp) {};
+    inline wrap_shared_ptr_(T const& shp) : ptr(std::make_shared<T>(shp)) {};
+    inline wrap_shared_ptr_(T && shp) : ptr(std::make_shared<T>(shp)) {};
+    inline wrap_shared_ptr_(T & shp) : ptr(std::shared_ptr<T>(&shp)) {};
 
     //
     inline operator bool() const { return !!this->ptr; };
@@ -134,7 +137,15 @@ namespace cpp21 {
 
     //
     inline decltype(auto) assign(St const& ref) { this->ptr = ref; return *this; };
+    inline decltype(auto) assign(T const& ref) { if (!this->ptr) { this->ptr = std::make_shared<T>(ref); } else { (*this->ptr) = ref; }; return *this; };
+    inline decltype(auto) assign(T && ref) { if (!this->ptr) { this->ptr = std::make_shared<T>(ref); } else { (*this->ptr) = ref; }; return *this; };
+    inline decltype(auto) assign(T & ref) { if (!this->ptr) { this->ptr = std::shared_ptr<T>(&ref); } else { (*this->ptr) = ref; }; return *this; };
+
+    //
     inline decltype(auto) operator=(St const& ref) { return this->assign(ref); };
+    inline decltype(auto) operator=(T const& ref) { return this->assign(ref); };
+    inline decltype(auto) operator=(T && ref) { return this->assign(ref); };
+    inline decltype(auto) operator=(T & ref) { return this->assign(ref); };
 
     //
     inline operator St& () { return this->ptr; };
@@ -245,6 +256,10 @@ namespace cpp21 {
     inline decltype(auto) operator[](uint32_t const& index) const { return (*this->ptr)[index]; };
   };
 
+  //
+  template<class T> using carg = const_wrap_arg<T>;
+  template<class T> using obj = wrap_shared_ptr<T>;
+  template<class T> using object = wrap_shared_ptr<T>;
 
 };
 
