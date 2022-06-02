@@ -220,6 +220,8 @@ namespace cpp21 {
     inline wrap_shared_ptr_(T const& shp) : ptr(std::make_shared<T>(shp)) {};
     inline wrap_shared_ptr_(T && shp) : ptr(std::make_shared<T>(shp)) {};
     inline wrap_shared_ptr_(T & shp) : ptr(std::shared_ptr<T>(&shp)) {};
+    
+    //
     inline wrap_shared_ptr_(T* shp) : ptr(std::shared_ptr<T>(shp)) {};
     inline wrap_shared_ptr_(T const* shp) : ptr(std::shared_ptr<T>(shp)) {};
 
