@@ -40,7 +40,7 @@ namespace cpp21 {
     inline data_view_() {};
 
     // check operator
-    inline operator bool() const { return !!this->ptr; };
+    inline operator bool() const { return !!this->ptr.data() && this->ptr.size() > 0; };
 
     // type conversion
     inline operator T& () { return *this->ptr; };

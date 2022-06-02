@@ -84,22 +84,6 @@ namespace cpp21 {
   };
 
   //
-  template<class Ts = void_t, class T = std::decay_t<Ts>>
-  inline decltype(auto) pointer(std::optional<T> const& ref) {
-    T* pt = const_cast<T*>(ref ? (&ref.value()) : nullptr);
-    return wrap_ptr<T>(pt);
-  };
-
-  //
-  template<class Ts = void_t, class T = std::decay_t<Ts>>
-  inline decltype(auto) pointer(std::optional<const T> const& ref) {
-    T* pt = const_cast<T*>(ref ? (&ref.value()) : nullptr);
-    return wrap_ptr<T>(pt);
-  };
-
-
-
-  //
   template<class T = void_t> class wrap_weak_ptr_;
   template<class T = void_t> using wrap_weak_ptr = wrap_weak_ptr_<decay_t<T>>;
 
@@ -347,11 +331,11 @@ namespace cpp21 {
 
   public:
     const_wrap_arg_() {};
-    const_wrap_arg_(T&& rvalue) { temp = std::move(rvalue), const_cast<T*&>(ptr) = &temp.value(); };
+    const_wrap_arg_(T&& rvalue) { temp = std::move(rvalue), ptr = &temp.value(); };
     //const_wrap_arg_(T const& lvalue) : ptr(&lvalue) { temp = std::move(lvalue), const_cast<T*&>(ptr) = &temp.value(); }; // losing context
-    const_wrap_arg_(T const& lvalue) : ptr(&lvalue) {}; 
+    const_wrap_arg_(T const& lvalue) : ptr(&lvalue) {};
     const_wrap_arg_(T const* pcvalue) : ptr(pcvalue) {};
-    const_wrap_arg_(const_wrap_arg<T> const& wvalue) : ptr(wvalue.get()) { temp = wvalue.temp; const_cast<T*&>(ptr) = temp ? &temp.value() : const_cast<T*&>(wvalue.ptr); };
+    const_wrap_arg_(const_wrap_arg<T> const& wvalue) : ptr(wvalue.get()) { this->temp = wvalue.temp; ptr = ((!!this->temp) ? (&const_cast<T&>(this->temp.value())) : (const_cast<T*>(wvalue.get()))); };
     const_wrap_arg_(wrap_ptr<T> const& wvalue) : ptr(wvalue.get()) {};
     const_wrap_arg_(std::optional<T> const& lcvalue) : ptr(lcvalue ? &lcvalue.value() : nullptr) {};
     const_wrap_arg_(wrap_shared_ptr<T> const& wvalue) : ptr(wvalue.get()) {};
@@ -415,6 +399,28 @@ namespace cpp21 {
   template<class T> using object = wrap_shared_ptr<T>;
   template<class T> using wobj = wrap_weak_ptr<T>;
   template<class T> using wobject = wrap_weak_ptr<T>;
+
+
+  //
+  template<class Ts = void_t, class T = std::decay_t<Ts>>
+  inline decltype(auto) pointer(std::optional<T> const& ref) {
+    T* pt = const_cast<T*>(ref ? (&ref.value()) : nullptr);
+    return wrap_ptr<T>(pt);
+  };
+
+  //
+  template<class Ts = void_t, class T = std::decay_t<Ts>>
+  inline decltype(auto) pointer(std::optional<const T> const& ref) {
+    T* pt = const_cast<T*>(ref ? (&ref.value()) : nullptr);
+    return wrap_ptr<T>(pt);
+  };
+
+  //
+  template<class Ts = void_t, class T = std::decay_t<Ts>>
+  inline decltype(auto) pointer(const_wrap_arg<T> const& ref) {
+    T* pt = const_cast<T*>(ref ? (&ref.value()) : nullptr);
+    return wrap_ptr<T>(pt);
+  };
 
 };
 
