@@ -220,6 +220,8 @@ namespace cpp21 {
     inline wrap_shared_ptr_(T const& shp) : ptr(std::make_shared<T>(shp)) {};
     inline wrap_shared_ptr_(T && shp) : ptr(std::make_shared<T>(shp)) {};
     inline wrap_shared_ptr_(T & shp) : ptr(std::shared_ptr<T>(&shp)) {};
+    inline wrap_shared_ptr_(T* shp) : ptr(std::shared_ptr<T>(shp)) {};
+    inline wrap_shared_ptr_(T const* shp) : ptr(std::shared_ptr<T>(shp)) {};
 
     //
     inline decltype(auto) weak() { return wrap_weak_ptr(this->ptr); };
@@ -263,6 +265,10 @@ namespace cpp21 {
     inline decltype(auto) assign(T && ref) { if (!this->ptr) { this->ptr = std::make_shared<T>(ref); } else { (*this->ptr) = ref; }; return *this; };
     inline decltype(auto) assign(T & ref) { if (!this->ptr) { this->ptr = std::shared_ptr<T>(&ref); } else { (*this->ptr) = ref; }; return *this; };
 
+    //
+    inline decltype(auto) assign(T const* ref) { if (!this->ptr) { this->ptr = std::shared_ptr<T>(ref); } else { (*this->ptr) = *ref; }; return *this; };
+    inline decltype(auto) assign(T * ref) { if (!this->ptr) { this->ptr = std::shared_ptr<T>(ref); } else { (*this->ptr) = *ref; }; return *this; };
+
     // TODO: support other types
     inline decltype(auto) exchange(St const& ref) { auto old = this->ptr; this->ptr = ref; return old; };
     inline decltype(auto) exchange(wrap_shared_ptr<T> const& ref) { auto old = this->ptr; this->ptr = ref.shared(); return old; };
@@ -277,6 +283,10 @@ namespace cpp21 {
     inline decltype(auto) operator=(T const& ref) { return this->assign(std::move(ref)); };
     inline decltype(auto) operator=(T && ref) { return this->assign(std::move(ref)); };
     inline decltype(auto) operator=(T & ref) { return this->assign(std::move(ref)); };
+
+    //
+    inline decltype(auto) operator=(T* ref) { return this->assign(ref); };
+    inline decltype(auto) operator=(T const* ref) { return this->assign(ref); };
 
     //
     inline operator St& () { return this->ptr; };
