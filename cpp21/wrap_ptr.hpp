@@ -354,6 +354,7 @@ namespace cpp21 {
     const_wrap_arg_(const_wrap_arg<T> const& wvalue) : ptr(wvalue.get()) { temp = wvalue.temp; const_cast<T*&>(ptr) = temp ? &temp.value() : const_cast<T*&>(wvalue.ptr); };
     const_wrap_arg_(wrap_ptr<T> const& wvalue) : ptr(wvalue.get()) {};
     const_wrap_arg_(std::optional<T> const& lcvalue) : ptr(lcvalue ? &lcvalue.value() : nullptr) {};
+    const_wrap_arg_(wrap_shared_ptr<T> const& wvalue) : ptr(wvalue.get()) {};
 
     //
     inline operator bool() const { return !!ptr; };
@@ -376,7 +377,8 @@ namespace cpp21 {
     inline decltype(auto) operator=(T const& ref) { ptr = &ref; return *this; };
     inline decltype(auto) operator=(T const* ref) { ptr = ref; return *this; };
     inline decltype(auto) operator=(const_wrap_arg<T> const& wvalue) { temp = wvalue.temp; const_cast<T*&>(ptr) = temp ? &temp.value() : const_cast<T*&>(wvalue.ptr); return *this; };
-    inline decltype(auto) operator=(wrap_ptr<T> const& ref) { ptr = ref; return *this; };
+    inline decltype(auto) operator=(wrap_ptr<T> const& ref) { ptr = ref.get(); return *this; };
+    inline decltype(auto) operator=(wrap_shared_ptr<T> const& ref) { ptr = ref.get(); return *this; };
 
     // value alias
     //inline auto& value() { return *this->get(); };
