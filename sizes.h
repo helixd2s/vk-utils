@@ -8,13 +8,6 @@
 #define VULKAN_SIZES_H
 
 //
-#ifdef _UNICODE
-#ifndef UNICODE
-#define UNICODE
-#endif
-#endif
-
-//
 #ifdef _WIN32
 #ifndef VK_USE_PLATFORM_WIN32_KHR
 #define VK_USE_PLATFORM_WIN32_KHR
