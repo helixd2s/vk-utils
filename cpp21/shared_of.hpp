@@ -37,7 +37,7 @@ namespace cpp21 {
     inline shared_vector_(St const& vect) : vect(vect.vect) {};
     inline shared_vector_(Sv const& vect) : vect(vect) {};
     inline shared_vector_(Vt<T> const& vect) : vect(std::make_shared<Vt<T>>(vect)) { };
-    inline shared_vector_(Vt<T> const* vect) : vect(std::shared_ptr<Vt<T>>(vect)) { }; // for javacpp
+    inline shared_vector_(Vt<T>* vect) : vect(std::shared_ptr<Vt<T>>(vect)) { }; // for javacpp
 
     //
     template<static_not<is_vector<T>>> inline shared_vector_(T const& elem, size_t const& count = 1u) : vect(std::make_shared<Vt>(&elem, &elem+count)) {};
@@ -48,7 +48,7 @@ namespace cpp21 {
     template<static_not<is_vector<T>>> inline decltype(auto) operator=(T const* elem) { return this->assign(elem, 1u); };
 
     //
-    inline decltype(auto) operator=(Vt<T> const* vect) { this->vect = std::shared_ptr<Vt<T>>(vect); return *this; };
+    inline decltype(auto) operator=(Vt<T>* vect) { this->vect = std::shared_ptr<Vt<T>>(vect); return *this; };
     inline decltype(auto) operator=(Vt<T> const& vect) { this->vect = std::make_shared<Vt<T>>(vect); return *this; };
     inline decltype(auto) operator=(St const& vect) { this->vect = vect.vect; return *this; };
 
