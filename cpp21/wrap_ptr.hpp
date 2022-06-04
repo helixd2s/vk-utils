@@ -276,9 +276,7 @@ namespace cpp21 {
 
     //
     inline operator St& () { return this->ptr; };
-    inline operator St const& () const { return this->ptr; };
-
-   
+    inline operator St const&() const { return this->ptr; };
 
     //
     inline operator T& () { return this->ref(); };
