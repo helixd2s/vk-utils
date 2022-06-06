@@ -376,7 +376,7 @@ namespace cpp21 {
 
     // accessing operator
     //inline auto& operator *() { return this->ref(); };
-    inline auto& operator *() const { return this->ref(); };
+    inline decltype(auto) operator *() const { return this->ref(); };
 
     // const accessing operator
     //inline decltype(auto) operator ->() { return this->get(); };
@@ -384,7 +384,7 @@ namespace cpp21 {
 
     // because it's reference, pointer must got directly...
     //inline auto& operator&() { return this->get(); };
-    inline auto& operator&() const { return this->get(); };
+    inline decltype(auto) operator&() const { return this->get(); };
 
     // proxy...
     inline decltype(auto) operator[](uintptr_t const& index) const { return (*this->ptr)[index]; };
