@@ -43,12 +43,12 @@ namespace cpp21 {
     inline operator bool() const { return !!this->ptr.data() && this->ptr.size() > 0; };
 
     // type conversion
-    inline operator T& () { return *this->ptr; };
-    inline operator T const& () const { return *this->ptr; };
+    inline operator T& () { return *this->ptr.data(); };
+    inline operator T const& () const { return *this->ptr.data(); };
 
     // type conversion
-    inline operator T* () { return this->ptr; };
-    inline operator T const* () const { return this->ptr; };
+    inline operator T* () { return this->ptr.data(); };
+    inline operator T const* () const { return this->ptr.data(); };
 
     // type conversion
     inline operator Sp<T>&() { return reinterpret_cast<Sp<T>&>(*this); };

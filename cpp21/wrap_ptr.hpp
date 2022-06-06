@@ -350,8 +350,8 @@ namespace cpp21 {
     inline operator T const& () const { return this->ref(); };
 
     //
-    //inline operator T* () { return this->get(); };
-    //inline operator T& () { return this->ref(); };
+    inline operator T* () { return this->get(); };
+    inline operator T& () { return this->ref(); };
 
     //
     inline decltype(auto) operator=(std::optional<T> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
@@ -363,27 +363,27 @@ namespace cpp21 {
     inline decltype(auto) operator=(wrap_shared_ptr<T> const& ref) { ptr = ref.get(); return *this; };
 
     // value alias
-    //inline auto& value() { return *this->get(); };
+    inline auto& value() { return *this->get(); };
     inline auto& value() const { return *this->get(); };
 
     // 
     inline decltype(auto) get() const { return this->ptr; };
-    //inline decltype(auto) get() { return const_cast<T*&>(this->ptr); };
+    inline decltype(auto) get() { return const_cast<T*&>(this->ptr); };
 
     //
     inline auto& ref() const { return *this->get(); };
-    //inline auto& ref() { return *this->get(); };
+    inline auto& ref() { return *this->get(); };
 
     // accessing operator
-    //inline auto& operator *() { return this->ref(); };
+    inline decltype(auto) operator *() { return this->ref(); };
     inline decltype(auto) operator *() const { return this->ref(); };
 
     // const accessing operator
-    //inline decltype(auto) operator ->() { return this->get(); };
+    inline decltype(auto) operator ->() { return this->get(); };
     inline decltype(auto) operator ->() const { return this->get(); };
 
     // because it's reference, pointer must got directly...
-    //inline auto& operator&() { return this->get(); };
+    inline decltype(auto) operator&() { return this->get(); };
     inline decltype(auto) operator&() const { return this->get(); };
 
     // proxy...
