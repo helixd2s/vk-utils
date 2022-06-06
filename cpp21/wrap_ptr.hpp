@@ -340,6 +340,7 @@ namespace cpp21 {
 
     //
     inline operator bool() const { return !!ptr; };
+    inline operator bool() { return !!ptr; };
 
     // # isn't helping to avoid internal compiler error
     inline operator std::optional<T>() const { return this->optional(); };
