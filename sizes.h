@@ -1536,10 +1536,10 @@ size_t vkGetStructureSizeBySType(VkStructureType sType) {
         case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_CONTROL_EXT: return sizeof(VkRenderPassCreationControlEXT); break;
 #endif
 #ifdef VK_EXT_subpass_merge_feedback
-        case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_FEEDBACK_INFO_EXT: return sizeof(VkRenderPassCreationFeedbackInfoEXT); break;
+        case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_FEEDBACK_CREATE_INFO_EXT: return sizeof(VkRenderPassCreationFeedbackCreateInfoEXT); break;
 #endif
 #ifdef VK_EXT_subpass_merge_feedback
-        case VK_STRUCTURE_TYPE_RENDER_PASS_SUBPASS_FEEDBACK_INFO_EXT: return sizeof(VkRenderPassSubpassFeedbackInfoEXT); break;
+        case VK_STRUCTURE_TYPE_RENDER_PASS_SUBPASS_FEEDBACK_CREATE_INFO_EXT: return sizeof(VkRenderPassSubpassFeedbackCreateInfoEXT); break;
 #endif
 #ifdef VK_EXT_subpass_merge_feedback
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT: return sizeof(VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT); break;

@@ -37,7 +37,12 @@ namespace cpp21 {
 
   public:
     // 
-    inline bucket_(bucket_<T, Vt, SVt> const& buck = {}) : used(buck.used), free(buck.free) {
+    inline bucket_(bucket_<T, Vt, SVt> const& buck) : used(buck.used), free(buck.free) {
+
+    };
+
+    // 
+    inline bucket_(SVt<T, Vt> const& used, SVt<uintptr_t, Vt> const& free = {}) : used(used), free(free) {
 
     };
 
@@ -46,10 +51,20 @@ namespace cpp21 {
 
     };
 
-    // 
-    inline bucket_(SVt<T, Vt> const& used = {}, SVt<uintptr_t, Vt> const& free = {}) : used(used), free(free) {
+    // workaround for JavaCpp
+     //static decltype(auto) make(Vt<T> const& used = {}, Vt<uintptr_t> const& free = {}) {
+      //return bucket<T>(used, free);
+    //};
 
-    };
+    // workaround for JavaCpp
+     //static decltype(auto) make(SVt<T, Vt> const& used, SVt<uintptr_t, Vt> const& free = {}) {
+      //return bucket<T>(used, free);
+    //};
+
+    // workaround for JavaCpp
+     //static decltype(auto) make(bucket_<T, Vt, SVt> const& buck) {
+      //return bucket<T>(buck);
+    //};
 
     // 
     inline decltype(auto) add(T const& e) {
