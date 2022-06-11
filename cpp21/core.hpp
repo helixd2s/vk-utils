@@ -19,7 +19,7 @@
 
 // 
 #ifdef USE_CMAKE_PCH
-#include <cmake_pch.hxx>
+#include <cmake_pch.hpp>
 #else
 #include <vector>
 #include <string>

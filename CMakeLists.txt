@@ -77,10 +77,13 @@ target_link_directories(${PROJECT_NAME} PUBLIC
 )
 
 #
-set (HSOURCES "cpp21/core.hpp")
+set (HSOURCES "${PROJECT_SOURCE_DIR}/cpp21/core.hpp")
 
 #
-ADD_MSVC_PRECOMPILED_HEADER("cmake_pch.hxx" "cmake_pch.cxx" HSOURCES)
+ADD_MSVC_PRECOMPILED_HEADER(
+  "${PROJECT_SOURCE_DIR}/cmake_pch.hpp" 
+  "${PROJECT_SOURCE_DIR}/cmake_pch.cpp" 
+  HSOURCES)
 
 # 
 if (MSVC)
