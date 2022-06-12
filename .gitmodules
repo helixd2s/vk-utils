@@ -13,3 +13,6 @@
 [submodule "args"]
 	path = args
 	url = https://github.com/Taywee/args.git
+[submodule "itlib"]
+	path = itlib
+	url = https://github.com/iboB/itlib.git
