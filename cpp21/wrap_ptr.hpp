@@ -331,11 +331,11 @@ namespace cpp21 {
     const_wrap_arg_() {};
     const_wrap_arg_(T&& rvalue) { temp = std::move(rvalue), ptr = &temp.value(); };
     //const_wrap_arg_(T const& lvalue) : ptr(&lvalue) { temp = std::move(lvalue), const_cast<T*&>(ptr) = &temp.value(); }; // losing context
-    const_wrap_arg_(T const& lvalue) : ptr(&lvalue) {};
-    const_wrap_arg_(T const* pcvalue) : ptr(pcvalue) {};
+    const_wrap_arg_(T const& lvalue) : ptr(&lvalue) { temp = std::move(lvalue), ptr = &temp.value(); };
+    const_wrap_arg_(T const* pcvalue) : ptr(pcvalue) { temp = std::move(*pcvalue), ptr = &temp.value(); };
     const_wrap_arg_(const_wrap_arg<T> const& wvalue) : ptr(wvalue.get()) { this->temp = wvalue.temp; ptr = ((!!this->temp) ? (&const_cast<T&>(this->temp.value())) : (const_cast<T*>(wvalue.get()))); };
     const_wrap_arg_(wrap_ptr<T> const& wvalue) : ptr(wvalue.get()) {};
-    const_wrap_arg_(std::optional<T> const& lcvalue) : ptr(lcvalue ? &lcvalue.value() : nullptr) {};
+    const_wrap_arg_(std::optional<T> const& lcvalue) : ptr(lcvalue ? &lcvalue.value() : nullptr) { temp = std::move(*lcvalue), ptr = &temp.value(); };
     const_wrap_arg_(wrap_shared_ptr<T> const& wvalue) : ptr(wvalue.get()) {};
 
     //
@@ -355,10 +355,10 @@ namespace cpp21 {
     inline operator T& () { return this->ref(); };
 
     //
-    inline decltype(auto) operator=(std::optional<T> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
+    inline decltype(auto) operator=(std::optional<T> const& ref) { ptr = ref ? &ref.value() : nullptr;  temp = std::move(*ref), ptr = &temp.value(); return *this; };
     inline decltype(auto) operator=(T&& ref) { temp = std::move(ref), const_cast<T*&>(ptr) = &temp.value(); return *this; };
-    inline decltype(auto) operator=(T const& ref) { ptr = &ref; return *this; };
-    inline decltype(auto) operator=(T const* ref) { ptr = ref; return *this; };
+    inline decltype(auto) operator=(T const& ref) { temp = std::move(ref), const_cast<T*&>(ptr) = &temp.value(); return *this; };
+    inline decltype(auto) operator=(T const* ref) { temp = std::move(*ref), const_cast<T*&>(ptr) = &temp.value(); return *this; };
     inline decltype(auto) operator=(const_wrap_arg<T> const& wvalue) { temp = wvalue.temp; const_cast<T*&>(ptr) = temp ? &temp.value() : const_cast<T*&>(wvalue.ptr); return *this; };
     inline decltype(auto) operator=(wrap_ptr<T> const& ref) { ptr = ref.get(); return *this; };
     inline decltype(auto) operator=(wrap_shared_ptr<T> const& ref) { ptr = ref.get(); return *this; };
