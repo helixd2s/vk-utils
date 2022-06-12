@@ -312,9 +312,6 @@ namespace cpp21 {
     return &t;
   };
 
-  // 
-  template<class T> T& unmove(T&& t) { return t; }
-
   //
   template<class T> using obj = wrap_shared_ptr<T>;
   template<class T> using object = wrap_shared_ptr<T>;

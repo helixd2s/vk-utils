@@ -53,6 +53,8 @@
 // 
 namespace cpp21 {
 
+  template<class T> inline T& unmove(T&& t) { return t; }
+
   //
   template<typename T>
   inline void apply_permutation(std::vector<T>& v, std::vector<uintptr_t> const& order) {
@@ -142,7 +144,7 @@ namespace cpp21 {
 
   //
   template<typename T>
-  inline decltype(auto) bytesize(const typename std::vector<T>& vec) {
+  inline decltype(auto) bytesize(std::vector<T> const& vec) {
     return sizeof(T) * vec.size();
   };
 

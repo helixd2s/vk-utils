@@ -13,13 +13,13 @@ namespace cpp21 {
 
   // 
   template<
-    class T = void_t, 
+    class T = std::byte, 
     template<class Ts = T> class Sp = std::span
   > class data_view_;
 
   // 
   template<
-    class T = void_t, 
+    class T = std::byte, 
     template<class Ts = T> class Sp = std::span
   > using data_view = data_view_<decay_t<T>, Sp>;
 
@@ -96,6 +96,11 @@ namespace cpp21 {
     inline decltype(auto) operator[](uintptr_t const& index) { return (*this->ptr)[index]; };
     inline decltype(auto) operator[](uintptr_t const& index) const { return (*this->ptr)[index]; };
   };
+
+  //
+  template<class T = std::byte, class B = std::byte>
+  inline data_view<B, std::span> bytedata(std::vector<T> const& V, uintptr_t const& offset = 0ull) { return data_view<B, std::span>(reinterpret_cast<B*>(V.data()), offset, V.size() * sizeof(T)); };
+
 };
 
 #endif
