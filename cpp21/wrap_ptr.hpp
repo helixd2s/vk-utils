@@ -316,84 +316,6 @@ namespace cpp21 {
   template<class T> T& unmove(T&& t) { return t; }
 
   //
-  template<class T = void_t> class const_wrap_arg_;
-  template<class T = void_t> using const_wrap_arg = const_wrap_arg_<decay_t<T>>;
-
-  // 
-  template<class T>
-  class const_wrap_arg_ {
-  protected:
-    //using T = std::remove_cv_t<std::decay_t<std::remove_cv_t<T>>>;
-    T const* ptr = nullptr;
-    std::optional<T> temp = {};
-
-  public:
-    const_wrap_arg_() {};
-    const_wrap_arg_(T&& rvalue) { temp = std::move(rvalue), ptr = &temp.value(); };
-    //const_wrap_arg_(T const& lvalue) : ptr(&lvalue) { temp = std::move(lvalue), const_cast<T*&>(ptr) = &temp.value(); }; // losing context
-    const_wrap_arg_(T const& lvalue) : ptr(&lvalue) { temp = std::move(lvalue), ptr = &temp.value(); };
-    const_wrap_arg_(T const* pcvalue) : ptr(pcvalue) { temp = std::move(*pcvalue), ptr = &temp.value(); };
-    const_wrap_arg_(const_wrap_arg<T> const& wvalue) : ptr(wvalue.get()) { this->temp = wvalue.temp; ptr = ((!!this->temp) ? (&const_cast<T&>(this->temp.value())) : (const_cast<T*>(wvalue.get()))); };
-    const_wrap_arg_(wrap_ptr<T> const& wvalue) : ptr(wvalue.get()) {};
-    const_wrap_arg_(std::optional<T> const& lcvalue) : ptr(lcvalue ? &lcvalue.value() : nullptr) { temp = std::move(*lcvalue), ptr = &temp.value(); };
-    const_wrap_arg_(wrap_shared_ptr<T> const& wvalue) : ptr(wvalue.get()) {};
-
-    //
-    inline operator bool() const { return !!ptr; };
-    inline operator bool() { return !!ptr; };
-
-    // # isn't helping to avoid internal compiler error
-    inline operator std::optional<T>() const { return this->optional(); };
-    inline std::optional<T> optional() const { return ptr ? std::optional<T>(*ptr) : std::optional<T>{}; };
-
-    //
-    inline operator T const* () const { return this->get(); };
-    inline operator T const& () const { return this->ref(); };
-
-    //
-    inline operator T* () { return this->get(); };
-    inline operator T& () { return this->ref(); };
-
-    //
-    inline decltype(auto) operator=(std::optional<T> const& ref) { ptr = ref ? &ref.value() : nullptr;  temp = std::move(*ref), ptr = &temp.value(); return *this; };
-    inline decltype(auto) operator=(T&& ref) { temp = std::move(ref), const_cast<T*&>(ptr) = &temp.value(); return *this; };
-    inline decltype(auto) operator=(T const& ref) { temp = std::move(ref), const_cast<T*&>(ptr) = &temp.value(); return *this; };
-    inline decltype(auto) operator=(T const* ref) { temp = std::move(*ref), const_cast<T*&>(ptr) = &temp.value(); return *this; };
-    inline decltype(auto) operator=(const_wrap_arg<T> const& wvalue) { temp = wvalue.temp; const_cast<T*&>(ptr) = temp ? &temp.value() : const_cast<T*&>(wvalue.ptr); return *this; };
-    inline decltype(auto) operator=(wrap_ptr<T> const& ref) { ptr = ref.get(); return *this; };
-    inline decltype(auto) operator=(wrap_shared_ptr<T> const& ref) { ptr = ref.get(); return *this; };
-
-    // value alias
-    inline auto& value() { return *this->get(); };
-    inline auto& value() const { return *this->get(); };
-
-    // 
-    inline decltype(auto) get() const { return this->ptr; };
-    inline decltype(auto) get() { return const_cast<T*&>(this->ptr); };
-
-    //
-    inline auto& ref() const { return *this->get(); };
-    inline auto& ref() { return *this->get(); };
-
-    // accessing operator
-    inline decltype(auto) operator *() { return this->ref(); };
-    inline decltype(auto) operator *() const { return this->ref(); };
-
-    // const accessing operator
-    inline decltype(auto) operator ->() { return this->get(); };
-    inline decltype(auto) operator ->() const { return this->get(); };
-
-    // because it's reference, pointer must got directly...
-    inline decltype(auto) operator&() { return this->get(); };
-    inline decltype(auto) operator&() const { return this->get(); };
-
-    // proxy...
-    inline decltype(auto) operator[](uintptr_t const& index) const { return (*this->ptr)[index]; };
-    inline decltype(auto) operator[](uint32_t const& index) const { return (*this->ptr)[index]; };
-  };
-
-  //
-  template<class T> using carg = const_wrap_arg<T>;
   template<class T> using obj = wrap_shared_ptr<T>;
   template<class T> using object = wrap_shared_ptr<T>;
   template<class T> using wobj = wrap_weak_ptr<T>;
@@ -410,13 +332,6 @@ namespace cpp21 {
   //
   template<class Ts = void_t, class T = std::decay_t<Ts>>
   inline decltype(auto) pointer(std::optional<const T> const& ref) {
-    T* pt = const_cast<T*>(ref ? (&ref.value()) : nullptr);
-    return wrap_ptr<T>(pt);
-  };
-
-  //
-  template<class Ts = void_t, class T = std::decay_t<Ts>>
-  inline decltype(auto) pointer(const_wrap_arg<T> const& ref) {
     T* pt = const_cast<T*>(ref ? (&ref.value()) : nullptr);
     return wrap_ptr<T>(pt);
   };
