@@ -21,6 +21,9 @@
 #include "./cpp21/interval_map.hpp"
 #endif
 
+//
+#include "half.hpp"
+
 // 
 namespace cpp21 {
 };

@@ -1,5 +1,8 @@
 #pragma once
 
+//
+#include "half.hpp"
+
 // 
 #ifdef __cplusplus
 #include <vector>
