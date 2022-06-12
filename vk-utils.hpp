@@ -712,26 +712,6 @@ namespace vku {
     return P(pipelineStageMask);
   };
 
-
-  // 
-#ifdef VKU_ENABLE_TYPE_SAFE
-  namespace ts {
-    using namespace type_safe;
-  };
-#endif
-
-#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
-  template<class T = cpp21::void_t> using optional_ref = ts::optional_ref<T>;
-  CPP21_FN_ALIAS(opt_ref, ts::opt_ref);
-  CPP21_FN_ALIAS(opt_cref, ts::opt_cref);
-#else 
-  template<class T = cpp21::void_t> using optional_ref = cpp21::optional_ref<T>;
-  //inline constexpr decltype(auto) opt_ref = cpp21::opt_ref;
-  //inline constexpr decltype(auto) opt_cref = cpp21::opt_cref;
-  CPP21_FN_ALIAS(opt_ref, cpp21::opt_ref);
-  CPP21_FN_ALIAS(opt_cref, cpp21::opt_cref);
-#endif
-
   // 
   namespace unsafe {
 
@@ -829,53 +809,6 @@ namespace vku {
       };
       return found;
     };
-
-    // for Vulkan Hpp only!
-    //template<class T, class O = VkBaseInStructure>
-    /*
-    template<class T = VkBaseInStructure, class St = VkStructureType>
-    inline decltype(auto) fromChain(St const& sType, auto const& base = VkBaseOutStructure{ .pNext = nullptr }) {
-      auto& ptr = reinterpret_cast<const cpp21::wrap_ptr<const VkBaseInStructure>&>(reinterpret_cast<const VkBaseInStructure&>(base).pNext);
-      auto structure = ptr ? opt_cref(*ptr) : optional_ref<const VkBaseInStructure>{};//what
-      auto last = structure;
-      optional_ref<const T> found = {};
-
-      //
-      while (structure) {
-        last = structure;
-        if (structure.value().sType == sType) { found = opt_cref(reinterpret_cast<T&>(structure.value())); };
-        structure = structure.value().pNext ? opt_ref(*reinterpret_cast<const cpp21::wrap_ptr<VkBaseInStructure>&>(structure.value().pNext)) : optional_ref<const VkBaseInStructure>{};
-      };
-
-      //
-      return found;
-    };*/
-
-    /* // NOT POSSIBLE!
-    //
-    template<VkStructureTypeT sType>
-    inline decltype(auto) searchPtr(auto& base = VkBaseOutStructure{.sType = reinterpret_cast<VkStructureType>(sType), .pNext = nullptr}) { return searchPtr(sType, base); };
-
-    //
-    template<VkStructureTypeT sType>
-    inline decltype(auto) relocate(auto& base = VkBaseOutStructure{.sType = reinterpret_cast<VkStructureType>(sType), .pNext = nullptr}, void* const& where = nullptr) { return relocate(sType, base, where); };
-
-    //
-    template<VkStructureTypeT sType>
-    inline decltype(auto) relocate(auto& base = VkBaseOutStructure{.sType = reinterpret_cast<VkStructureType>(sType), .pNext = nullptr}, optional_ref<cpp21::wrap_ptr<cpp21::void_t>> where = {}) { return relocate(sType, base, where); };
-
-    //
-    template<VkStructureTypeT sType>
-    inline decltype(auto) chainify(auto& base = VkBaseOutStructure{.sType = reinterpret_cast<VkStructureType>(sType), .pNext = nullptr}, const void* what = nullptr, void* const& where = nullptr) { return chainify(sType, base, what, where); };
-
-    //
-    template<VkStructureTypeT sType>
-    inline decltype(auto) chainify(auto& base = VkBaseOutStructure{.sType = reinterpret_cast<VkStructureType>(sType), .pNext = nullptr}, const void* what = nullptr, optional_ref<cpp21::wrap_ptr<cpp21::void_t>> where = nullptr) { return chainify(sType, base, what, where); };
-
-    //
-    template<VkStructureTypeT sType, class T = VkBaseInStructure>
-    inline decltype(auto) fromChain(const auto& base = VkBaseOutStructure{.sType = reinterpret_cast<VkStructureType>(sType), .pNext = nullptr}) { return fromChain<T>(sType, base); };
-    */
   };
 
   // 
@@ -958,7 +891,6 @@ namespace vku {
       return shared_from_this();
     };
   };
-
 
 };
 #endif

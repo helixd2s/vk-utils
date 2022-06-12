@@ -8,10 +8,6 @@
 // 
 namespace cpp21 {
 
-  /*
-      // What is optional ref pointer? This is our implementation optional_ref from type_safe, more functional.
-  */
-
   // 
   template<class T = void_t> class optional_ref_;
   template<class T = void_t> using optional_ref = optional_ref_<decay_t<T>>;
@@ -49,18 +45,6 @@ namespace cpp21 {
     // type conversion
     //inline operator wrap_ptr<T>& () { return this->ptr; };
     //inline operator wrap_ptr<T> const& () const { return this->ptr; };
-
-    //
-#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
-    inline ts::optional_ref<T>() { return ts::opt_ref(*this->ptr); };
-    inline ts::optional_ref<const T>() const { return ts::opt_cref(*this->ptr); };
-#endif
-
-    //
-#ifdef TYPE_SAFE_OPTIONAL_REF_HPP_INCLUDED
-    inline decltype(auto) operator=(ts::optional_ref<T> const& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
-    inline decltype(auto) operator=(ts::optional_ref<T>& ref) { ptr = ref ? &ref.value() : nullptr; return *this; };
-#endif
 
     // assign const ref
     inline decltype(auto) operator=(std::optional<T> const& ref) { if (!ptr) { if (ref) { ptr = const_cast<T*>(&ref.value()); }; } else { ptr = ref ? reinterpret_cast<T*>(&ref.value()) : nullptr; }; return *this; };

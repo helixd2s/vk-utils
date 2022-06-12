@@ -44,13 +44,6 @@
 #endif
 
 // 
-#ifdef VKU_ENABLE_TYPE_SAFE
-#include <type_safe/optional_ref.hpp>
-#include <type_safe/reference.hpp>
-#include <type_safe/integer.hpp>
-#endif
-
-// 
 namespace cpp21 {
 
   template<class T> inline T& unmove(T&& t) { return t; }
@@ -87,13 +80,6 @@ namespace cpp21 {
   inline decltype(auto) NAME(Args&&... args) {\
     return CALL(args...);\
   };
-
-  // make short alias
-#ifdef VKU_ENABLE_TYPE_SAFE
-  namespace ts {
-    using namespace type_safe;
-  };
-#endif
 
   // aggregate cache
   inline auto* cache = new unsigned char[256u * 256u];
