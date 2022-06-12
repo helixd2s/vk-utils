@@ -1,7 +1,7 @@
 #pragma once
 
 //
-#include "./vk-utils.hpp"
+#include "./vk-utils.h"
 #include <vulkan/vulkan.hpp>
 
 //
