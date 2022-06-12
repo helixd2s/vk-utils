@@ -351,6 +351,38 @@ namespace cpp21 {
     return equally;
   };
 
+
+  template<class T>
+  T& pointerReAssign(T* & ptr, T const& val) {
+    if (!ptr) { ptr = const_cast<T*>(&val); } else { *ptr = val; }; return *ptr;
+  };
+
+  template<class T>
+  T& pointerReAssign(T* & ptr, T& val) {
+    if (!ptr) { ptr = &val; } else { *ptr = val; }; return *ptr;
+  };
+
+  template<class T>
+  T& pointerReAssign(T* & ptr, T&& val) {
+    if (!ptr) { ptr = &unmove(val); } else { *ptr = val; }; return *ptr;
+  };
+
+  template<class T>
+  T& pointerAssign(T* const& ptr, T& val) {
+    *ptr = val; return *ptr;
+  };
+
+  template<class T>
+  T& pointerAssign(T* const& ptr, T const& val) {
+    *ptr = val; return *ptr;
+  };
+
+  template<class T>
+  T& pointerAssign(T* const& ptr, T&& val) {
+    *ptr = val; return *ptr;
+  };
+
+
 };
 
 #endif

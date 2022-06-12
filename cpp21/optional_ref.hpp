@@ -16,22 +16,22 @@ namespace cpp21 {
   template<class T>
   class optional_ref_ {
   protected:
-    //wrap_ptr<T> ptr = nullptr;
     T* ptr = nullptr;
+    bool reallocated = false;
 
   public:
 
     // 
-    inline optional_ref_(std::optional<T> const& ref) : ptr(const_cast<T*>(ref ? &(ref.value()) : nullptr)) {};
-    inline optional_ref_(optional_ref<T> const& ref) : ptr(const_cast<T*>(ref ? &(ref.value()) : nullptr)) {};
-    inline optional_ref_(T* ref) : ptr(ref) {};
+    inline ~optional_ref_() { if (reallocated) { delete ptr; }; };
+    inline optional_ref_(std::optional<T>& ref) : ptr(const_cast<T*>(ref ? &(ref.value()) : nullptr)) {};
+    inline optional_ref_(optional_ref<T>& ref) : ptr(const_cast<T*>(ref ? &(ref.value()) : nullptr)) {};
     inline optional_ref_(T& ref) : ptr(&ref) {};
-    inline optional_ref_(T&& ref) : ptr(&unmove(ref)) {};
-    inline optional_ref_(T const& ref) : ptr(const_cast<T*>(&ref)) {};
-    inline optional_ref_(wrap_ptr<T> ref) : ptr(ref.get()) {};
+    inline optional_ref_(T&& ref) : ptr(new T(ref)), reallocated(true) {};
+    //inline optional_ref_(T const& ref) : ptr(new T(ref)), reallocated(true) {};
     inline optional_ref_() {};
 
     // check operator
+    inline operator bool() { return !!this->ptr; };
     inline operator bool() const { return !!this->ptr; };
 
     // type conversion
@@ -42,22 +42,17 @@ namespace cpp21 {
     inline operator T* () { return this->ptr; };
     inline operator T const* () const { return this->ptr; };
 
-    // type conversion
-    //inline operator wrap_ptr<T>& () { return this->ptr; };
-    //inline operator wrap_ptr<T> const& () const { return this->ptr; };
+    // assign optional const
+    inline decltype(auto) operator=(std::optional<T> const& ref) { if (ref) { pointerAssign(ptr, ref.value()); }; return *this; };
+    inline decltype(auto) operator=(optional_ref<T> const& ref) { if (ref) { pointerReAssign(ptr, ref.value()); }; return *this; };
 
-    // assign const ref
-    inline decltype(auto) operator=(std::optional<T> const& ref) { if (!ptr) { if (ref) { ptr = const_cast<T*>(&ref.value()); }; } else { ptr = ref ? reinterpret_cast<T*>(&ref.value()) : nullptr; }; return *this; };
-    inline decltype(auto) operator=(optional_ref<T> const& ref) { if (!ptr) { if (ref) { ptr = const_cast<T*>(&ref.value()); }; } else { ptr = ref ? reinterpret_cast<T*>(&ref.value()) : nullptr; }; return *this; };
+    // assign optional
+    inline decltype(auto) operator=(std::optional<T>& ref) { if (ref) { pointerAssign(ptr, ref.value()); }; return *this; };
+    inline decltype(auto) operator=(optional_ref<T>& ref) { if (ref) { pointerReAssign(ptr, ref.value()); }; return *this; };
 
-    // assign ref
-    inline decltype(auto) operator=(std::optional<T>& ref) { if (!ptr) { if (ref) { ptr = &ref.value(); }; } else { ptr = ref ? reinterpret_cast<T*>(&ref.value()) : nullptr; }; return *this; };
-    inline decltype(auto) operator=(optional_ref<T>& ref) { if (!ptr) { if (ref) { ptr = &ref.value(); }; } else { ptr = ref ? reinterpret_cast<T*>(&ref.value()) : nullptr; }; return *this; };
-
-    //
-    inline decltype(auto) operator=(wrap_ptr<T> const& ptx) { if (!ptr) { ptr = const_cast<T*>(ptx); } else { ptr = ptx; }; return *this; };
-    inline decltype(auto) operator=(T const& ref) { if (!ptr) { ptr = const_cast<T*>(&ref); } else { *ptr = ref; }; return *this; };
-    inline decltype(auto) operator=(T const* ptx) { if (!ptr) { ptr = const_cast<T*>(ptx); } else { ptr = ptx; }; return *this; };
+    // assign reference
+    inline decltype(auto) operator=(T const& ref) { pointerAssign(ptr, ref); return *this; };
+    inline decltype(auto) operator=(T& ref) { pointerAssign(ptr, ref); return *this; };
 
     // value alias
     inline decltype(auto) value() { return *this->ptr; };
