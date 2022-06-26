@@ -388,6 +388,14 @@ namespace cpp21 {
     };
 
 
+    //
+    template<typename T>
+    inline std::string to_hex_string(T n)
+    {
+        std::stringstream stream;
+        stream << std::setfill('0') << std::setw(2 * sizeof(T)) << std::hex << n;
+        return stream.str();
+    }
 };
 
 #endif
